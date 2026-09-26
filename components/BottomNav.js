@@ -1,4 +1,4 @@
-// * components/BottomNav.js — redesigned with fluid animated indicator (v50)
+// * components/BottomNav.js — fixed indicator alignment (v51)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { Surface, useTheme } from 'react-native-paper';
@@ -43,9 +43,10 @@ export default function BottomNav({ value, onChange }) {
   }, [activeIndex, indicatorX, itemProgress, value]);
 
   const slotWidth = barWidth > 0 ? (barWidth - 10) / ITEMS.length : 0;
+  const indicatorOffset = (slotWidth - 48) / 2;
   const indicatorTranslate = indicatorX.interpolate({
     inputRange: ITEMS.map((_, index) => index),
-    outputRange: ITEMS.map((_, index) => index * slotWidth),
+    outputRange: ITEMS.map((_, index) => index * slotWidth + indicatorOffset),
   });
 
   return (
