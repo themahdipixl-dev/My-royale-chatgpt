@@ -1,8 +1,9 @@
-// * components/BottomNav.js — pill nav and circular selection states (v52)
+// * components/BottomNav.js — pill nav, circular states, and spring interactions (v54)
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
 import { Surface, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AnimatedPressable from './AnimatedPressable';
 
 const ITEMS = [
   { key: 'rankings', label: 'Rankings', icon: 'trophy-outline' },
@@ -42,8 +43,8 @@ export default function BottomNav({ value, onChange }) {
     previousIndex.current = activeIndex;
   }, [activeIndex, indicatorX, itemProgress, value]);
 
-  const slotWidth = barWidth > 0 ? (barWidth - 10) / ITEMS.length : 0;
-  const indicatorOffset = (slotWidth - 48) / 2;
+  const slotWidth = barWidth > 0 ? (barWidth - 12) / ITEMS.length : 0;
+  const indicatorOffset = (slotWidth - 44) / 2;
   const indicatorTranslate = indicatorX.interpolate({
     inputRange: ITEMS.map((_, index) => index),
     outputRange: ITEMS.map((_, index) => index * slotWidth + indicatorOffset),
@@ -86,12 +87,7 @@ export default function BottomNav({ value, onChange }) {
           });
           const iconTranslateY = progress.interpolate({
             inputRange: [0, 1],
-            outputRange: [1, isHome ? -8 : -2],
-          });
-          const labelOpacity = progress;
-          const labelTranslateY = progress.interpolate({
-            inputRange: [0, 1],
-            outputRange: [4, 0],
+            outputRange: [1, isHome ? -2 : 0],
           });
           const homeOrbScale = progress.interpolate({
             inputRange: [0, 1],
@@ -99,7 +95,7 @@ export default function BottomNav({ value, onChange }) {
           });
 
           return (
-            <Pressable
+            <AnimatedPressable
               key={item.key}
               accessibilityRole="tab"
               accessibilityState={{ selected }}
@@ -162,7 +158,7 @@ export default function BottomNav({ value, onChange }) {
                   </Animated.Text>
                 )}
               </Animated.View>
-            </Pressable>
+            </AnimatedPressable>
           );
         })}
       </Surface>
@@ -179,7 +175,7 @@ const styles = StyleSheet.create({
     zIndex: 50,
   },
   bar: {
-    height: 72,
+    height: 64,
     borderRadius: 999,
     borderWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
@@ -190,14 +186,14 @@ const styles = StyleSheet.create({
   slidingIndicator: {
     position: 'absolute',
     left: 5,
-    top: 14,
-    width: 48,
+    top: 10,
+    width: 44,
     height: 44,
-    borderRadius: 999,
+    borderRadius: 22,
   },
   item: {
     flex: 1,
-    height: 72,
+    height: 64,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -210,15 +206,14 @@ const styles = StyleSheet.create({
     overflow: 'visible',
   },
   homeContent: {
-    height: 72,
+    height: 64,
     overflow: 'visible',
   },
   homeOrb: {
-    width: 58,
-    height: 58,
-    borderRadius: 999,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -10,
   },
 });
