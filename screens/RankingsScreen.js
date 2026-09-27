@@ -46,6 +46,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const [detailType, setDetailType] = useState('player');
   const swipeStart = useRef(null);
   const tabPagerX = useRef(new Animated.Value(0)).current;
+  const tabSwipeProgress = useRef(new Animated.Value(0)).current;
   const pagerWidthRef = useRef(0);
   const tabValues = ['players', 'clans', 'merge'];
 
@@ -193,7 +194,9 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
       const width = Math.max(1, pagerWidthRef.current);
       const base = -tabValues.indexOf(topTab) * width;
       const minX = -(tabValues.length - 1) * width;
-      tabPagerX.setValue(Math.max(minX, Math.min(0, base + g.dx)));
+      const nextX = Math.max(minX, Math.min(0, base + g.dx));
+      tabPagerX.setValue(nextX);
+      tabSwipeProgress.setValue(-nextX / width);
     },
     onPanResponderRelease: (_, g) => {
       const width = Math.max(1, pagerWidthRef.current);
@@ -202,11 +205,13 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
         ? Math.max(0, Math.min(tabValues.length - 1, index + (g.dx < 0 ? 1 : -1)))
         : index;
       Animated.spring(tabPagerX, { toValue: -next * width, friction: 8, tension: 72, useNativeDriver: true }).start();
+      Animated.spring(tabSwipeProgress, { toValue: next, friction: 8, tension: 72, useNativeDriver: true }).start();
       if (next !== index) handleTopTabChange(tabValues[next]);
     },
     onPanResponderTerminate: () => {
       const width = Math.max(1, pagerWidthRef.current);
       Animated.spring(tabPagerX, { toValue: -tabValues.indexOf(topTab) * width, friction: 8, tension: 72, useNativeDriver: true }).start();
+      Animated.spring(tabSwipeProgress, { toValue: tabValues.indexOf(topTab), friction: 8, tension: 72, useNativeDriver: true }).start();
     },
   })).current;
 
@@ -223,7 +228,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
       <AppHeader />
-      <TopTabs value={topTab} onChange={handleTopTabChange} clanRankingMode={clanRankingMode} onClanRankingModeChange={handleClanRankingModeChange} />
+      <TopTabs value={topTab} onChange={handleTopTabChange} clanRankingMode={clanRankingMode} onClanRankingModeChange={handleClanRankingModeChange} swipeProgress={tabSwipeProgress} />
       <LocationBar ref={locationBarRef} countries={countries} selected={selectedLocation} visible={menuVisible} onOpen={() => setMenuVisible(true)} onClose={() => setMenuVisible(false)}
         onSelect={(loc) => { setSelectedLocation(loc); setMenuVisible(false); }} selectedLimit={selectedLimit} onSelectLimit={handleSelectLimit}
         onSearchRank={handleSearchRank} searchOpen={searchOpen} onSearchOpen={() => setSearchOpen(true)} onSearchClose={() => { setSearchOpen(false); setSearchQuery(''); }}
