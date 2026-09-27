@@ -33,6 +33,7 @@ export default function TopTabs({ value, onChange, clanRankingMode, onClanRankin
   }, [entrance]);
 
   const handleTabPress = (tabValue) => { onChange(tabValue); };
+  const tabWidth = segmentedWidth > 0 ? Math.max(0, (segmentedWidth - 2 - 4) / 3) : Math.max(0, (windowWidth - 28 - 2 - 4) / 3);
 
   const tabSwipeResponder = useRef(PanResponder.create({
     onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 8 && Math.abs(g.dx) > Math.abs(g.dy) * 1.25,
@@ -61,7 +62,6 @@ export default function TopTabs({ value, onChange, clanRankingMode, onClanRankin
       Animated.spring(indicatorX, { toValue: selectedIndexRef.current, friction: 8, tension: 75, useNativeDriver: true }).start();
     },
   })).current;
-  const tabWidth = segmentedWidth > 0 ? Math.max(0, (segmentedWidth - 2 - 4) / 3) : Math.max(0, (windowWidth - 28 - 2 - 4) / 3);
   const indicatorTranslate = indicatorX.interpolate({ inputRange: [0, 1, 2], outputRange: [0, tabWidth, tabWidth * 2] });
 
   return (
@@ -70,6 +70,7 @@ export default function TopTabs({ value, onChange, clanRankingMode, onClanRankin
       transform: [{ translateY: entrance.interpolate({ inputRange: [0, 1], outputRange: [-8, 0] }) }],
     }]}>
       <View
+        {...tabSwipeResponder.panHandlers}
         onLayout={(event) => setSegmentedWidth(event.nativeEvent.layout.width)}
         style={[styles.segmentedContainer, { backgroundColor: theme.colors.surfaceContainerLow, borderColor: theme.colors.outlineVariant }]}
       >
