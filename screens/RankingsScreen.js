@@ -187,7 +187,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   }, []);
 
   const horizontalSwipeResponder = useRef(PanResponder.create({
-    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 4 && Math.abs(g.dx) > Math.abs(g.dy) * 1.1,
+    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 4 && Math.abs(g.dx) > Math.abs(g.dy) * 1.2,
     onPanResponderGrant: () => tabPagerX.stopAnimation(),
     onPanResponderMove: (_, g) => {
       const width = Math.max(1, pagerWidthRef.current);
