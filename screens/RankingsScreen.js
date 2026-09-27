@@ -1,6 +1,6 @@
-// * screens/RankingsScreen.js — Android back handling for overlays and navigation (v77)
+// * screens/RankingsScreen.js — swipe navigation and clan/player detail routing (v78)
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { View, FlatList, StyleSheet, Keyboard, RefreshControl, Animated, BackHandler } from 'react-native';
+import { View, FlatList, StyleSheet, Keyboard, RefreshControl, Animated, BackHandler, PanResponder } from 'react-native';
 import { Text, Button, IconButton, Surface, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -13,7 +13,7 @@ import ClanRow, { CLAN_ROW_HEIGHT } from '../components/ClanRow';
 import EntityPreviewModal from '../components/EntityPreviewModal';
 import EntityDetailsScreen from './EntityDetailsScreen';
 
-export default function RankingsScreen({ onRequestHome }) {
+export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const theme = useTheme();
   const [topTab, setTopTab] = useState('players');
   const [countries, setCountries] = useState([]);
@@ -44,6 +44,7 @@ export default function RankingsScreen({ onRequestHome }) {
   const [previewType, setPreviewType] = useState('player');
   const [detailEntity, setDetailEntity] = useState(null);
   const [detailType, setDetailType] = useState('player');
+  const swipeStart = useRef(null);
 
   useEffect(() => { fetchCountries().then(setCountries).catch(() => setCountries([])); }, []);
 
@@ -169,6 +170,28 @@ export default function RankingsScreen({ onRequestHome }) {
     setPreviewType(type);
   }, []);
 
+  const openClanDetails = useCallback((clan) => {
+    setPreviewEntity(null);
+    setDetailEntity(clan);
+    setDetailType('clan');
+  }, []);
+
+  const handleHorizontalSwipe = useCallback((dx, dy) => {
+    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.35) return;
+    const index = ['players', 'clans', 'merge'].indexOf(topTab);
+    if (dx < 0) {
+      if (index < 2) handleTopTabChange(['players', 'clans', 'merge'][index + 1]);
+      else onRequestBottomNext?.();
+    } else if (index > 0) {
+      handleTopTabChange(['players', 'clans', 'merge'][index - 1]);
+    }
+  }, [topTab, handleTopTabChange, onRequestBottomNext]);
+
+  const horizontalSwipeResponder = useRef(PanResponder.create({
+    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 12 && Math.abs(g.dx) > Math.abs(g.dy) * 1.35,
+    onPanResponderRelease: (_, g) => handleHorizontalSwipe(g.dx, g.dy),
+  })).current;
+
   const expandPreview = useCallback(() => {
     setDetailEntity(previewEntity);
     setDetailType(previewType);
@@ -190,7 +213,7 @@ export default function RankingsScreen({ onRequestHome }) {
         onSearchByChange={(mode) => { setSearchBy(mode); setSearchQuery(''); }} isMergeTab={topTab === 'merge'} />
 
       {!error && (
-        <View style={styles.listWrap} onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)}>
+        <View {...horizontalSwipeResponder.panHandlers} style={styles.listWrap} onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)}>
           <FlatList ref={listRef} data={displayedItems}
             keyExtractor={(item, idx) => item.tag || item.id || `${item.name || 'item'}-${item.rank ?? idx}`}
             renderItem={({ item, index }) => topTab === 'clans' && clanRankingMode === 'war'
@@ -229,7 +252,7 @@ export default function RankingsScreen({ onRequestHome }) {
         </View>
       )}
 
-      <EntityPreviewModal visible={!!previewEntity} entity={previewEntity} type={previewType} countryName={selectedLocation?.id === 'global' ? null : selectedLocation?.name} onClose={() => setPreviewEntity(null)} onExpand={expandPreview} />
+      <EntityPreviewModal visible={!!previewEntity} entity={previewEntity} type={previewType} countryName={selectedLocation?.id === 'global' ? null : selectedLocation?.name} onClose={() => setPreviewEntity(null)} onExpand={expandPreview} onClanPress={openClanDetails} />
 
       {error && <View style={styles.center}>
         <Text style={[styles.errorText, { color: theme.colors.onSurface }]}>{error}</Text>
