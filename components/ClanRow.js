@@ -49,7 +49,7 @@ export default function ClanRow({ item, index, animationKey = 0, onPress }) {
           <Image source={require('../assets/Point-icon.png')} style={styles.pointIcon} resizeMode="contain" />
           <Text style={[styles.score, { color: theme.colors.onSurface }]}>{getClanScore(item)}</Text>
         </View>
-      </Surface>
+      </Surface></Pressable>
     </Animated.View>
   );
 }
