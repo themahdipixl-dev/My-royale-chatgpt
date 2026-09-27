@@ -1,9 +1,10 @@
 // * components/EntityPreviewModal.js — compact 9-tile player preview (v83)
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Modal, Pressable, StyleSheet, View, Image, ActivityIndicator, Clipboard } from 'react-native';
+import { Animated, Modal, Pressable, StyleSheet, View, Image, ActivityIndicator } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { IconButton, Text, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { fetchPlayer, fetchPlayerBattlelog } from '../api/client';
+import { fetchPlayer } from '../api/client';
 
 const leagueIcon = require('../assets/league-icon.png');
 const pointIcon = require('../assets/Point-icon.png');
@@ -16,29 +17,6 @@ function formatNumber(value) {
   if (value === null || value === undefined || value === '') return '—';
   const number = Number(value);
   return Number.isFinite(number) ? number.toLocaleString() : String(value);
-}
-
-function getBattleResult(battle, tag) {
-  if (!battle) return '—';
-  const team = battle.team?.find((player) => player?.tag === tag) || battle.team?.[0];
-  const opponent = battle.opponent?.[0];
-
-  if (team?.trophyChange !== undefined && team?.trophyChange !== null) {
-    if (team.trophyChange > 0) return 'Win';
-    if (team.trophyChange < 0) return 'Loss';
-  }
-
-  if (battle.boatBattleWon !== undefined) return battle.boatBattleWon ? 'Win' : 'Loss';
-
-  const teamCrowns = Number(team?.crowns);
-  const opponentCrowns = Number(opponent?.crowns);
-  if (Number.isFinite(teamCrowns) && Number.isFinite(opponentCrowns)) {
-    if (teamCrowns > opponentCrowns) return 'Win';
-    if (teamCrowns < opponentCrowns) return 'Loss';
-    return 'Draw';
-  }
-
-  return '—';
 }
 
 function InfoTile({ icon, image, label, value, theme, imageUri, onPress }) {
@@ -211,7 +189,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
 
               <View style={styles.titleBlock}>
                 <Text numberOfLines={1} style={[styles.title, { color: theme.colors.onSurface }]}>{title}</Text>
-                <Pressable onPress={() => tag && Clipboard.setString(tag)} disabled={!tag}>
+                <Pressable onPress={() => tag && Clipboard.setStringAsync(tag)} disabled={!tag}>
                   <Text numberOfLines={1} style={[styles.tag, { color: theme.colors.primary }]}>{tag || 'Player'}</Text>
                 </Pressable>
               </View>
