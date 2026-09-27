@@ -1,4 +1,4 @@
-// * screens/RankingsScreen.js — jump button position update (v64)
+// * screens/RankingsScreen.js — player/clan preview and detail navigation infrastructure (v65)
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { View, FlatList, StyleSheet, Keyboard, RefreshControl, Animated } from 'react-native';
 import { Text, Button, IconButton, Surface, useTheme } from 'react-native-paper';
@@ -10,6 +10,8 @@ import LocationBar from '../components/LocationBar';
 import TopTabs from '../components/TopTabs';
 import RankRow, { ROW_HEIGHT } from '../components/RankRow';
 import ClanRow, { CLAN_ROW_HEIGHT } from '../components/ClanRow';
+import EntityPreviewModal from '../components/EntityPreviewModal';
+import EntityDetailsScreen from './EntityDetailsScreen';
 
 export default function RankingsScreen() {
   const theme = useTheme();
@@ -37,6 +39,10 @@ export default function RankingsScreen() {
   const listRef = useRef(null);
   const lastOffset = useRef(0);
   const lastDirectionOffset = useRef(0);
+  const [previewEntity, setPreviewEntity] = useState(null);
+  const [previewType, setPreviewType] = useState('player');
+  const [detailEntity, setDetailEntity] = useState(null);
+  const [detailType, setDetailType] = useState('player');
 
   useEffect(() => { fetchCountries().then(setCountries).catch(() => setCountries([])); }, []);
 
@@ -130,6 +136,21 @@ export default function RankingsScreen() {
 
   const rowHeight = topTab === 'clans' && clanRankingMode === 'war' ? CLAN_ROW_HEIGHT : ROW_HEIGHT;
 
+  const openPreview = useCallback((entity, type) => {
+    setPreviewEntity(entity);
+    setPreviewType(type);
+  }, []);
+
+  const expandPreview = useCallback(() => {
+    setDetailEntity(previewEntity);
+    setDetailType(previewType);
+    setPreviewEntity(null);
+  }, [previewEntity, previewType]);
+
+  if (detailEntity) {
+    return <EntityDetailsScreen entity={detailEntity} type={detailType} onBack={() => setDetailEntity(null)} />;
+  }
+
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
       <AppHeader />
@@ -145,8 +166,8 @@ export default function RankingsScreen() {
           <FlatList ref={listRef} data={displayedItems}
             keyExtractor={(item, idx) => item.tag || item.id || `${item.name || 'item'}-${item.rank ?? idx}`}
             renderItem={({ item, index }) => topTab === 'clans' && clanRankingMode === 'war'
-              ? <ClanRow item={item} index={index} animationKey={animationKey} />
-              : <RankRow item={item} index={index} animationKey={animationKey} />}
+              ? <ClanRow item={item} index={index} animationKey={animationKey} onPress={(entity) => openPreview(entity, 'clan')} />
+              : <RankRow item={item} index={index} animationKey={animationKey} onPress={(entity) => openPreview(entity, 'player')} />}
             contentContainerStyle={styles.listContent} style={styles.list}
             getItemLayout={(_, index) => ({ length: rowHeight, offset: rowHeight * index, index })}
             initialNumToRender={12} maxToRenderPerBatch={12} windowSize={7}
@@ -179,6 +200,8 @@ export default function RankingsScreen() {
           {loading && displayedItems.length === 0 && <View pointerEvents="none" style={styles.initialLoadingOverlay} />}
         </View>
       )}
+
+      <EntityPreviewModal visible={!!previewEntity} entity={previewEntity} type={previewType} onClose={() => setPreviewEntity(null)} onExpand={expandPreview} />
 
       {error && <View style={styles.center}>
         <Text style={[styles.errorText, { color: theme.colors.onSurface }]}>{error}</Text>
