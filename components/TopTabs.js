@@ -35,7 +35,7 @@ export default function TopTabs({ value, onChange, clanRankingMode, onClanRankin
     <Animated.View style={[styles.row, {
       opacity: entrance,
       transform: [{ translateY: entrance.interpolate({ inputRange: [0, 1], outputRange: [-8, 0] }) }],
-    }]}> { backgroundColor: theme.colors.background }]}>
+    }]}>
       <View
         onLayout={(event) => setSegmentedWidth(event.nativeEvent.layout.width)}
         style={[styles.segmentedContainer, { backgroundColor: theme.colors.surfaceContainerLow, borderColor: theme.colors.outlineVariant }]}
