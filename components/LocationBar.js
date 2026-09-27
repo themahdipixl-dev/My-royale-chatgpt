@@ -1,4 +1,4 @@
-// * components/LocationBar.js — fluid animated controls with shared spring interaction (v54)
+// * components/LocationBar.js — fluid animated controls with shared spring interaction (v55)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View, StyleSheet, Keyboard, Text, useWindowDimensions, ScrollView, Easing } from 'react-native';
 import AnimatedPressable from './AnimatedPressable';
@@ -92,7 +92,7 @@ export default function LocationBar({ countries, selected, visible, onOpen, onCl
     <Animated.View style={[styles.row, {
       opacity: entrance,
       transform: [{ translateY: entrance.interpolate({ inputRange: [0, 1], outputRange: [-7, 0] }) }],
-    }]}> { backgroundColor: theme.colors.background }]}>
+    ]}>
       <AnimatedPressable ref={countryAnchorRef} disabled={isMergeTab} onPress={() => { if (isMergeTab) return; setCountrySearch(''); countryAnchorRef.current?.measureInWindow((x, y, width, height) => { setCountryMenuPosition({ x, y: y + height, width }); onOpen(); }); }} style={[styles.control, { width: countryWidth, backgroundColor: theme.colors.surfaceContainerHighest }]} android_ripple={isMergeTab ? undefined : { color: theme.colors.onSurfaceVariant, borderless: false }}>
         <View style={styles.anchorContent}>
           {selected?.id === 'global' && <MaterialCommunityIcons name="earth" size={ICON_SIZE} color={theme.colors.onSurfaceVariant} />}
