@@ -1,4 +1,4 @@
-# Changed Files — v59
+# Changed Files — v60
 
 * components/BottomNav.js — v52: removed bottom-nav labels and converted the main bar, selected indicator, and Home orb to fully rounded/circular shapes.
 * components/AppHeader.js — v53: added a smooth entrance animation.
@@ -28,3 +28,5 @@
 * components/ClanRow.js — v58: increased row corner radius to match the rounded UI.
 
 * components/LocationBar.js — v59: vertically aligned popup search capsules with their circular close buttons, reduced capsule height, and added a clear horizontal gap between them.
+
+* components/LocationBar.js — v60: fixed the Global country item so the globe icon and Global text stay horizontally aligned.
