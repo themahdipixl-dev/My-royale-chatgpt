@@ -1,4 +1,4 @@
-// * components/LocationBar.js — fluid animated controls, popup dismissal, and aligned popup search controls, Global spacing, and pill rank presets (v62)
+// * components/LocationBar.js — fluid animated controls, popup dismissal, and aligned popup search controls, Global spacing, and balanced rank preset pills (v63)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View, StyleSheet, Keyboard, Text, useWindowDimensions, ScrollView, Easing, Pressable } from 'react-native';
 import AnimatedPressable from './AnimatedPressable';
@@ -181,10 +181,10 @@ const styles = StyleSheet.create({
   rankPopup: { width: 250, borderRadius: 22, overflow: 'hidden', position: 'absolute', paddingVertical: 4, zIndex: 1001 },
   rankSearchWrap: { flex: 1, height: 40, marginLeft: 8, marginRight: 8, borderRadius: 20, overflow: 'hidden' },
   rankSearch: { width: '100%', height: 40, backgroundColor: 'transparent' },
-  rankPresetsRow: { flexDirection: 'row', width: '100%', paddingHorizontal: 6, alignItems: 'center', justifyContent: 'space-between', gap: 6 },
-  rankItem: { flex: 1, height: 42, alignItems: 'center', justifyContent: 'center', minWidth: 0 },
+  rankPresetsRow: { flexDirection: 'row', width: '100%', paddingHorizontal: 8, paddingTop: 8, paddingBottom: 4, alignItems: 'center', justifyContent: 'space-between', gap: 6 },
+  rankItem: { flex: 1, height: 40, alignItems: 'center', justifyContent: 'center', minWidth: 0 },
   rankItemText: { fontSize: 14, textAlign: 'center' },
-  rankItemPill: { width: '100%', height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
+  rankItemPill: { width: '100%', height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   countryList: { maxHeight: 450 },
   countryItem: { width: '100%', minHeight: 48, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 12 },
   countryItemText: { fontSize: 14, flexShrink: 1 },
