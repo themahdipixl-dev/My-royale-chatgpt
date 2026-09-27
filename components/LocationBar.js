@@ -1,6 +1,6 @@
 // * components/LocationBar.js — fluid animated controls, popup dismissal, and spring interactions (v57)
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, View, StyleSheet, Keyboard, Text, useWindowDimensions, ScrollView, Easing } from 'react-native';
+import { Animated, View, StyleSheet, Keyboard, Text, useWindowDimensions, ScrollView, Easing, Pressable } from 'react-native';
 import AnimatedPressable from './AnimatedPressable';
 import { Menu, Button, IconButton, TextInput, useTheme, Divider, Portal, Surface } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -107,13 +107,15 @@ export default function LocationBar({ countries, selected, visible, onOpen, onCl
 
       {countryMenuPosition && (
         <Portal>
-          <AnimatedPressable wrapperStyle={[StyleSheet.absoluteFill, styles.backdrop]} style={styles.backdropPressable} onPress={() => { setCountrySearch(''); setCountryMenuPosition(null); onClose(); }} />
+          <Pressable style={styles.backdrop} onPress={() => { setCountrySearch(''); setCountryMenuPosition(null); onClose(); }} />
           <Animated.View style={[styles.countryPopupAnimated, popupAnimation(countryPopupAnim), { left: Math.max(8, Math.min(countryMenuPosition.x + countryMenuPosition.width / 2 - 141, windowWidth - 290)), top: countryMenuPosition.y + 4, backgroundColor: theme.colors.surfaceContainer }]}>
             <Surface elevation={4} style={[styles.countryPopupSurface, { backgroundColor: theme.colors.surfaceContainer }]}>
-              <View style={[styles.countrySearchWrap, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-                <TextInput mode="flat" value={countrySearch} onChangeText={setCountrySearch} placeholder="Search countries" left={<TextInput.Icon icon="magnify" />} style={styles.countrySearch} textColor={theme.colors.onSurface} placeholderTextColor={countrySearchFocused ? theme.colors.outline : theme.colors.onSurfaceVariant} cursorColor={theme.colors.primary} underlineColor="transparent" activeUnderlineColor="transparent" onFocus={() => setCountrySearchFocused(true)} onBlur={() => setCountrySearchFocused(false)} />
+              <View style={styles.popupHeader}>
+                <View style={[styles.countrySearchWrap, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+                  <TextInput mode="flat" value={countrySearch} onChangeText={setCountrySearch} placeholder="Search countries" left={<TextInput.Icon icon="magnify" />} style={styles.countrySearch} textColor={theme.colors.onSurface} placeholderTextColor={countrySearchFocused ? theme.colors.outline : theme.colors.onSurfaceVariant} cursorColor={theme.colors.primary} underlineColor="transparent" activeUnderlineColor="transparent" onFocus={() => setCountrySearchFocused(true)} onBlur={() => setCountrySearchFocused(false)} />
+                </View>
+                <IconButton icon="close" size={18} iconColor={theme.colors.onSurfaceVariant} onPress={() => { setCountrySearch(''); setCountryMenuPosition(null); onClose(); }} style={[styles.popupCloseCircle, { backgroundColor: theme.colors.surfaceContainerHighest }]} />
               </View>
-              <IconButton icon="close" size={19} iconColor={theme.colors.onSurfaceVariant} onPress={() => { setCountrySearch(''); setCountryMenuPosition(null); onClose(); }} style={styles.popupClose} />
               <Divider />
               <ScrollView style={styles.countryList} keyboardShouldPersistTaps="handled">
                 <AnimatedPressable wrapperStyle={styles.countryItem} style={styles.popupPressable} onPress={() => { setCountryMenuPosition(null); onClose(); onSelect({ id: 'global', name: 'Global' }); }}>
@@ -132,12 +134,14 @@ export default function LocationBar({ countries, selected, visible, onOpen, onCl
 
       {limitMenuVisible && rankMenuPosition && (
         <Portal>
-          <AnimatedPressable wrapperStyle={[StyleSheet.absoluteFill, styles.backdrop]} style={styles.backdropPressable} onPress={() => { setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} />
+          <Pressable style={styles.backdrop} onPress={() => { setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} />
           <AnimatedSurface elevation={4} style={[styles.rankPopup, popupAnimation(rankPopupAnim), { left: Math.max(8, Math.min(rankMenuPosition.x + rankMenuPosition.width / 2 - 125, windowWidth - 266)), top: rankMenuPosition.y + 4, backgroundColor: theme.colors.surfaceContainer }]}>
-            <View style={[styles.rankSearchWrap, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-              <TextInput value={rankSearch} onChangeText={(value) => setRankSearch(value.replace(/\D/g, ''))} placeholder="Search rank" left={<TextInput.Icon icon="magnify" />} right={rankSearch ? <TextInput.Icon icon="arrow-right" onPress={() => { onSearchRank?.(rankSearch); setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} /> : null} mode="flat" keyboardType="numeric" returnKeyType="search" onSubmitEditing={() => { if (!rankSearch) return; onSearchRank?.(rankSearch); setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} style={styles.rankSearch} textColor={theme.colors.onSurface} placeholderTextColor={theme.colors.onSurfaceVariant} cursorColor={theme.colors.primary} underlineColor="transparent" activeUnderlineColor="transparent" />
+            <View style={styles.popupHeader}>
+              <View style={[styles.rankSearchWrap, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+                <TextInput value={rankSearch} onChangeText={(value) => setRankSearch(value.replace(/\D/g, ''))} placeholder="Search rank" left={<TextInput.Icon icon="magnify" />} right={rankSearch ? <TextInput.Icon icon="arrow-right" onPress={() => { onSearchRank?.(rankSearch); setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} /> : null} mode="flat" keyboardType="numeric" returnKeyType="search" onSubmitEditing={() => { if (!rankSearch) return; onSearchRank?.(rankSearch); setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} style={styles.rankSearch} textColor={theme.colors.onSurface} placeholderTextColor={theme.colors.onSurfaceVariant} cursorColor={theme.colors.primary} underlineColor="transparent" activeUnderlineColor="transparent" />
+              </View>
+              <IconButton icon="close" size={18} iconColor={theme.colors.onSurfaceVariant} onPress={() => { setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} style={[styles.popupCloseCircle, { backgroundColor: theme.colors.surfaceContainerHighest }]} />
             </View>
-            <IconButton icon="close" size={19} iconColor={theme.colors.onSurfaceVariant} onPress={() => { setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} style={styles.popupClose} />
             <Divider />
             <View style={styles.rankPresetsRow}>
               {LIMITS.map((limit) => <AnimatedPressable key={limit} wrapperStyle={styles.rankItem} style={styles.popupPressable} onPress={() => { onSelectLimit(limit); setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} android_ripple={{ color: theme.colors.onSurfaceVariant }}><Text style={[styles.rankItemText, { color: theme.colors.onSurface }]}>{String(limit)}</Text></AnimatedPressable>)}
@@ -158,8 +162,8 @@ const styles = StyleSheet.create({
   control: { flexGrow: 0, flexShrink: 0, height: CONTROL_HEIGHT, borderRadius: 18, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   anchorContent: { width: '100%', paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
   anchorText: { flex: 1, fontSize: 12.5, fontWeight: '600', textAlign: 'center', transform: [{ translateY: -2 }] },
-  countrySearchWrap: { width: 250, marginHorizontal: 8, marginTop: 8, marginBottom: 6, borderRadius: 16, overflow: 'hidden' },
-  countrySearch: { width: 250, height: 44, backgroundColor: 'transparent' },
+  countrySearchWrap: { flex: 1, height: 42, marginLeft: 8, marginTop: 8, marginBottom: 6, borderRadius: 21, overflow: 'hidden' },
+  countrySearch: { width: '100%', height: 42, backgroundColor: 'transparent' },
   controlButton: { flexGrow: 0, flexShrink: 0, height: CONTROL_HEIGHT, minHeight: CONTROL_HEIGHT, borderRadius: 18, overflow: 'hidden' },
   buttonInner: { height: CONTROL_HEIGHT, width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingHorizontal: 5 },
   controlLabel: { fontSize: 12.5, fontWeight: '600', includeFontPadding: false, lineHeight: 15, transform: [{ translateY: -1 }] },
@@ -172,19 +176,19 @@ const styles = StyleSheet.create({
   searchByLabel: { fontSize: 11.5, fontWeight: '700', marginHorizontal: 0, transform: [{ translateY: -2.5 }] },
   searchClose: { margin: 0 },
   menu: { borderRadius: 16 },
-  countryPopupAnimated: { width: 282, maxHeight: 520, borderRadius: 16, overflow: 'visible', position: 'absolute', zIndex: 1001 },
-  countryPopupSurface: { width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden' },
-  rankPopup: { width: 250, borderRadius: 16, overflow: 'hidden', position: 'absolute', paddingVertical: 4, zIndex: 1001 },
-  rankSearchWrap: { width: 234, height: 44, marginHorizontal: 8, marginTop: 8, marginBottom: 6, borderRadius: 16, overflow: 'hidden' },
-  rankSearch: { width: 234, height: 44, backgroundColor: 'transparent' },
+  countryPopupAnimated: { width: 300, maxHeight: 520, borderRadius: 22, overflow: 'visible', position: 'absolute', zIndex: 1001 },
+  countryPopupSurface: { width: '100%', height: '100%', borderRadius: 22, overflow: 'hidden' },
+  rankPopup: { width: 250, borderRadius: 22, overflow: 'hidden', position: 'absolute', paddingVertical: 4, zIndex: 1001 },
+  rankSearchWrap: { flex: 1, height: 42, marginLeft: 8, marginTop: 8, marginBottom: 6, borderRadius: 21, overflow: 'hidden' },
+  rankSearch: { width: '100%', height: 42, backgroundColor: 'transparent' },
   rankPresetsRow: { flexDirection: 'row', width: '100%', paddingHorizontal: 4 },
   rankItem: { flex: 1, height: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 },
   rankItemText: { fontSize: 14, textAlign: 'center' },
   countryList: { maxHeight: 450 },
   countryItem: { width: '100%', minHeight: 48, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 12 },
   countryItemText: { fontSize: 14, flexShrink: 1 },
-  backdrop: { zIndex: 1000 },
-  backdropPressable: { backgroundColor: 'transparent' },
+  backdrop: { ...StyleSheet.absoluteFillObject, zIndex: 1000, backgroundColor: 'transparent' },
   popupPressable: { width: '100%' },
-  popupClose: { position: 'absolute', right: 2, top: 2, margin: 0, zIndex: 2 },
+  popupHeader: { width: '100%', flexDirection: 'row', alignItems: 'center' },
+  popupCloseCircle: { width: 42, height: 42, borderRadius: 21, margin: 0, marginRight: 8, marginTop: 0, marginBottom: 6, alignItems: 'center', justifyContent: 'center' },
 });
