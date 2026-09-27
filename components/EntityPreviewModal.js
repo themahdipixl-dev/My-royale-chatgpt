@@ -1,4 +1,4 @@
-// * components/EntityPreviewModal.js — compact 9-tile player preview (v79)
+// * components/EntityPreviewModal.js — compact 9-tile player preview (v80)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, View, Image, ActivityIndicator } from 'react-native';
 import { IconButton, Text, useTheme } from 'react-native-paper';
@@ -54,7 +54,7 @@ function InfoTile({ icon, image, label, value, theme, imageUri }) {
         )}
       </View>
       <Text style={[styles.tileLabel, { color: theme.colors.onSurfaceVariant }]} numberOfLines={1}>{label}</Text>
-      <Text style={[styles.tileValue, { color: theme.colors.onSurface }]} numberOfLines={2}>{value}</Text>
+      <Text style={[styles.tileValue, { color: theme.colors.onSurface }]} numberOfLines={1} ellipsizeMode="tail">{value}</Text>
     </View>
   );
 }
@@ -280,7 +280,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                   <InfoTile icon="percent" label="Win rate" value={playerLoading ? '…' : winRate} theme={theme} />
                   <InfoTile imageUri={favouriteIcon} icon="cards-outline" label="Favorite card" value={playerLoading ? '…' : favouriteName} theme={theme} />
                   <InfoTile icon="account-group" label="Clan" value={clanName || 'No clan'} theme={theme} />
-                  <InfoTile icon={lastResult === 'Win' ? 'check-circle' : lastResult === 'Loss' ? 'close-circle' : 'minus-circle'} label="Last game" value={playerLoading ? '…' : lastResult} theme={theme} />
+                  <InfoTile icon={lastResult === 'Win' ? 'check-circle' : lastResult === 'Loss' ? 'close-circle' : 'minus-circle'} label="Last game" value={playerLoading ? '…' : lastResult === 'Win' ? 'Win' : lastResult === 'Loss' ? 'Lose' : '—'} theme={theme} />
                   <InfoTile icon="trophy-outline" label="Best trophies" value={playerLoading ? '…' : formatNumber(playerData?.bestTrophies)} theme={theme} />
                 </View>
 
@@ -312,13 +312,13 @@ const styles = StyleSheet.create({
   title: { fontSize: 14, fontWeight: '700' },
   tag: { fontSize: 9.5, marginTop: 1, fontWeight: '600' },
   actionButton: { width: 34, height: 34, borderRadius: 17, margin: 0, marginLeft: 5 },
-  tilesGrid: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 7 },
-  infoTile: { width: '31.8%', flexGrow: 1, aspectRatio: 1, minWidth: 0, borderRadius: 14, padding: 7, alignItems: 'center', justifyContent: 'center' },
-  tileIcon: { width: 27, height: 27, borderRadius: 9, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
-  tileImage: { width: 18, height: 18 },
-  cardIcon: { width: 25, height: 25 },
-  tileLabel: { fontSize: 8.5, fontWeight: '600', textAlign: 'center' },
-  tileValue: { fontSize: 11, fontWeight: '800', marginTop: 2, textAlign: 'center' },
+  tilesGrid: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginTop: 6 },
+  infoTile: { width: '31.8%', flexGrow: 0, aspectRatio: 1, minWidth: 0, borderRadius: 12, padding: 5, alignItems: 'center', justifyContent: 'center' },
+  tileIcon: { width: 30, height: 30, borderRadius: 9, alignItems: 'center', justifyContent: 'center', marginBottom: 3 },
+  tileImage: { width: 23, height: 23 },
+  cardIcon: { width: 27, height: 27 },
+  tileLabel: { fontSize: 8, fontWeight: '600', textAlign: 'center' },
+  tileValue: { fontSize: 10.5, fontWeight: '800', marginTop: 2, textAlign: 'center' },
   lastMode: { fontSize: 8.5, textAlign: 'center', marginTop: 4 },
   loader: { position: 'absolute', bottom: 5, alignSelf: 'center' },
   clanBody: { flex: 1, justifyContent: 'center' },
