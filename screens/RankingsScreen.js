@@ -50,6 +50,9 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const tabPagerX = useRef(new Animated.Value(0)).current;
   const tabSwipeProgress = useRef(new Animated.Value(0)).current;
   const pagerWidthRef = useRef(0);
+  const topTabRef = useRef(topTab);
+  const handleTopTabChangeRef = useRef(null);
+  topTabRef.current = topTab;
 
   useEffect(() => { fetchCountries().then(setCountries).catch(() => setCountries([])); }, []);
 
@@ -110,6 +113,8 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
     setTopTab(nextTab); setSearchOpen(false); setSearchQuery(''); setSelectedLimit(null);
     setSearchBy(nextTab === 'clans' ? (clanRankingMode === 'war' ? 'name' : 'trophies') : 'trophies');
   }, [clanRankingMode]);
+
+  handleTopTabChangeRef.current = handleTopTabChange;
 
   const getScore = useCallback((item) => item.trophies ?? item.score ?? item.eloRating ?? item.rating ?? item.leagueNumber ?? item.points ?? '', []);
 
@@ -181,19 +186,12 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
     setDetailType('clan');
   }, []);
 
-  const handleHorizontalSwipe = useCallback((dx, dy) => {
-    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
-    const index = TAB_VALUES.indexOf(topTab);
-    const next = Math.max(0, Math.min(TAB_VALUES.length - 1, index + (dx < 0 ? 1 : -1)));
-    if (next !== index) handleTopTabChange(TAB_VALUES[next]);
-  }, [topTab, handleTopTabChange]);
-
   const horizontalSwipeResponder = useRef(PanResponder.create({
     onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 8 && Math.abs(g.dx) > Math.abs(g.dy) * 1.25,
     onPanResponderGrant: () => tabPagerX.stopAnimation(),
     onPanResponderMove: (_, g) => {
       const width = Math.max(1, pagerWidthRef.current);
-      const base = -TAB_VALUES.indexOf(topTab) * width;
+      const base = -TAB_VALUES.indexOf(topTabRef.current) * width;
       const minX = -(TAB_VALUES.length - 1) * width;
       const nextX = Math.max(minX, Math.min(0, base + g.dx));
       tabPagerX.setValue(nextX);
@@ -201,24 +199,24 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
     },
     onPanResponderRelease: (_, g) => {
       const width = Math.max(1, pagerWidthRef.current);
-      const index = TAB_VALUES.indexOf(topTab);
+      const index = TAB_VALUES.indexOf(topTabRef.current);
       const next = Math.abs(g.dx) >= width * 0.5
         ? Math.max(0, Math.min(TAB_VALUES.length - 1, index + (g.dx < 0 ? 1 : -1)))
         : index;
       Animated.spring(tabPagerX, { toValue: -next * width, friction: 8, tension: 72, useNativeDriver: true }).start();
       Animated.spring(tabSwipeProgress, { toValue: next, friction: 8, tension: 72, useNativeDriver: true }).start();
-      if (next !== index) handleTopTabChange(TAB_VALUES[next]);
+      if (next !== index) handleTopTabChangeRef.current?.(TAB_VALUES[next]);
     },
     onPanResponderTerminate: () => {
       const width = Math.max(1, pagerWidthRef.current);
-      Animated.spring(tabPagerX, { toValue: -TAB_VALUES.indexOf(topTab) * width, friction: 8, tension: 72, useNativeDriver: true }).start();
-      Animated.spring(tabSwipeProgress, { toValue: TAB_VALUES.indexOf(topTab), friction: 8, tension: 72, useNativeDriver: true }).start();
+      Animated.spring(tabPagerX, { toValue: -TAB_VALUES.indexOf(topTabRef.current) * width, friction: 8, tension: 72, useNativeDriver: true }).start();
+      Animated.spring(tabSwipeProgress, { toValue: TAB_VALUES.indexOf(topTabRef.current), friction: 8, tension: 72, useNativeDriver: true }).start();
     },
   })).current;
 
   useEffect(() => {
     if (pagerWidthRef.current <= 0) return;
-    const index = TAB_VALUES.indexOf(topTab);
+    const index = TAB_VALUES.indexOf(topTabRef.current);
     Animated.spring(tabPagerX, { toValue: -index * pagerWidthRef.current, friction: 8, tension: 72, useNativeDriver: true }).start();
     Animated.spring(tabSwipeProgress, { toValue: index, friction: 8, tension: 72, useNativeDriver: true }).start();
   }, [topTab, tabPagerX, tabSwipeProgress]);
