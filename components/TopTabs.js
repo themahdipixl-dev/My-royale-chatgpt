@@ -27,12 +27,9 @@ export default function TopTabs({ value, onChange, clanRankingMode, onClanRankin
     Animated.spring(entrance, { toValue: 1, friction: 8, tension: 55, useNativeDriver: true }).start();
   }, [entrance]);
 
-  const indicatorTranslate = indicatorX.interpolate({
-    inputRange: [0, 1, 2],
-    outputRange: [0, tabWidth, tabWidth * 2],
-  });
   const handleTabPress = (tabValue) => { onChange(tabValue); };
   const tabWidth = segmentedWidth > 0 ? Math.max(0, (segmentedWidth - 2 - 4) / 3) : Math.max(0, (windowWidth - 28 - 2 - 4) / 3);
+  const indicatorTranslate = indicatorX.interpolate({ inputRange: [0, 1, 2], outputRange: [0, tabWidth, tabWidth * 2] });
 
   return (
     <Animated.View style={[styles.row, {
