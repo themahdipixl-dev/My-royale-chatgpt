@@ -1,4 +1,4 @@
-// * screens/RankingsScreen.js — player/clan preview and detail navigation infrastructure (v67)
+// * screens/RankingsScreen.js — Android back handling for overlays and navigation (v77)
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { View, FlatList, StyleSheet, Keyboard, RefreshControl, Animated, BackHandler } from 'react-native';
 import { Text, Button, IconButton, Surface, useTheme } from 'react-native-paper';
@@ -73,7 +73,6 @@ export default function RankingsScreen({ onRequestHome }) {
 
     return () => subscription.remove();
   }, [detailEntity, previewEntity, searchOpen, onRequestHome]);
-
 
   const loadData = useCallback((locationId, type = topTab, clanMode = clanRankingMode) => {
     if (!locationId) return;
