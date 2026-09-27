@@ -49,7 +49,7 @@ export default function RankRow({ item, index, animationKey = 0, onPress }) {
           <Image source={require('../assets/Point-icon.png')} style={styles.pointIcon} resizeMode="contain" />
           <Text style={[styles.trophyText, { color: theme.colors.onSurface }]}>{getTrophies(item)}</Text>
         </View>
-      </Surface>
+      </Surface></Pressable>
     </Animated.View>
   );
 }
