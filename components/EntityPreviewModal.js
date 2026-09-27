@@ -1,4 +1,4 @@
-// * components/EntityPreviewModal.js — square player/clan preview popup with open/close animation (v69)
+// * components/EntityPreviewModal.js — animated popup and backdrop fade (v70)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, View, Image } from 'react-native';
 import { IconButton, Surface, Text, useTheme } from 'react-native-paper';
@@ -54,6 +54,7 @@ function DetailLine({ icon, image, label, value, theme }) {
 export default function EntityPreviewModal({ visible, entity, type = 'player', countryName, onClose, onExpand }) {
   const theme = useTheme();
   const progress = useRef(new Animated.Value(0)).current;
+  const backdropProgress = useRef(new Animated.Value(0)).current;
   const closing = useRef(false);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -62,7 +63,11 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
       closing.current = false;
       setModalVisible(true);
       progress.setValue(0);
-      Animated.spring(progress, { toValue: 1, friction: 9, tension: 70, useNativeDriver: true }).start();
+      backdropProgress.setValue(0);
+      Animated.parallel([
+        Animated.spring(progress, { toValue: 1, friction: 9, tension: 70, useNativeDriver: true }),
+        Animated.timing(backdropProgress, { toValue: 1, duration: 220, useNativeDriver: true }),
+      ]).start();
       return;
     }
 
@@ -79,16 +84,15 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
         }
       });
     }
-  }, [visible, entity, modalVisible, progress]);
+  }, [visible, entity, modalVisible, progress, backdropProgress]);
 
   const requestClose = () => {
     if (closing.current) return;
     closing.current = true;
-    Animated.timing(progress, {
-      toValue: 0,
-      duration: 180,
-      useNativeDriver: true,
-    }).start(({ finished }) => {
+    Animated.parallel([
+      Animated.timing(progress, { toValue: 0, duration: 180, useNativeDriver: true }),
+      Animated.timing(backdropProgress, { toValue: 0, duration: 180, useNativeDriver: true }),
+    ]).start(({ finished }) => {
       if (finished) {
         setModalVisible(false);
         closing.current = false;
@@ -133,7 +137,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   return (
     <Modal visible={modalVisible} transparent animationType="none" onRequestClose={requestClose}>
       <View style={styles.root}>
-        <Pressable style={styles.backdrop} onPress={requestClose} />
+        <Animated.View pointerEvents="box-none" style={[styles.backdrop, { opacity: backdropProgress }]}><Pressable style={StyleSheet.absoluteFill} onPress={requestClose} /></Animated.View>
         <Animated.View
           style={[
             styles.animated,
