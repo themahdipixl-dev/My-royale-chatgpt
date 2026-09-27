@@ -1,6 +1,6 @@
 // * screens/RankingsScreen.js — player/clan preview and detail navigation infrastructure (v67)
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { View, FlatList, StyleSheet, Keyboard, RefreshControl, Animated } from 'react-native';
+import { View, FlatList, StyleSheet, Keyboard, RefreshControl, Animated, BackHandler } from 'react-native';
 import { Text, Button, IconButton, Surface, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -13,7 +13,7 @@ import ClanRow, { CLAN_ROW_HEIGHT } from '../components/ClanRow';
 import EntityPreviewModal from '../components/EntityPreviewModal';
 import EntityDetailsScreen from './EntityDetailsScreen';
 
-export default function RankingsScreen() {
+export default function RankingsScreen({ onRequestHome }) {
   const theme = useTheme();
   const [topTab, setTopTab] = useState('players');
   const [countries, setCountries] = useState([]);
@@ -37,6 +37,7 @@ export default function RankingsScreen() {
   const jumpVisibility = useRef(new Animated.Value(0)).current;
   const jumpRotation = useRef(new Animated.Value(0)).current;
   const listRef = useRef(null);
+  const locationBarRef = useRef(null);
   const lastOffset = useRef(0);
   const lastDirectionOffset = useRef(0);
   const [previewEntity, setPreviewEntity] = useState(null);
@@ -45,6 +46,34 @@ export default function RankingsScreen() {
   const [detailType, setDetailType] = useState('player');
 
   useEffect(() => { fetchCountries().then(setCountries).catch(() => setCountries([])); }, []);
+
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (detailEntity) return false;
+
+      if (previewEntity) {
+        setPreviewEntity(null);
+        return true;
+      }
+
+      if (locationBarRef.current?.handleBack?.()) {
+        return true;
+      }
+
+      if (searchOpen) {
+        setSearchOpen(false);
+        setSearchQuery('');
+        Keyboard.dismiss();
+        return true;
+      }
+
+      onRequestHome?.();
+      return true;
+    });
+
+    return () => subscription.remove();
+  }, [detailEntity, previewEntity, searchOpen, onRequestHome]);
+
 
   const loadData = useCallback((locationId, type = topTab, clanMode = clanRankingMode) => {
     if (!locationId) return;
@@ -155,7 +184,7 @@ export default function RankingsScreen() {
     <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
       <AppHeader />
       <TopTabs value={topTab} onChange={handleTopTabChange} clanRankingMode={clanRankingMode} onClanRankingModeChange={handleClanRankingModeChange} />
-      <LocationBar countries={countries} selected={selectedLocation} visible={menuVisible} onOpen={() => setMenuVisible(true)} onClose={() => setMenuVisible(false)}
+      <LocationBar ref={locationBarRef} countries={countries} selected={selectedLocation} visible={menuVisible} onOpen={() => setMenuVisible(true)} onClose={() => setMenuVisible(false)}
         onSelect={(loc) => { setSelectedLocation(loc); setMenuVisible(false); }} selectedLimit={selectedLimit} onSelectLimit={handleSelectLimit}
         onSearchRank={handleSearchRank} searchOpen={searchOpen} onSearchOpen={() => setSearchOpen(true)} onSearchClose={() => { setSearchOpen(false); setSearchQuery(''); }}
         searchQuery={searchQuery} onSearchQueryChange={setSearchQuery} searchBy={searchBy}
