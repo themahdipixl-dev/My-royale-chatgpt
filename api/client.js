@@ -1,4 +1,4 @@
-// * api/client.js — changed in this revision (v42)
+// * api/client.js — player profile and battlelog helpers (v78)
 export const API_BASE = 'https://cr-rankings-api.themahdipixl.workers.dev';
 const RANKING_LIMIT = 1000;
 
@@ -16,6 +16,10 @@ async function getJson(path) {
 function getItems(data) {
   if (Array.isArray(data)) return data;
   return data?.items || data?.clans || data?.players || [];
+}
+
+function encodeTag(tag) {
+  return encodeURIComponent(String(tag || '').replace(/^%23/i, '#'));
 }
 
 export async function fetchCountries() {
@@ -36,6 +40,15 @@ export async function fetchClanRankings(locationId, limit = 100) {
 export async function fetchClanWarRankings(locationId, limit = 500) {
   const data = await getJson(`/api/rankings-clanwars?locationId=${encodeURIComponent(locationId)}&limit=${limit}`);
   return getItems(data);
+}
+
+export async function fetchPlayer(tag) {
+  return getJson(`/api/player/${encodeTag(tag)}`);
+}
+
+export async function fetchPlayerBattlelog(tag) {
+  const data = await getJson(`/api/player/${encodeTag(tag)}/battlelog`);
+  return Array.isArray(data) ? data : getItems(data);
 }
 
 const MERGE_TACTICS_LEADERBOARD_ID = 743200;
