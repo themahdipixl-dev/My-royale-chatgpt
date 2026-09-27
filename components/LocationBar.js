@@ -1,4 +1,4 @@
-// * components/LocationBar.js — fluid animated controls, popup dismissal, and spring interactions (v57)
+// * components/LocationBar.js — fluid animated controls, popup dismissal, and aligned popup search controls (v59)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View, StyleSheet, Keyboard, Text, useWindowDimensions, ScrollView, Easing, Pressable } from 'react-native';
 import AnimatedPressable from './AnimatedPressable';
@@ -162,8 +162,8 @@ const styles = StyleSheet.create({
   control: { flexGrow: 0, flexShrink: 0, height: CONTROL_HEIGHT, borderRadius: 18, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   anchorContent: { width: '100%', paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
   anchorText: { flex: 1, fontSize: 12.5, fontWeight: '600', textAlign: 'center', transform: [{ translateY: -2 }] },
-  countrySearchWrap: { flex: 1, height: 42, marginLeft: 8, marginTop: 8, marginBottom: 6, borderRadius: 21, overflow: 'hidden' },
-  countrySearch: { width: '100%', height: 42, backgroundColor: 'transparent' },
+  countrySearchWrap: { flex: 1, height: 40, marginLeft: 8, marginRight: 8, borderRadius: 20, overflow: 'hidden' },
+  countrySearch: { width: '100%', height: 40, backgroundColor: 'transparent' },
   controlButton: { flexGrow: 0, flexShrink: 0, height: CONTROL_HEIGHT, minHeight: CONTROL_HEIGHT, borderRadius: 18, overflow: 'hidden' },
   buttonInner: { height: CONTROL_HEIGHT, width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingHorizontal: 5 },
   controlLabel: { fontSize: 12.5, fontWeight: '600', includeFontPadding: false, lineHeight: 15, transform: [{ translateY: -1 }] },
@@ -179,8 +179,8 @@ const styles = StyleSheet.create({
   countryPopupAnimated: { width: 300, maxHeight: 520, borderRadius: 22, overflow: 'visible', position: 'absolute', zIndex: 1001 },
   countryPopupSurface: { width: '100%', height: '100%', borderRadius: 22, overflow: 'hidden' },
   rankPopup: { width: 250, borderRadius: 22, overflow: 'hidden', position: 'absolute', paddingVertical: 4, zIndex: 1001 },
-  rankSearchWrap: { flex: 1, height: 42, marginLeft: 8, marginTop: 8, marginBottom: 6, borderRadius: 21, overflow: 'hidden' },
-  rankSearch: { width: '100%', height: 42, backgroundColor: 'transparent' },
+  rankSearchWrap: { flex: 1, height: 40, marginLeft: 8, marginRight: 8, borderRadius: 20, overflow: 'hidden' },
+  rankSearch: { width: '100%', height: 40, backgroundColor: 'transparent' },
   rankPresetsRow: { flexDirection: 'row', width: '100%', paddingHorizontal: 4 },
   rankItem: { flex: 1, height: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 },
   rankItemText: { fontSize: 14, textAlign: 'center' },
@@ -189,6 +189,6 @@ const styles = StyleSheet.create({
   countryItemText: { fontSize: 14, flexShrink: 1 },
   backdrop: { ...StyleSheet.absoluteFillObject, zIndex: 1000, backgroundColor: 'transparent' },
   popupPressable: { width: '100%' },
-  popupHeader: { width: '100%', flexDirection: 'row', alignItems: 'center' },
-  popupCloseCircle: { width: 42, height: 42, borderRadius: 21, margin: 0, marginRight: 8, marginTop: 0, marginBottom: 6, alignItems: 'center', justifyContent: 'center' },
+  popupHeader: { width: '100%', flexDirection: 'row', alignItems: 'center', paddingVertical: 6 },
+  popupCloseCircle: { width: 40, height: 40, borderRadius: 20, margin: 0, marginRight: 8, alignItems: 'center', justifyContent: 'center' },
 });
