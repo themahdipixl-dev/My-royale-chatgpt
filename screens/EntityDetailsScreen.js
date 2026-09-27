@@ -1,6 +1,6 @@
-// * screens/EntityDetailsScreen.js — initial player/clan details page infrastructure (v65)
+// * screens/EntityDetailsScreen.js — detail page with Android back handling (v73)
 import React, { useRef, useEffect } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated, BackHandler, StyleSheet, View } from 'react-native';
 import { IconButton, Surface, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -14,6 +14,14 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   useEffect(() => {
     Animated.spring(entrance, { toValue: 1, friction: 8, tension: 55, useNativeDriver: true }).start();
   }, [entrance]);
+
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      onBack?.();
+      return true;
+    });
+    return () => subscription.remove();
+  }, [onBack]);
 
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
