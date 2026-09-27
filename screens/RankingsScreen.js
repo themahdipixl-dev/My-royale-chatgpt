@@ -187,7 +187,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   }, []);
 
   const horizontalSwipeResponder = useRef(PanResponder.create({
-    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 8 && Math.abs(g.dx) > Math.abs(g.dy) * 1.25,
+    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 4 && Math.abs(g.dx) > Math.abs(g.dy) * 1.1,
     onPanResponderGrant: () => tabPagerX.stopAnimation(),
     onPanResponderMove: (_, g) => {
       const width = Math.max(1, pagerWidthRef.current);
@@ -200,7 +200,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
     onPanResponderRelease: (_, g) => {
       const width = Math.max(1, pagerWidthRef.current);
       const index = TAB_VALUES.indexOf(topTabRef.current);
-      const next = Math.abs(g.dx) >= width * 0.5
+      const next = Math.abs(g.dx) >= width * 0.22 || Math.abs(g.vx) >= 0.45
         ? Math.max(0, Math.min(TAB_VALUES.length - 1, index + (g.dx < 0 ? 1 : -1)))
         : index;
       Animated.spring(tabPagerX, { toValue: -next * width, friction: 8, tension: 72, useNativeDriver: true }).start();
