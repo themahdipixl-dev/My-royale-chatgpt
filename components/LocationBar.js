@@ -1,4 +1,4 @@
-// * components/LocationBar.js — Android back handling for search, country, and rank overlays (v75)
+// * components/LocationBar.js — Android back handling for search, country, and rank overlays (v76)
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Animated, View, StyleSheet, Keyboard, Text, useWindowDimensions, ScrollView, Easing, Pressable } from 'react-native';
 import AnimatedPressable from './AnimatedPressable';
@@ -213,3 +213,5 @@ const styles = StyleSheet.create({
   popupHeader: { width: '100%', flexDirection: 'row', alignItems: 'center', paddingVertical: 6 },
   popupCloseCircle: { width: 40, height: 40, borderRadius: 20, margin: 0, marginRight: 8, alignItems: 'center', justifyContent: 'center' },
 });
+
+export default LocationBar;
