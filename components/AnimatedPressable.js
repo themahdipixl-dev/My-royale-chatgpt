@@ -1,9 +1,9 @@
-// * components/AnimatedPressable.js — shared spring interaction animation (v54)
+// * components/AnimatedPressable.js — shared spring interaction animation with layout wrapper support (v57)
 import React, { forwardRef, useRef } from 'react';
 import { Animated, Pressable } from 'react-native';
 
 const AnimatedPressable = forwardRef(function AnimatedPressable(
-  { children, style, disabled, onPressIn, onPressOut, ...props },
+  { children, style, wrapperStyle, disabled, onPressIn, onPressOut, ...props },
   ref
 ) {
   const scale = useRef(new Animated.Value(1)).current;
@@ -18,7 +18,7 @@ const AnimatedPressable = forwardRef(function AnimatedPressable(
   };
 
   return (
-    <Animated.View style={{ transform: [{ scale }] }}>
+    <Animated.View style={[wrapperStyle, { transform: [{ scale }] }]}>
       <Pressable
         ref={ref}
         {...props}
