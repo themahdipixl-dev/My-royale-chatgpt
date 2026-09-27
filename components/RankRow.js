@@ -1,6 +1,6 @@
-// * components/RankRow.js — changed in this revision (v58)
+// * components/RankRow.js — player row press handling infrastructure (v65)
 import React, { useEffect, useRef } from 'react';
-import { Animated, View, Text, Image, StyleSheet } from 'react-native';
+import { Animated, View, Text, Image, StyleSheet, Pressable } from 'react-native';
 import { Surface, useTheme } from 'react-native-paper';
 
 const RANK_COLORS = { 1: '#F5B942', 2: '#B8C2D1', 3: '#CD8B4F' };
@@ -12,7 +12,7 @@ function getTrophies(item) {
   return value !== undefined && value !== null ? value : '—';
 }
 
-export default function RankRow({ item, index, animationKey = 0 }) {
+export default function RankRow({ item, index, animationKey = 0, onPress }) {
   const theme = useTheme();
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(18)).current;
@@ -36,7 +36,7 @@ export default function RankRow({ item, index, animationKey = 0 }) {
 
   return (
     <Animated.View style={{ height: ROW_HEIGHT, opacity, transform: [{ translateY }, { scale }] }}>
-      <Surface style={[styles.row, { backgroundColor: theme.colors.surfaceContainer }]} elevation={0}>
+      <Pressable onPress={() => onPress?.(item)} android_ripple={{ color: theme.colors.onSurfaceVariant }}><Surface style={[styles.row, { backgroundColor: theme.colors.surfaceContainer }]} elevation={0}>
         <View style={[styles.rankBadge, badgeColor && { backgroundColor: badgeColor }]}>
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72} style={[styles.rankText, { color: badgeColor ? '#1A1300' : theme.colors.onSurfaceVariant }]}>{rank}</Text>
         </View>
