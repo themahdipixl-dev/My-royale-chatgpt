@@ -1,11 +1,12 @@
-# Changed Files — v50
+# Changed Files — v53
 
-* App.js — added app-level navigation state and mounted the new five-item bottom navigation.
-* components/BottomNav.js — added the animated Material You bottom navigation bar with five destinations and a prominent center Home action.
-* screens/HomeScreen.js — added the initial Home destination.
-* screens/ComingSoonScreen.js — added lightweight placeholder destinations for Clans, Cards, and Profile until their actual screens are built.
-* screens/RankingsScreen.js — adjusted safe-area handling and list bottom padding so the ranking list works correctly with the fixed bottom navigation.
+* components/BottomNav.js — v52: removed bottom-nav labels and converted the main bar, selected indicator, and Home orb to fully rounded/circular shapes.
+* components/AppHeader.js — v53: added a smooth entrance animation.
+* components/TopTabs.js — v53: added a spring-driven sliding selection indicator and entrance animation.
+* components/LocationBar.js — v53: added a smooth entrance animation while preserving the existing popup animations.
+* screens/HomeScreen.js — v53: added a fluid card entrance animation.
+* screens/ComingSoonScreen.js — v53: added a fluid card entrance animation.
+* components/RankRow.js — existing staggered row animation retained.
+* components/ClanRow.js — existing staggered row animation retained.
 
 `app.json` was not modified.
-
-* components/BottomNav.js — redesigned the bottom navigation with a shared sliding indicator, spring transitions, animated labels, and a smoother elevated Home interaction.
