@@ -1,4 +1,4 @@
-// * components/BottomNav.js — fixed indicator alignment (v51)
+// * components/BottomNav.js — pill nav and circular selection states (v52)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { Surface, useTheme } from 'react-native-paper';
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   },
   bar: {
     height: 72,
-    borderRadius: 26,
+    borderRadius: 999,
     borderWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
     alignItems: 'center',
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     top: 14,
     width: 48,
     height: 44,
-    borderRadius: 18,
+    borderRadius: 999,
   },
   item: {
     flex: 1,
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     height: 56,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 999,
     overflow: 'visible',
   },
   homeContent: {
@@ -216,16 +216,9 @@ const styles = StyleSheet.create({
   homeOrb: {
     width: 58,
     height: 58,
-    borderRadius: 22,
+    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: -10,
-  },
-  label: {
-    position: 'absolute',
-    bottom: 1,
-    fontSize: 9.5,
-    fontWeight: '600',
-    includeFontPadding: false,
   },
 });
