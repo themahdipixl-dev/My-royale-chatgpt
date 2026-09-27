@@ -254,12 +254,16 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
           <Animated.View style={[styles.tabPager, { width: Math.max(1, pagerWidth) * 3, transform: [{ translateX: tabPagerX }] }]}>
             {TAB_VALUES.map((tabKey) => {
               const tabItems = tabKey === 'clans' ? clans : tabKey === 'merge' ? mergers : players;
+              // Keep every non-active page visually empty during a swipe.
+              // Also hide cached data while the active tab is loading, so the
+              // destination never flashes stale/partially refreshed rows.
+              const visibleTabItems = tabKey === topTab && !loading ? tabItems : [];
               const tabRowHeight = tabKey === 'clans' && clanRankingMode === 'war' ? CLAN_ROW_HEIGHT : ROW_HEIGHT;
               return (
                 <View key={tabKey} style={[styles.tabPage, { width: Math.max(1, pagerWidth) }]}>
                   <FlatList
                     ref={tabKey === topTab ? listRef : undefined}
-                    data={tabItems}
+                    data={visibleTabItems}
                     keyExtractor={(item, idx) => item.tag || item.id || (item.name || 'item') + '-' + (item.rank ?? idx)}
                     renderItem={({ item, index }) => tabKey === 'clans' && clanRankingMode === 'war'
                       ? <ClanRow item={item} index={index} animationKey={animationKey} onPress={(entity) => openPreview(entity, 'clan')} />
@@ -274,7 +278,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
                     refreshControl={tabKey === topTab ? <RefreshControl refreshing={loading} onRefresh={() => loadData(selectedLocation?.id, tabKey)}
                       colors={[theme.colors.primary]} progressBackgroundColor={theme.colors.surfaceContainerHighest} progressViewOffset={4} tintColor={theme.colors.primary} /> : undefined}
                     keyboardShouldPersistTaps="handled"
-                    ListEmptyComponent={!loading ? <View style={styles.empty}>
+                    ListEmptyComponent={<View style={styles.empty}>
                       <MaterialCommunityIcons name={tabKey === 'clans' ? 'account-group-outline' : 'account-search-outline'} size={34} color={theme.colors.onSurfaceVariant} />
                       <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
                         {searchQuery ? 'No results found' : tabKey === 'clans' ? (clanRankingMode === 'war' ? 'No Clan Wars rankings available' : 'No Path of Legends rankings available') : tabKey === 'merge' ? 'No Merge Tactics rankings available' : 'No rankings available'}
