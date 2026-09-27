@@ -1,4 +1,4 @@
-// * screens/RankingsScreen.js — changed in this revision (v49)
+// * screens/RankingsScreen.js — jump button position update (v64)
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { View, FlatList, StyleSheet, Keyboard, RefreshControl, Animated } from 'react-native';
 import { Text, Button, IconButton, Surface, useTheme } from 'react-native-paper';
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   retry: { marginTop: 12 },
   empty: { alignItems: 'center', justifyContent: 'center', paddingTop: 28, paddingHorizontal: 24 },
   emptyText: { marginTop: 8, fontSize: 13 },
-  jumpAnimated: { position: 'absolute', right: 18, bottom: 18 },
+  jumpAnimated: { position: 'absolute', right: 18, bottom: 82 },
   jumpSurface: { width: 50, height: 50, borderRadius: 25, overflow: 'hidden' },
   jumpButton: { margin: 0, width: 50, height: 50 },
   initialLoadingOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent' },
