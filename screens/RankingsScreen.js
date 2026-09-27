@@ -205,7 +205,12 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
         : index;
       Animated.spring(tabPagerX, { toValue: -next * width, friction: 8, tension: 72, useNativeDriver: true }).start();
       Animated.spring(tabSwipeProgress, { toValue: next, friction: 8, tension: 72, useNativeDriver: true }).start();
-      if (next !== index) handleTopTabChangeRef.current?.(TAB_VALUES[next]);
+      if (next !== index) {
+        handleTopTabChangeRef.current?.(TAB_VALUES[next]);
+      } else if (index === TAB_VALUES.length - 1 && g.dx > 0) {
+        // From Mergers, a right swipe advances the bottom navigation.
+        onRequestBottomNext?.();
+      }
     },
     onPanResponderTerminate: () => {
       const width = Math.max(1, pagerWidthRef.current);
