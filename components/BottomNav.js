@@ -1,6 +1,6 @@
-// * components/BottomNav.js — fixed pill layout, circular states, and spring interactions (v57)
+// * components/BottomNav.js — fixed pill layout with swipe navigation and spring interactions (v58)
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View, PanResponder } from 'react-native';
 import { Surface, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AnimatedPressable from './AnimatedPressable';
@@ -18,6 +18,14 @@ export default function BottomNav({ value, onChange }) {
   const [barWidth, setBarWidth] = useState(0);
   const activeIndex = Math.max(0, ITEMS.findIndex((item) => item.key === value));
   const previousIndex = useRef(activeIndex);
+  const swipeResponder = useRef(PanResponder.create({
+    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 12 && Math.abs(g.dx) > Math.abs(g.dy) * 1.25,
+    onPanResponderRelease: (_, g) => {
+      if (Math.abs(g.dx) < 70) return;
+      const next = g.dx < 0 ? Math.min(ITEMS.length - 1, activeIndex + 1) : Math.max(0, activeIndex - 1);
+      if (next !== activeIndex) onChange(ITEMS[next].key);
+    },
+  })).current;
   const indicatorX = useRef(new Animated.Value(activeIndex)).current;
   const itemProgress = useRef(
     Object.fromEntries(ITEMS.map((item, index) => [item.key, new Animated.Value(index === activeIndex ? 1 : 0)]))
@@ -51,7 +59,7 @@ export default function BottomNav({ value, onChange }) {
   });
 
   return (
-    <View pointerEvents="box-none" style={styles.outer}>
+    <View {...swipeResponder.panHandlers} pointerEvents="box-none" style={styles.outer}>
       <Surface
         elevation={5}
         onLayout={(event) => setBarWidth(event.nativeEvent.layout.width)}
