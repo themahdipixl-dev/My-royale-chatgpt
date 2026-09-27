@@ -180,19 +180,34 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   }, []);
 
   const handleHorizontalSwipe = useCallback((dx, dy) => {
-    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.35) return;
-    const index = ['players', 'clans', 'merge'].indexOf(topTab);
-    if (dx < 0) {
-      if (index < 2) handleTopTabChange(['players', 'clans', 'merge'][index + 1]);
-      else onRequestBottomNext?.();
-    } else if (index > 0) {
-      handleTopTabChange(['players', 'clans', 'merge'][index - 1]);
-    }
-  }, [topTab, handleTopTabChange, onRequestBottomNext]);
+    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+    const index = tabValues.indexOf(topTab);
+    const next = Math.max(0, Math.min(tabValues.length - 1, index + (dx < 0 ? 1 : -1)));
+    if (next !== index) handleTopTabChange(tabValues[next]);
+  }, [topTab, handleTopTabChange]);
 
   const horizontalSwipeResponder = useRef(PanResponder.create({
-    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 12 && Math.abs(g.dx) > Math.abs(g.dy) * 1.35,
-    onPanResponderRelease: (_, g) => handleHorizontalSwipe(g.dx, g.dy),
+    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 8 && Math.abs(g.dx) > Math.abs(g.dy) * 1.25,
+    onPanResponderGrant: () => tabPagerX.stopAnimation(),
+    onPanResponderMove: (_, g) => {
+      const width = Math.max(1, pagerWidthRef.current);
+      const base = -tabValues.indexOf(topTab) * width;
+      const minX = -(tabValues.length - 1) * width;
+      tabPagerX.setValue(Math.max(minX, Math.min(0, base + g.dx)));
+    },
+    onPanResponderRelease: (_, g) => {
+      const width = Math.max(1, pagerWidthRef.current);
+      const index = tabValues.indexOf(topTab);
+      const next = Math.abs(g.dx) >= width * 0.5
+        ? Math.max(0, Math.min(tabValues.length - 1, index + (g.dx < 0 ? 1 : -1)))
+        : index;
+      Animated.spring(tabPagerX, { toValue: -next * width, friction: 8, tension: 72, useNativeDriver: true }).start();
+      if (next !== index) handleTopTabChange(tabValues[next]);
+    },
+    onPanResponderTerminate: () => {
+      const width = Math.max(1, pagerWidthRef.current);
+      Animated.spring(tabPagerX, { toValue: -tabValues.indexOf(topTab) * width, friction: 8, tension: 72, useNativeDriver: true }).start();
+    },
   })).current;
 
   const expandPreview = useCallback(() => {
