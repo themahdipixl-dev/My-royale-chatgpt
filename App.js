@@ -1,6 +1,6 @@
-// * App.js — changed in this revision (v49)
+// * App.js — Android back routing and English exit hint (v77)
 import React, { useEffect, useRef, useState } from 'react';
-import { BackHandler, Animated, StyleSheet, View } from 'react-native';
+import { BackHandler, Animated, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppThemeProvider } from './theme/theme';
@@ -20,6 +20,11 @@ export default function App() {
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      // RankingsScreen owns its overlays and list navigation.
+      if (activeTab === 'rankings') {
+        return false;
+      }
+
       if (activeTab !== 'home') {
         setActiveTab('home');
         return true;
@@ -90,7 +95,7 @@ export default function App() {
             ]}
           >
             <Text style={[styles.exitHintText, { color: theme.colors.inverseOnSurface }]}>
-              برای خروج باید دو بار دکمه بک رو بزنی
+              Press back twice to exit
             </Text>
           </Animated.View>
         )}
@@ -98,7 +103,6 @@ export default function App() {
     </AppThemeProvider>
   );
 }
-
 
 const styles = StyleSheet.create({
   exitHint: {
