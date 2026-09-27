@@ -1,4 +1,4 @@
-// * components/LocationBar.js — Android back handling for search, country, and rank overlays (v74)
+// * components/LocationBar.js — Android back handling for search, country, and rank overlays (v75)
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Animated, View, StyleSheet, Keyboard, Text, useWindowDimensions, ScrollView, Easing, Pressable } from 'react-native';
 import AnimatedPressable from './AnimatedPressable';
@@ -112,9 +112,7 @@ const LocationBar = forwardRef(function LocationBar({ countries, selected, visib
 
   const rowAnimationStyle = {
     opacity: entrance,
-    transform: [{
-      translateY: entrance.interpolate({ inputRange: [0, 1], outputRange: [-7, 0] }),
-    }],
+    transform: [{ translateY: entrance.interpolate({ inputRange: [0, 1], outputRange: [-7, 0] }) }],
   };
 
   return (
@@ -177,7 +175,7 @@ const LocationBar = forwardRef(function LocationBar({ countries, selected, visib
       </AnimatedPressable>
     </Animated.View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   row: { zIndex: 5, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingTop: 9, paddingBottom: 7, gap: 5, height: 56 },
