@@ -12,7 +12,7 @@ const TOP_TABS = [
 
 const CONTROL_HEIGHT = 36;
 
-export default function TopTabs({ value, onChange, clanRankingMode, onClanRankingModeChange }) {
+export default function TopTabs({ value, onChange, clanRankingMode, onClanRankingModeChange, onExternalSwipeProgress }) {
   const theme = useTheme();
   const { width: windowWidth } = useWindowDimensions();
   const [segmentedWidth, setSegmentedWidth] = useState(0);
