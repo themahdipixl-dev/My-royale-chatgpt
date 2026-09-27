@@ -283,7 +283,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
                       <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
                         {searchQuery ? 'No results found' : tabKey === 'clans' ? (clanRankingMode === 'war' ? 'No Clan Wars rankings available' : 'No Path of Legends rankings available') : tabKey === 'merge' ? 'No Merge Tactics rankings available' : 'No rankings available'}
                       </Text>
-                    </View> : null}
+                    </View>}
                   />
                 </View>
               );
