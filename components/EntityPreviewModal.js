@@ -1,5 +1,5 @@
-// * components/EntityPreviewModal.js — compact 9-tile player preview (v78)
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+// * components/EntityPreviewModal.js — compact 9-tile player preview (v79)
+import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, View, Image, ActivityIndicator } from 'react-native';
 import { IconButton, Text, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -182,12 +182,10 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   const rankedUnlocked = !!playerCurrentPol;
   const progressTrophies = rankedUnlocked ? playerCurrentPol?.trophies : playerData?.trophies;
   const progressLabel = rankedUnlocked ? 'Ranked trophies' : 'Trophy Road';
-  const winRate = useMemo(() => {
-    const wins = Number(playerData?.wins);
-    const losses = Number(playerData?.losses);
-    const total = wins + losses;
-    return total > 0 ? `${((wins / total) * 100).toFixed(1)}%` : '—';
-  }, [playerData]);
+  const wins = Number(playerData?.wins);
+  const losses = Number(playerData?.losses);
+  const totalGames = wins + losses;
+  const winRate = totalGames > 0 ? `${((wins / totalGames) * 100).toFixed(1)}%` : '—';
 
   const favouriteCard = playerData?.currentFavouriteCard;
   const favouriteName = firstValue(favouriteCard?.name, '—');
