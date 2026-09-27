@@ -1,4 +1,4 @@
-# Changed Files — v57
+# Changed Files — v58
 
 * components/BottomNav.js — v52: removed bottom-nav labels and converted the main bar, selected indicator, and Home orb to fully rounded/circular shapes.
 * components/AppHeader.js — v53: added a smooth entrance animation.
@@ -21,3 +21,8 @@
 * components/LocationBar.js — v57: fixed control/preset layout, restored outside-touch popup dismissal, and added explicit close buttons to country and rank popups.
 
 `app.json` was not modified.
+
+* components/LocationBar.js — v58: fixed outside-touch dismissal using a real full-screen Pressable backdrop; redesigned popup search headers with circular close buttons; increased popup/search corner radius; fixed country header layout.
+* components/PlayerRow.js — v58: increased row corner radius to match the rounded UI.
+* components/RankRow.js — v58: increased row corner radius to match the rounded UI.
+* components/ClanRow.js — v58: increased row corner radius to match the rounded UI.
