@@ -1,4 +1,4 @@
-// * components/LocationBar.js — fluid animated controls, popup dismissal, and aligned popup search controls (v59)
+// * components/LocationBar.js — fluid animated controls, popup dismissal, and aligned popup search controls and Global row layout (v60)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View, StyleSheet, Keyboard, Text, useWindowDimensions, ScrollView, Easing, Pressable } from 'react-native';
 import AnimatedPressable from './AnimatedPressable';
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   countryItem: { width: '100%', minHeight: 48, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 12 },
   countryItemText: { fontSize: 14, flexShrink: 1 },
   backdrop: { ...StyleSheet.absoluteFillObject, zIndex: 1000, backgroundColor: 'transparent' },
-  popupPressable: { width: '100%' },
+  popupPressable: { width: '100%', flexDirection: 'row', alignItems: 'center' },
   popupHeader: { width: '100%', flexDirection: 'row', alignItems: 'center', paddingVertical: 6 },
   popupCloseCircle: { width: 40, height: 40, borderRadius: 20, margin: 0, marginRight: 8, alignItems: 'center', justifyContent: 'center' },
 });
