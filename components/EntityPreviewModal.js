@@ -1,5 +1,5 @@
-// * components/EntityPreviewModal.js — redesigned square player/clan preview popup (v68)
-import React, { useEffect, useRef } from 'react';
+// * components/EntityPreviewModal.js — square player/clan preview popup with open/close animation (v69)
+import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, View, Image } from 'react-native';
 import { IconButton, Surface, Text, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -54,13 +54,48 @@ function DetailLine({ icon, image, label, value, theme }) {
 export default function EntityPreviewModal({ visible, entity, type = 'player', countryName, onClose, onExpand }) {
   const theme = useTheme();
   const progress = useRef(new Animated.Value(0)).current;
+  const closing = useRef(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    if (visible) {
+    if (visible && entity) {
+      closing.current = false;
+      setModalVisible(true);
       progress.setValue(0);
       Animated.spring(progress, { toValue: 1, friction: 9, tension: 70, useNativeDriver: true }).start();
+      return;
     }
-  }, [visible, progress]);
+
+    if (!visible && modalVisible && !closing.current) {
+      closing.current = true;
+      Animated.timing(progress, {
+        toValue: 0,
+        duration: 180,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (finished) {
+          setModalVisible(false);
+          closing.current = false;
+        }
+      });
+    }
+  }, [visible, entity, modalVisible, progress]);
+
+  const requestClose = () => {
+    if (closing.current) return;
+    closing.current = true;
+    Animated.timing(progress, {
+      toValue: 0,
+      duration: 180,
+      useNativeDriver: true,
+    }).start(({ finished }) => {
+      if (finished) {
+        setModalVisible(false);
+        closing.current = false;
+        onClose?.();
+      }
+    });
+  };
 
   if (!entity) return null;
 
@@ -96,9 +131,9 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   const rankLabel = rank !== null ? `#${formatNumber(rank)}` : '—';
 
   return (
-    <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
+    <Modal visible={modalVisible} transparent animationType="none" onRequestClose={requestClose}>
       <View style={styles.root}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
+        <Pressable style={styles.backdrop} onPress={requestClose} />
         <Animated.View
           style={[
             styles.animated,
@@ -139,7 +174,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                 icon="close"
                 size={20}
                 iconColor={theme.colors.onSurfaceVariant}
-                onPress={onClose}
+                onPress={requestClose}
                 style={[styles.actionButton, { backgroundColor: theme.colors.surfaceContainerHighest }]}
               />
             </View>
