@@ -71,7 +71,7 @@ export default function LocationBar({ countries, selected, visible, onOpen, onCl
       <Animated.View style={[styles.searchRow, {
         opacity: entrance,
         transform: [{ translateY: entrance.interpolate({ inputRange: [0, 1], outputRange: [-7, 0] }) }],
-      }]}> { backgroundColor: theme.colors.background }]}>
+      }]}>
         <View style={[styles.searchFieldWrap, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
           <MaterialCommunityIcons name="magnify" size={ICON_SIZE} color={theme.colors.onSurfaceVariant} />
           <TextInput ref={searchRef} mode="flat" value={searchQuery} onChangeText={onSearchQueryChange} placeholder={searchPlaceholder} placeholderTextColor={searchFocused ? theme.colors.outline : theme.colors.onSurfaceVariant} textColor={theme.colors.onSurface} cursorColor={theme.colors.primary} underlineColor="transparent" activeUnderlineColor="transparent" style={styles.searchInput} contentStyle={styles.searchInputContent} keyboardType={searchBy === 'trophies' ? 'numeric' : 'default'} returnKeyType="search" onFocus={() => setSearchFocused(true)} onBlur={() => setSearchFocused(false)} />
