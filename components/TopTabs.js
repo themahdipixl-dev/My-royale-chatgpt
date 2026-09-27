@@ -12,7 +12,7 @@ const TOP_TABS = [
 
 const CONTROL_HEIGHT = 36;
 
-export default function TopTabs({ value, onChange, clanRankingMode, onClanRankingModeChange }) {
+export default function TopTabs({ value, onChange, clanRankingMode, onClanRankingModeChange, swipeProgress }) {
   const theme = useTheme();
   const { width: windowWidth } = useWindowDimensions();
   const [segmentedWidth, setSegmentedWidth] = useState(0);
@@ -62,7 +62,8 @@ export default function TopTabs({ value, onChange, clanRankingMode, onClanRankin
       Animated.spring(indicatorX, { toValue: selectedIndexRef.current, friction: 8, tension: 75, useNativeDriver: true }).start();
     },
   })).current;
-  const indicatorTranslate = indicatorX.interpolate({ inputRange: [0, 1, 2], outputRange: [0, tabWidth, tabWidth * 2] });
+  const displayIndicator = swipeProgress || indicatorX;
+  const indicatorTranslate = displayIndicator.interpolate({ inputRange: [0, 1, 2], outputRange: [0, tabWidth, tabWidth * 2] });
 
   return (
     <Animated.View style={[styles.row, {

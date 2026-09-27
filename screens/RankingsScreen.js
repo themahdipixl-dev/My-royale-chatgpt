@@ -45,6 +45,10 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const [detailEntity, setDetailEntity] = useState(null);
   const [detailType, setDetailType] = useState('player');
   const swipeStart = useRef(null);
+  const tabPagerX = useRef(new Animated.Value(0)).current;
+  const tabSwipeProgress = useRef(new Animated.Value(0)).current;
+  const pagerWidthRef = useRef(0);
+  const tabValues = ['players', 'clans', 'merge'];
 
   useEffect(() => { fetchCountries().then(setCountries).catch(() => setCountries([])); }, []);
 
@@ -177,20 +181,46 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   }, []);
 
   const handleHorizontalSwipe = useCallback((dx, dy) => {
-    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.35) return;
-    const index = ['players', 'clans', 'merge'].indexOf(topTab);
-    if (dx < 0) {
-      if (index < 2) handleTopTabChange(['players', 'clans', 'merge'][index + 1]);
-      else onRequestBottomNext?.();
-    } else if (index > 0) {
-      handleTopTabChange(['players', 'clans', 'merge'][index - 1]);
-    }
-  }, [topTab, handleTopTabChange, onRequestBottomNext]);
+    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+    const index = tabValues.indexOf(topTab);
+    const next = Math.max(0, Math.min(tabValues.length - 1, index + (dx < 0 ? 1 : -1)));
+    if (next !== index) handleTopTabChange(tabValues[next]);
+  }, [topTab, handleTopTabChange]);
 
   const horizontalSwipeResponder = useRef(PanResponder.create({
-    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 12 && Math.abs(g.dx) > Math.abs(g.dy) * 1.35,
-    onPanResponderRelease: (_, g) => handleHorizontalSwipe(g.dx, g.dy),
+    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 8 && Math.abs(g.dx) > Math.abs(g.dy) * 1.25,
+    onPanResponderGrant: () => tabPagerX.stopAnimation(),
+    onPanResponderMove: (_, g) => {
+      const width = Math.max(1, pagerWidthRef.current);
+      const base = -tabValues.indexOf(topTab) * width;
+      const minX = -(tabValues.length - 1) * width;
+      const nextX = Math.max(minX, Math.min(0, base + g.dx));
+      tabPagerX.setValue(nextX);
+      tabSwipeProgress.setValue(-nextX / width);
+    },
+    onPanResponderRelease: (_, g) => {
+      const width = Math.max(1, pagerWidthRef.current);
+      const index = tabValues.indexOf(topTab);
+      const next = Math.abs(g.dx) >= width * 0.5
+        ? Math.max(0, Math.min(tabValues.length - 1, index + (g.dx < 0 ? 1 : -1)))
+        : index;
+      Animated.spring(tabPagerX, { toValue: -next * width, friction: 8, tension: 72, useNativeDriver: true }).start();
+      Animated.spring(tabSwipeProgress, { toValue: next, friction: 8, tension: 72, useNativeDriver: true }).start();
+      if (next !== index) handleTopTabChange(tabValues[next]);
+    },
+    onPanResponderTerminate: () => {
+      const width = Math.max(1, pagerWidthRef.current);
+      Animated.spring(tabPagerX, { toValue: -tabValues.indexOf(topTab) * width, friction: 8, tension: 72, useNativeDriver: true }).start();
+      Animated.spring(tabSwipeProgress, { toValue: tabValues.indexOf(topTab), friction: 8, tension: 72, useNativeDriver: true }).start();
+    },
   })).current;
+
+  useEffect(() => {
+    if (pagerWidthRef.current <= 0) return;
+    const index = tabValues.indexOf(topTab);
+    Animated.spring(tabPagerX, { toValue: -index * pagerWidthRef.current, friction: 8, tension: 72, useNativeDriver: true }).start();
+    Animated.spring(tabSwipeProgress, { toValue: index, friction: 8, tension: 72, useNativeDriver: true }).start();
+  }, [topTab, tabPagerX, tabSwipeProgress]);
 
   const expandPreview = useCallback(() => {
     setDetailEntity(previewEntity);
@@ -205,7 +235,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
       <AppHeader />
-      <TopTabs value={topTab} onChange={handleTopTabChange} clanRankingMode={clanRankingMode} onClanRankingModeChange={handleClanRankingModeChange} />
+      <TopTabs value={topTab} onChange={handleTopTabChange} clanRankingMode={clanRankingMode} onClanRankingModeChange={handleClanRankingModeChange} swipeProgress={tabSwipeProgress} />
       <LocationBar ref={locationBarRef} countries={countries} selected={selectedLocation} visible={menuVisible} onOpen={() => setMenuVisible(true)} onClose={() => setMenuVisible(false)}
         onSelect={(loc) => { setSelectedLocation(loc); setMenuVisible(false); }} selectedLimit={selectedLimit} onSelectLimit={handleSelectLimit}
         onSearchRank={handleSearchRank} searchOpen={searchOpen} onSearchOpen={() => setSearchOpen(true)} onSearchClose={() => { setSearchOpen(false); setSearchQuery(''); }}
@@ -213,26 +243,47 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
         onSearchByChange={(mode) => { setSearchBy(mode); setSearchQuery(''); }} isMergeTab={topTab === 'merge'} />
 
       {!error && (
-        <View {...horizontalSwipeResponder.panHandlers} style={styles.listWrap} onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)}>
-          <FlatList ref={listRef} data={displayedItems}
-            keyExtractor={(item, idx) => item.tag || item.id || `${item.name || 'item'}-${item.rank ?? idx}`}
-            renderItem={({ item, index }) => topTab === 'clans' && clanRankingMode === 'war'
-              ? <ClanRow item={item} index={index} animationKey={animationKey} onPress={(entity) => openPreview(entity, 'clan')} />
-              : <RankRow item={item} index={index} animationKey={animationKey} onPress={(entity) => openPreview(entity, 'player')} />}
-            contentContainerStyle={styles.listContent} style={styles.list}
-            getItemLayout={(_, index) => ({ length: rowHeight, offset: rowHeight * index, index })}
-            initialNumToRender={12} maxToRenderPerBatch={12} windowSize={7}
-            onScroll={handleScroll} scrollEventThrottle={16}
-            refreshControl={<RefreshControl refreshing={loading} onRefresh={() => loadData(selectedLocation?.id, topTab)}
-              colors={[theme.colors.primary]} progressBackgroundColor={theme.colors.surfaceContainerHighest} progressViewOffset={4} tintColor={theme.colors.primary} />}
-            onContentSizeChange={(_, height) => setContentHeight(height)} keyboardShouldPersistTaps="handled"
-            ListEmptyComponent={!loading ? <View style={styles.empty}>
-              <MaterialCommunityIcons name={topTab === 'clans' ? 'account-group-outline' : 'account-search-outline'} size={34} color={theme.colors.onSurfaceVariant} />
-              <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
-                {searchQuery ? 'No results found' : topTab === 'clans' ? (clanRankingMode === 'war' ? 'No Clan Wars rankings available' : 'No Path of Legends rankings available') : topTab === 'merge' ? 'No Merge Tactics rankings available' : 'No rankings available'}
-              </Text>
-            </View> : null}
-          />
+        <View
+          {...horizontalSwipeResponder.panHandlers}
+          style={styles.listWrap}
+          onLayout={(event) => {
+            setViewportHeight(event.nativeEvent.layout.height);
+            pagerWidthRef.current = event.nativeEvent.layout.width;
+          }}
+        >
+          <Animated.View style={[styles.tabPager, { width: Math.max(1, pagerWidthRef.current) * 3, transform: [{ translateX: tabPagerX }] }]}>
+            {tabValues.map((tabKey) => {
+              const tabItems = tabKey === 'clans' ? clans : tabKey === 'merge' ? mergers : players;
+              const tabRowHeight = tabKey === 'clans' && clanRankingMode === 'war' ? CLAN_ROW_HEIGHT : ROW_HEIGHT;
+              return (
+                <View key={tabKey} style={[styles.tabPage, { width: Math.max(1, pagerWidthRef.current) }]}>
+                  <FlatList
+                    ref={tabKey === topTab ? listRef : undefined}
+                    data={tabItems}
+                    keyExtractor={(item, idx) => item.tag || item.id || (item.name || 'item') + '-' + (item.rank ?? idx)}
+                    renderItem={({ item, index }) => tabKey === 'clans' && clanRankingMode === 'war'
+                      ? <ClanRow item={item} index={index} animationKey={animationKey} onPress={(entity) => openPreview(entity, 'clan')} />
+                      : <RankRow item={item} index={index} animationKey={animationKey} onPress={(entity) => openPreview(entity, 'player')} />}
+                    contentContainerStyle={styles.listContent}
+                    style={styles.list}
+                    getItemLayout={(_, index) => ({ length: tabRowHeight, offset: tabRowHeight * index, index })}
+                    initialNumToRender={12} maxToRenderPerBatch={12} windowSize={7}
+                    onScroll={tabKey === topTab ? handleScroll : undefined}
+                    scrollEventThrottle={16}
+                    refreshControl={tabKey === topTab ? <RefreshControl refreshing={loading} onRefresh={() => loadData(selectedLocation?.id, tabKey)}
+                      colors={[theme.colors.primary]} progressBackgroundColor={theme.colors.surfaceContainerHighest} progressViewOffset={4} tintColor={theme.colors.primary} /> : undefined}
+                    keyboardShouldPersistTaps="handled"
+                    ListEmptyComponent={!loading ? <View style={styles.empty}>
+                      <MaterialCommunityIcons name={tabKey === 'clans' ? 'account-group-outline' : 'account-search-outline'} size={34} color={theme.colors.onSurfaceVariant} />
+                      <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
+                        {searchQuery ? 'No results found' : tabKey === 'clans' ? (clanRankingMode === 'war' ? 'No Clan Wars rankings available' : 'No Path of Legends rankings available') : tabKey === 'merge' ? 'No Merge Tactics rankings available' : 'No rankings available'}
+                      </Text>
+                    </View> : null}
+                  />
+                </View>
+              );
+            })}
+          </Animated.View>
           {displayedItems.length > 0 && (
             <Animated.View pointerEvents={showJumpButton ? 'auto' : 'none'} style={[styles.jumpAnimated, {
               opacity: jumpVisibility,
@@ -264,7 +315,9 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  listWrap: { flex: 1, marginTop: 6, paddingTop: 0, zIndex: 0, elevation: 0 },
+  listWrap: { flex: 1, marginTop: 6, paddingTop: 0, zIndex: 0, elevation: 0, overflow: 'hidden' },
+  tabPager: { flexDirection: 'row', flex: 1 },
+  tabPage: { flex: 1 },
   list: { marginTop: 0, paddingTop: 0 },
   listContent: { paddingTop: 0, paddingBottom: 108, marginTop: 0 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
