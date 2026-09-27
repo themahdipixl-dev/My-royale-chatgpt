@@ -43,7 +43,7 @@ export default function BottomNav({ value, onChange }) {
     previousIndex.current = activeIndex;
   }, [activeIndex, indicatorX, itemProgress, value]);
 
-  const slotWidth = barWidth > 0 ? (barWidth - 12) / ITEMS.length : 0;
+  const slotWidth = barWidth > 0 ? (barWidth - 10) / ITEMS.length : 0;
   const indicatorOffset = (slotWidth - 44) / 2;
   const indicatorTranslate = indicatorX.interpolate({
     inputRange: ITEMS.map((_, index) => index),
