@@ -1,4 +1,4 @@
-// * components/ClanRow.js — changed in this revision (v48)
+// * components/ClanRow.js — changed in this revision (v58)
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View, Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -55,7 +55,7 @@ export default function ClanRow({ item, index, animationKey = 0 }) {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', height: 58, borderRadius: 14, marginHorizontal: 14, marginBottom: 6, paddingHorizontal: 9 },
+  row: { flexDirection: 'row', alignItems: 'center', height: 58, borderRadius: 18, marginHorizontal: 14, marginBottom: 6, paddingHorizontal: 9 },
   rankBadge: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginRight: 8 },
   rankText: { fontSize: 11.5, fontWeight: '700' },
   clanIcon: { width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginRight: 9 },
