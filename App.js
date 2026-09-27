@@ -1,6 +1,6 @@
 // * App.js — home as default tab and swipe navigation handoff (v78)
 import React, { useEffect, useRef, useState } from 'react';
-import { BackHandler, Animated, StyleSheet } from 'react-native';
+import { BackHandler, Animated, StyleSheet, PanResponder, useWindowDimensions } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppThemeProvider } from './theme/theme';
@@ -11,7 +11,10 @@ import BottomNav from './components/BottomNav';
 
 export default function App() {
   const theme = useTheme();
+  const { width: windowWidth } = useWindowDimensions();
   const [activeTab, setActiveTab] = useState('home');
+  const activeTabRef = useRef(activeTab);
+  activeTabRef.current = activeTab;
   const [exitHintVisible, setExitHintVisible] = useState(false);
   const exitHintProgress = useRef(new Animated.Value(0)).current;
   const exitPending = useRef(false);
@@ -68,6 +71,19 @@ export default function App() {
     };
   }, [activeTab, exitHintProgress]);
 
+  const bottomTabSwipeResponder = useRef(PanResponder.create({
+    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 4 && Math.abs(g.dx) > Math.abs(g.dy) * 1.2,
+    onPanResponderRelease: (_, g) => {
+      const order = ['rankings', 'clans', 'home', 'cards', 'profile'];
+      const index = order.indexOf(activeTabRef.current);
+      if (index < 0) return;
+      const shouldChange = Math.abs(g.dx) >= windowWidth * 0.22 || Math.abs(g.vx) >= 0.45;
+      if (!shouldChange) return;
+      const nextIndex = Math.max(0, Math.min(order.length - 1, index + (g.dx < 0 ? 1 : -1)));
+      if (nextIndex !== index) setActiveTab(order[nextIndex]);
+    },
+  })).current;
+
   const renderScreen = () => {
     if (activeTab === 'home') return <HomeScreen />;
     if (activeTab === 'rankings') return <RankingsScreen onRequestHome={() => setActiveTab('home')} onRequestBottomNext={() => setActiveTab((current) => {
@@ -81,7 +97,9 @@ export default function App() {
   return (
     <AppThemeProvider>
       <SafeAreaProvider>
-        {renderScreen()}
+        <Animated.View {...bottomTabSwipeResponder.panHandlers} style={styles.screenSwipeArea}>
+          {renderScreen()}
+        </Animated.View>
         <BottomNav value={activeTab} onChange={setActiveTab} />
         {exitHintVisible && (
           <Animated.View
@@ -109,6 +127,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  screenSwipeArea: { flex: 1 },
   exitHint: {
     position: 'absolute',
     alignSelf: 'center',
