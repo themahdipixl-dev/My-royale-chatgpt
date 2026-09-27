@@ -1,4 +1,4 @@
-# Changed Files — v61
+# Changed Files — v62
 
 * components/BottomNav.js — v52: removed bottom-nav labels and converted the main bar, selected indicator, and Home orb to fully rounded/circular shapes.
 * components/AppHeader.js — v53: added a smooth entrance animation.
@@ -32,3 +32,5 @@
 * components/LocationBar.js — v60: fixed the Global country item so the globe icon and Global text stay horizontally aligned.
 
 * components/LocationBar.js — v61: added spacing between the Global globe icon and label, and restored stable centered positioning for the 100/250/500 rank presets.
+
+* components/LocationBar.js — v62: converted 100/250/500 rank presets into individual rounded pills with centered labels and stable spacing.
