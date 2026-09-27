@@ -1,4 +1,4 @@
-# Changed Files — v58
+# Changed Files — v59
 
 * components/BottomNav.js — v52: removed bottom-nav labels and converted the main bar, selected indicator, and Home orb to fully rounded/circular shapes.
 * components/AppHeader.js — v53: added a smooth entrance animation.
@@ -26,3 +26,5 @@
 * components/PlayerRow.js — v58: increased row corner radius to match the rounded UI.
 * components/RankRow.js — v58: increased row corner radius to match the rounded UI.
 * components/ClanRow.js — v58: increased row corner radius to match the rounded UI.
+
+* components/LocationBar.js — v59: vertically aligned popup search capsules with their circular close buttons, reduced capsule height, and added a clear horizontal gap between them.
