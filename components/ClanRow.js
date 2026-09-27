@@ -1,6 +1,6 @@
-// * components/ClanRow.js — changed in this revision (v58)
+// * components/ClanRow.js — clan row press handling infrastructure (v65)
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text, View, Image } from 'react-native';
+import { Animated, StyleSheet, Text, View, Image, Pressable } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Surface, useTheme } from 'react-native-paper';
 
@@ -13,7 +13,7 @@ function getMembers(item) {
   return item.members ?? item.memberCount ?? '—';
 }
 
-export default function ClanRow({ item, index, animationKey = 0 }) {
+export default function ClanRow({ item, index, animationKey = 0, onPress }) {
   const theme = useTheme();
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(18)).current;
@@ -34,7 +34,7 @@ export default function ClanRow({ item, index, animationKey = 0 }) {
 
   return (
     <Animated.View style={{ height: CLAN_ROW_HEIGHT, opacity, transform: [{ translateY }, { scale }] }}>
-      <Surface style={[styles.row, { backgroundColor: theme.colors.surfaceContainer }]} elevation={0}>
+      <Pressable onPress={() => onPress?.(item)} android_ripple={{ color: theme.colors.onSurfaceVariant }}><Surface style={[styles.row, { backgroundColor: theme.colors.surfaceContainer }]} elevation={0}>
         <View style={[styles.rankBadge, rank <= 3 && { backgroundColor: ['#F5B942', '#B8C2D1', '#CD8B4F'][rank - 1] }]}>
           <Text style={[styles.rankText, { color: rank <= 3 ? '#1A1300' : theme.colors.onSurfaceVariant }]}>{rank}</Text>
         </View>
