@@ -1,4 +1,4 @@
-// * components/EntityPreviewModal.js — animated popup and backdrop fade (v70)
+// * components/EntityPreviewModal.js — animated square popup and stronger backdrop (v71)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, View, Image } from 'react-native';
 import { IconButton, Surface, Text, useTheme } from 'react-native-paper';
@@ -213,9 +213,9 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
 
 const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.34)' },
+  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.46)' },
   animated: { width: '88%', maxWidth: 390, aspectRatio: 1 },
-  card: { flex: 1, borderRadius: 26, padding: 14 },
+  card: { flex: 1, borderRadius: 28, padding: 14, overflow: 'hidden' },
   header: { flexDirection: 'row', alignItems: 'center' },
   entityIcon: { width: 46, height: 46, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   playerIcon: { width: 32, height: 32 },
