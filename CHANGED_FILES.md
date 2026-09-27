@@ -1,4 +1,4 @@
-# Changed Files — v65
+# Changed Files — v66
 
 * components/BottomNav.js — v52: removed bottom-nav labels and converted the main bar, selected indicator, and Home orb to fully rounded/circular shapes.
 * components/AppHeader.js — v53: added a smooth entrance animation.
@@ -44,3 +44,8 @@
 * components/RankRow.js — v65: added row press handling for player previews.
 * components/ClanRow.js — v65: added row press handling for clan previews.
 * screens/RankingsScreen.js — v65: connected player/clan rows to preview popup and expand-to-details navigation.
+
+
+* components/EntityPreviewModal.js — v66: replaced the placeholder with the real player/clan preview UI, including rank, trophies/score, country, league, members, clan, tag, and animated expand/close actions.
+
+`app.json` was not modified.
