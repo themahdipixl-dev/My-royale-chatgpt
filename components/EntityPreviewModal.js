@@ -1,4 +1,4 @@
-// * components/EntityPreviewModal.js — animated square popup without shadow (v72)
+// * components/EntityPreviewModal.js — organized square popup with back handling (v73)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, View, Image } from 'react-native';
 import { IconButton, Text, useTheme } from 'react-native-paper';
@@ -183,9 +183,28 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
               />
             </View>
 
-            <View style={styles.grid}>
-              <InfoTile image={pointIcon} label={isClan ? 'Clan score' : 'Trophies'} value={formatNumber(score)} theme={theme} />
-              <InfoTile icon="podium" label="Rank" value={rankLabel} theme={theme} />
+            <View style={styles.primaryStats}>
+              <View style={styles.primaryStat}>
+                <Image source={pointIcon} style={styles.primaryStatIcon} resizeMode="contain" />
+                <View style={styles.statText}>
+                  <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>
+                    {isClan ? 'Clan score' : 'Trophies'}
+                  </Text>
+                  <Text style={[styles.statValue, { color: theme.colors.onSurface }]} numberOfLines={1}>
+                    {formatNumber(score)}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.primaryStat}>
+                <MaterialCommunityIcons name="podium" size={22} color={theme.colors.primary} />
+                <View style={styles.statText}>
+                  <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Rank</Text>
+                  <Text style={[styles.statValue, { color: theme.colors.onSurface }]} numberOfLines={1}>{rankLabel}</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.secondaryRow}>
               <InfoTile image={leagueIcon} label={isClan ? 'War league' : 'League'} value={league || '—'} theme={theme} />
               <InfoTile icon="earth" label="Country" value={country || '—'} theme={theme} />
             </View>
@@ -202,7 +221,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
             )}
 
             <Text style={[styles.expandHint, { color: theme.colors.onSurfaceVariant }]}>
-              Expand for full profile
+              Tap expand for the full profile
             </Text>
           </View>
         </Animated.View>
@@ -223,14 +242,20 @@ const styles = StyleSheet.create({
   title: { fontSize: 16, fontWeight: '700' },
   tag: { fontSize: 11, marginTop: 2, fontWeight: '600' },
   actionButton: { width: 38, height: 38, borderRadius: 19, margin: 0, marginLeft: 6 },
-  grid: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
-  infoTile: { width: '48%', flex: 1, minHeight: 62, maxHeight: 72, borderRadius: 17, padding: 9, flexDirection: 'row', alignItems: 'center' },
+  primaryStats: { flexDirection: 'row', gap: 8, marginTop: 12 },
+  primaryStat: { flex: 1, minHeight: 72, borderRadius: 18, paddingHorizontal: 12, backgroundColor: 'rgba(127,127,127,0.10)', flexDirection: 'row', alignItems: 'center' },
+  primaryStatIcon: { width: 25, height: 25 },
+  statText: { flex: 1, marginLeft: 9, minWidth: 0 },
+  statLabel: { fontSize: 10, fontWeight: '600' },
+  statValue: { fontSize: 18, fontWeight: '800', marginTop: 2 },
+  secondaryRow: { flexDirection: 'row', gap: 8, marginTop: 8, height: 64 },
+  infoTile: { flex: 1, borderRadius: 17, padding: 9, flexDirection: 'row', alignItems: 'center' },
   tileIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginRight: 8 },
   tileImage: { width: 22, height: 22 },
   tileText: { flex: 1, minWidth: 0 },
   tileLabel: { fontSize: 9.5, fontWeight: '600' },
-  tileValue: { fontSize: 13, fontWeight: '800', marginTop: 3 },
-  detailLine: { minHeight: 48, borderRadius: 16, paddingHorizontal: 11, flexDirection: 'row', alignItems: 'center' },
+  tileValue: { fontSize: 12.5, fontWeight: '800', marginTop: 3 },
+  detailLine: { minHeight: 52, borderRadius: 17, paddingHorizontal: 11, flexDirection: 'row', alignItems: 'center' },
   detailImage: { width: 23, height: 23 },
   detailText: { flex: 1, marginLeft: 9, minWidth: 0 },
   detailLabel: { fontSize: 9.5, fontWeight: '600' },
