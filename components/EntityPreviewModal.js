@@ -1,4 +1,4 @@
-// * components/EntityPreviewModal.js — compact 9-tile player preview (v80)
+// * components/EntityPreviewModal.js — compact 9-tile player preview (v81)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, View, Image, ActivityIndicator } from 'react-native';
 import { IconButton, Text, useTheme } from 'react-native-paper';
@@ -312,13 +312,13 @@ const styles = StyleSheet.create({
   title: { fontSize: 14, fontWeight: '700' },
   tag: { fontSize: 9.5, marginTop: 1, fontWeight: '600' },
   actionButton: { width: 34, height: 34, borderRadius: 17, margin: 0, marginLeft: 5 },
-  tilesGrid: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginTop: 6 },
-  infoTile: { width: '31.8%', flexGrow: 0, aspectRatio: 1, minWidth: 0, borderRadius: 12, padding: 5, alignItems: 'center', justifyContent: 'center' },
-  tileIcon: { width: 30, height: 30, borderRadius: 9, alignItems: 'center', justifyContent: 'center', marginBottom: 3 },
-  tileImage: { width: 23, height: 23 },
-  cardIcon: { width: 27, height: 27 },
-  tileLabel: { fontSize: 8, fontWeight: '600', textAlign: 'center' },
-  tileValue: { fontSize: 10.5, fontWeight: '800', marginTop: 2, textAlign: 'center' },
+  tilesGrid: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 5, marginTop: 6 },
+  infoTile: { width: '29%', flexGrow: 0, aspectRatio: 1, minWidth: 0, borderRadius: 12, padding: 4, alignItems: 'center', justifyContent: 'center' },
+  tileIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
+  tileImage: { width: 29, height: 29 },
+  cardIcon: { width: 31, height: 31 },
+  tileLabel: { fontSize: 7.5, fontWeight: '600', textAlign: 'center' },
+  tileValue: { fontSize: 10, fontWeight: '800', marginTop: 2, textAlign: 'center' },
   lastMode: { fontSize: 8.5, textAlign: 'center', marginTop: 4 },
   loader: { position: 'absolute', bottom: 5, alignSelf: 'center' },
   clanBody: { flex: 1, justifyContent: 'center' },
