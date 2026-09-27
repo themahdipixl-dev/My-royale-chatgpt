@@ -1,4 +1,4 @@
-// * components/EntityPreviewModal.js — player/clan preview information UI (v66)
+// * components/EntityPreviewModal.js — player/clan preview information UI (v67)
 import React, { useEffect, useRef } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, View, Image } from 'react-native';
 import { IconButton, Surface, Text, useTheme } from 'react-native-paper';
@@ -33,7 +33,7 @@ function StatCard({ icon, image, label, value, theme }) {
   );
 }
 
-export default function EntityPreviewModal({ visible, entity, type = 'player', onClose, onExpand }) {
+export default function EntityPreviewModal({ visible, entity, type = 'player', countryName, onClose, onExpand }) {
   const theme = useTheme();
   const progress = useRef(new Animated.Value(0)).current;
 
@@ -60,6 +60,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', o
     typeof entity.location === 'string' ? entity.location : entity.location?.name,
     entity.locationName,
     entity.countryCode,
+    countryName,
   );
 
   const score = isClan
@@ -75,6 +76,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', o
 
   const clanName = firstValue(entity.clan?.name);
   const clanTag = firstValue(entity.clan?.tag);
+  const rankLabel = rank !== null ? `#${formatNumber(rank)}` : '—';
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
@@ -132,7 +134,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', o
 
             <View style={styles.statsRow}>
               <StatCard image={pointIcon} label={isClan ? 'Clan Score' : 'Trophies'} value={formatNumber(score)} theme={theme} />
-              <StatCard icon="podium" label="Rank" value={rank ? `#${formatNumber(rank)}` : '—'} theme={theme} />
+              <StatCard icon="podium" label="Rank" value={rankLabel} theme={theme} />
             </View>
 
             {isClan ? (
