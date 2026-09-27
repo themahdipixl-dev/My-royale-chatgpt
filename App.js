@@ -97,7 +97,10 @@ export default function App() {
   return (
     <AppThemeProvider>
       <SafeAreaProvider>
-        <Animated.View {...bottomTabSwipeResponder.panHandlers} style={styles.screenSwipeArea}>
+        <Animated.View
+          {...(activeTab === 'rankings' ? {} : bottomTabSwipeResponder.panHandlers)}
+          style={styles.screenSwipeArea}
+        >
           {renderScreen()}
         </Animated.View>
         <BottomNav value={activeTab} onChange={setActiveTab} />
