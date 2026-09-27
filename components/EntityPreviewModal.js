@@ -1,4 +1,4 @@
-// * components/EntityPreviewModal.js — compact 9-tile player preview (v81)
+// * components/EntityPreviewModal.js — compact 9-tile player preview (v82)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, View, Image, ActivityIndicator } from 'react-native';
 import { IconButton, Text, useTheme } from 'react-native-paper';
@@ -44,15 +44,13 @@ function getBattleResult(battle, tag) {
 function InfoTile({ icon, image, label, value, theme, imageUri }) {
   return (
     <View style={[styles.infoTile, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-      <View style={[styles.tileIcon, { backgroundColor: theme.colors.primaryContainer }]}>
-        {imageUri ? (
-          <Image source={{ uri: imageUri }} style={styles.cardIcon} resizeMode="contain" />
-        ) : image ? (
-          <Image source={image} style={styles.tileImage} resizeMode="contain" />
-        ) : (
-          <MaterialCommunityIcons name={icon} size={18} color={theme.colors.onPrimaryContainer} />
-        )}
-      </View>
+      {imageUri ? (
+        <Image source={{ uri: imageUri }} style={styles.cardIcon} resizeMode="contain" />
+      ) : image ? (
+        <Image source={image} style={styles.tileImage} resizeMode="contain" />
+      ) : (
+        <MaterialCommunityIcons name={icon} size={27} color={theme.colors.primary} />
+      )}
       <Text style={[styles.tileLabel, { color: theme.colors.onSurfaceVariant }]} numberOfLines={1}>{label}</Text>
       <Text style={[styles.tileValue, { color: theme.colors.onSurface }]} numberOfLines={1} ellipsizeMode="tail">{value}</Text>
     </View>
@@ -276,11 +274,11 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                   <InfoTile image={pointIcon} label={progressLabel} value={playerLoading ? '…' : formatNumber(progressTrophies)} theme={theme} />
                   <InfoTile icon="podium" label="Current rank" value={playerLoading ? '…' : rankLabel} theme={theme} />
                   <InfoTile icon="trophy-award" label="Best rank" value={playerLoading ? '…' : bestRankLabel} theme={theme} />
-                  <InfoTile icon="earth" label="Country" value={country || '—'} theme={theme} />
+                  <InfoTile icon="gamepad-variant" label="Games played" value={playerLoading ? '…' : totalGames > 0 ? formatNumber(totalGames) : '—'} theme={theme} />
+                  <InfoTile icon="trophy" label="Total wins" value={playerLoading ? '…' : Number.isFinite(wins) ? formatNumber(wins) : '—'} theme={theme} />
                   <InfoTile icon="percent" label="Win rate" value={playerLoading ? '…' : winRate} theme={theme} />
                   <InfoTile imageUri={favouriteIcon} icon="cards-outline" label="Favorite card" value={playerLoading ? '…' : favouriteName} theme={theme} />
                   <InfoTile icon="account-group" label="Clan" value={clanName || 'No clan'} theme={theme} />
-                  <InfoTile icon={lastResult === 'Win' ? 'check-circle' : lastResult === 'Loss' ? 'close-circle' : 'minus-circle'} label="Last game" value={playerLoading ? '…' : lastResult === 'Win' ? 'Win' : lastResult === 'Loss' ? 'Lose' : '—'} theme={theme} />
                   <InfoTile icon="trophy-outline" label="Best trophies" value={playerLoading ? '…' : formatNumber(playerData?.bestTrophies)} theme={theme} />
                 </View>
 
@@ -314,9 +312,8 @@ const styles = StyleSheet.create({
   actionButton: { width: 34, height: 34, borderRadius: 17, margin: 0, marginLeft: 5 },
   tilesGrid: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 5, marginTop: 6 },
   infoTile: { width: '29%', flexGrow: 0, aspectRatio: 1, minWidth: 0, borderRadius: 12, padding: 4, alignItems: 'center', justifyContent: 'center' },
-  tileIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
-  tileImage: { width: 29, height: 29 },
-  cardIcon: { width: 31, height: 31 },
+  tileImage: { width: 39, height: 39, marginBottom: 1 },
+  cardIcon: { width: 41, height: 41, marginBottom: 1 },
   tileLabel: { fontSize: 7.5, fontWeight: '600', textAlign: 'center' },
   tileValue: { fontSize: 10, fontWeight: '800', marginTop: 2, textAlign: 'center' },
   lastMode: { fontSize: 8.5, textAlign: 'center', marginTop: 4 },
