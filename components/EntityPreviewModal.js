@@ -1,6 +1,6 @@
-// * components/EntityPreviewModal.js — compact 9-tile player preview (v82)
+// * components/EntityPreviewModal.js — compact 9-tile player preview (v83)
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Modal, Pressable, StyleSheet, View, Image, ActivityIndicator } from 'react-native';
+import { Animated, Modal, Pressable, StyleSheet, View, Image, ActivityIndicator, Clipboard } from 'react-native';
 import { IconButton, Text, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchPlayer, fetchPlayerBattlelog } from '../api/client';
@@ -41,9 +41,9 @@ function getBattleResult(battle, tag) {
   return '—';
 }
 
-function InfoTile({ icon, image, label, value, theme, imageUri }) {
+function InfoTile({ icon, image, label, value, theme, imageUri, onPress }) {
   return (
-    <View style={[styles.infoTile, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+    <Pressable disabled={!onPress} onPress={onPress} style={[styles.infoTile, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
       {imageUri ? (
         <Image source={{ uri: imageUri }} style={styles.cardIcon} resizeMode="contain" />
       ) : image ? (
@@ -52,19 +52,18 @@ function InfoTile({ icon, image, label, value, theme, imageUri }) {
         <MaterialCommunityIcons name={icon} size={27} color={theme.colors.primary} />
       )}
       <Text style={[styles.tileLabel, { color: theme.colors.onSurfaceVariant }]} numberOfLines={1}>{label}</Text>
-      <Text style={[styles.tileValue, { color: theme.colors.onSurface }]} numberOfLines={1} ellipsizeMode="tail">{value}</Text>
-    </View>
+      {value !== null && value !== undefined && <Text style={[styles.tileValue, { color: theme.colors.onSurface }]} numberOfLines={1} ellipsizeMode="tail">{value}</Text>}
+    </Pressable>
   );
 }
 
-export default function EntityPreviewModal({ visible, entity, type = 'player', countryName, onClose, onExpand }) {
+export default function EntityPreviewModal({ visible, entity, type = 'player', countryName, onClose, onExpand, onClanPress }) {
   const theme = useTheme();
   const progress = useRef(new Animated.Value(0)).current;
   const backdropProgress = useRef(new Animated.Value(0)).current;
   const closing = useRef(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [playerData, setPlayerData] = useState(null);
-  const [battlelog, setBattlelog] = useState([]);
   const [playerLoading, setPlayerLoading] = useState(false);
 
   const isClan = type === 'clan';
@@ -78,19 +77,13 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
     let cancelled = false;
     setPlayerLoading(true);
     setPlayerData(null);
-    setBattlelog([]);
-
-    Promise.all([
-      fetchPlayer(tag),
-      fetchPlayerBattlelog(tag).catch(() => []),
-    ]).then(([player, battles]) => {
+    Promise.all([fetchPlayer(tag)]).then(([player]) => {
       if (cancelled) return;
       setPlayerData(player);
-      setBattlelog(Array.isArray(battles) ? battles : []);
+
     }).catch(() => {
       if (!cancelled) {
         setPlayerData(null);
-        setBattlelog([]);
       }
     }).finally(() => {
       if (!cancelled) setPlayerLoading(false);
@@ -186,11 +179,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   const winRate = totalGames > 0 ? `${((wins / totalGames) * 100).toFixed(1)}%` : '—';
 
   const favouriteCard = playerData?.currentFavouriteCard;
-  const favouriteName = firstValue(favouriteCard?.name, '—');
   const favouriteIcon = favouriteCard?.iconUrls?.medium || favouriteCard?.iconUrls?.large || null;
-  const lastBattle = battlelog?.[0];
-  const lastResult = getBattleResult(lastBattle, tag);
-  const lastMode = firstValue(lastBattle?.gameMode?.name, lastBattle?.type);
 
   const rankLabel = currentRank !== null ? `#${formatNumber(currentRank)}` : '—';
   const bestRankLabel = bestRank !== null ? `#${formatNumber(bestRank)}` : '—';
@@ -222,7 +211,9 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
 
               <View style={styles.titleBlock}>
                 <Text numberOfLines={1} style={[styles.title, { color: theme.colors.onSurface }]}>{title}</Text>
-                <Text numberOfLines={1} style={[styles.tag, { color: theme.colors.primary }]}>{tag || 'Player'}</Text>
+                <Pressable onPress={() => tag && Clipboard.setString(tag)} disabled={!tag}>
+                  <Text numberOfLines={1} style={[styles.tag, { color: theme.colors.primary }]}>{tag || 'Player'}</Text>
+                </Pressable>
               </View>
 
               <IconButton
@@ -271,20 +262,16 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
             ) : (
               <>
                 <View style={styles.tilesGrid}>
-                  <InfoTile image={pointIcon} label={progressLabel} value={playerLoading ? '…' : formatNumber(progressTrophies)} theme={theme} />
+                  <InfoTile icon="trophy-outline" label={progressLabel} value={playerLoading ? '…' : formatNumber(progressTrophies)} theme={theme} />
                   <InfoTile icon="podium" label="Current rank" value={playerLoading ? '…' : rankLabel} theme={theme} />
                   <InfoTile icon="trophy-award" label="Best rank" value={playerLoading ? '…' : bestRankLabel} theme={theme} />
                   <InfoTile icon="gamepad-variant" label="Games played" value={playerLoading ? '…' : totalGames > 0 ? formatNumber(totalGames) : '—'} theme={theme} />
                   <InfoTile icon="trophy" label="Total wins" value={playerLoading ? '…' : Number.isFinite(wins) ? formatNumber(wins) : '—'} theme={theme} />
                   <InfoTile icon="percent" label="Win rate" value={playerLoading ? '…' : winRate} theme={theme} />
-                  <InfoTile imageUri={favouriteIcon} icon="cards-outline" label="Favorite card" value={playerLoading ? '…' : favouriteName} theme={theme} />
-                  <InfoTile icon="account-group" label="Clan" value={clanName || 'No clan'} theme={theme} />
+                  <InfoTile imageUri={favouriteIcon} icon="cards-outline" label="Favorite card" value={null} theme={theme} />
+                  <InfoTile icon="account-group" label="Clan" value={clanName || 'No clan'} theme={theme} onPress={clanName && clanTag ? () => onClanPress?.({ name: clanName, tag: clanTag }, 'clan') : undefined} />
                   <InfoTile icon="trophy-outline" label="Best trophies" value={playerLoading ? '…' : formatNumber(playerData?.bestTrophies)} theme={theme} />
                 </View>
-
-                {lastMode && lastResult !== '—' && (
-                  <Text style={[styles.lastMode, { color: theme.colors.onSurfaceVariant }]} numberOfLines={1}>{lastMode}</Text>
-                )}
               </>
             )}
 
@@ -310,13 +297,12 @@ const styles = StyleSheet.create({
   title: { fontSize: 14, fontWeight: '700' },
   tag: { fontSize: 9.5, marginTop: 1, fontWeight: '600' },
   actionButton: { width: 34, height: 34, borderRadius: 17, margin: 0, marginLeft: 5 },
-  tilesGrid: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 5, marginTop: 6 },
-  infoTile: { width: '29%', flexGrow: 0, aspectRatio: 1, minWidth: 0, borderRadius: 12, padding: 4, alignItems: 'center', justifyContent: 'center' },
+  tilesGrid: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', columnGap: 7, rowGap: 7, marginTop: 6 },
+  infoTile: { width: '31%', flexGrow: 0, aspectRatio: 1, minWidth: 0, borderRadius: 17, padding: 6, alignItems: 'center', justifyContent: 'center' },
   tileImage: { width: 39, height: 39, marginBottom: 1 },
-  cardIcon: { width: 41, height: 41, marginBottom: 1 },
-  tileLabel: { fontSize: 7.5, fontWeight: '600', textAlign: 'center' },
-  tileValue: { fontSize: 10, fontWeight: '800', marginTop: 2, textAlign: 'center' },
-  lastMode: { fontSize: 8.5, textAlign: 'center', marginTop: 4 },
+  cardIcon: { width: 58, height: 58, marginBottom: 2 },
+  tileLabel: { fontSize: 9, fontWeight: '600', textAlign: 'center' },
+  tileValue: { fontSize: 12, fontWeight: '800', marginTop: 3, textAlign: 'center' },
   loader: { position: 'absolute', bottom: 5, alignSelf: 'center' },
   clanBody: { flex: 1, justifyContent: 'center' },
   primaryStats: { flexDirection: 'row', gap: 7, marginTop: 9 },
