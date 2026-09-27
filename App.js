@@ -1,4 +1,4 @@
-// * App.js — Android back routing and English exit hint (v77)
+// * App.js — home as default tab and swipe navigation handoff (v78)
 import React, { useEffect, useRef, useState } from 'react';
 import { BackHandler, Animated, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
@@ -11,7 +11,7 @@ import BottomNav from './components/BottomNav';
 
 export default function App() {
   const theme = useTheme();
-  const [activeTab, setActiveTab] = useState('rankings');
+  const [activeTab, setActiveTab] = useState('home');
   const [exitHintVisible, setExitHintVisible] = useState(false);
   const exitHintProgress = useRef(new Animated.Value(0)).current;
   const exitPending = useRef(false);
@@ -70,7 +70,11 @@ export default function App() {
 
   const renderScreen = () => {
     if (activeTab === 'home') return <HomeScreen />;
-    if (activeTab === 'rankings') return <RankingsScreen onRequestHome={() => setActiveTab('home')} />;
+    if (activeTab === 'rankings') return <RankingsScreen onRequestHome={() => setActiveTab('home')} onRequestBottomNext={() => setActiveTab((current) => {
+      const order = ['rankings', 'clans', 'home', 'cards', 'profile'];
+      const index = order.indexOf(current);
+      return order[Math.min(order.length - 1, index + 1)];
+    })} />;
     return <ComingSoonScreen type={activeTab} />;
   };
 
