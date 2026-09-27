@@ -13,6 +13,8 @@ import ClanRow, { CLAN_ROW_HEIGHT } from '../components/ClanRow';
 import EntityPreviewModal from '../components/EntityPreviewModal';
 import EntityDetailsScreen from './EntityDetailsScreen';
 
+const TAB_VALUES = ['players', 'clans', 'merge'];
+
 export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const theme = useTheme();
   const [topTab, setTopTab] = useState('players');
@@ -48,7 +50,6 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const tabPagerX = useRef(new Animated.Value(0)).current;
   const tabSwipeProgress = useRef(new Animated.Value(0)).current;
   const pagerWidthRef = useRef(0);
-  const tabValues = ['players', 'clans', 'merge'];
 
   useEffect(() => { fetchCountries().then(setCountries).catch(() => setCountries([])); }, []);
 
@@ -182,9 +183,9 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
 
   const handleHorizontalSwipe = useCallback((dx, dy) => {
     if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
-    const index = tabValues.indexOf(topTab);
-    const next = Math.max(0, Math.min(tabValues.length - 1, index + (dx < 0 ? 1 : -1)));
-    if (next !== index) handleTopTabChange(tabValues[next]);
+    const index = TAB_VALUES.indexOf(topTab);
+    const next = Math.max(0, Math.min(TAB_VALUES.length - 1, index + (dx < 0 ? 1 : -1)));
+    if (next !== index) handleTopTabChange(TAB_VALUES[next]);
   }, [topTab, handleTopTabChange]);
 
   const horizontalSwipeResponder = useRef(PanResponder.create({
@@ -192,32 +193,32 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
     onPanResponderGrant: () => tabPagerX.stopAnimation(),
     onPanResponderMove: (_, g) => {
       const width = Math.max(1, pagerWidthRef.current);
-      const base = -tabValues.indexOf(topTab) * width;
-      const minX = -(tabValues.length - 1) * width;
+      const base = -TAB_VALUES.indexOf(topTab) * width;
+      const minX = -(TAB_VALUES.length - 1) * width;
       const nextX = Math.max(minX, Math.min(0, base + g.dx));
       tabPagerX.setValue(nextX);
       tabSwipeProgress.setValue(-nextX / width);
     },
     onPanResponderRelease: (_, g) => {
       const width = Math.max(1, pagerWidthRef.current);
-      const index = tabValues.indexOf(topTab);
+      const index = TAB_VALUES.indexOf(topTab);
       const next = Math.abs(g.dx) >= width * 0.5
-        ? Math.max(0, Math.min(tabValues.length - 1, index + (g.dx < 0 ? 1 : -1)))
+        ? Math.max(0, Math.min(TAB_VALUES.length - 1, index + (g.dx < 0 ? 1 : -1)))
         : index;
       Animated.spring(tabPagerX, { toValue: -next * width, friction: 8, tension: 72, useNativeDriver: true }).start();
       Animated.spring(tabSwipeProgress, { toValue: next, friction: 8, tension: 72, useNativeDriver: true }).start();
-      if (next !== index) handleTopTabChange(tabValues[next]);
+      if (next !== index) handleTopTabChange(TAB_VALUES[next]);
     },
     onPanResponderTerminate: () => {
       const width = Math.max(1, pagerWidthRef.current);
-      Animated.spring(tabPagerX, { toValue: -tabValues.indexOf(topTab) * width, friction: 8, tension: 72, useNativeDriver: true }).start();
-      Animated.spring(tabSwipeProgress, { toValue: tabValues.indexOf(topTab), friction: 8, tension: 72, useNativeDriver: true }).start();
+      Animated.spring(tabPagerX, { toValue: -TAB_VALUES.indexOf(topTab) * width, friction: 8, tension: 72, useNativeDriver: true }).start();
+      Animated.spring(tabSwipeProgress, { toValue: TAB_VALUES.indexOf(topTab), friction: 8, tension: 72, useNativeDriver: true }).start();
     },
   })).current;
 
   useEffect(() => {
     if (pagerWidthRef.current <= 0) return;
-    const index = tabValues.indexOf(topTab);
+    const index = TAB_VALUES.indexOf(topTab);
     Animated.spring(tabPagerX, { toValue: -index * pagerWidthRef.current, friction: 8, tension: 72, useNativeDriver: true }).start();
     Animated.spring(tabSwipeProgress, { toValue: index, friction: 8, tension: 72, useNativeDriver: true }).start();
   }, [topTab, tabPagerX, tabSwipeProgress]);
@@ -252,7 +253,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
           }}
         >
           <Animated.View style={[styles.tabPager, { width: Math.max(1, pagerWidthRef.current) * 3, transform: [{ translateX: tabPagerX }] }]}>
-            {tabValues.map((tabKey) => {
+            {TAB_VALUES.map((tabKey) => {
               const tabItems = tabKey === 'clans' ? clans : tabKey === 'merge' ? mergers : players;
               const tabRowHeight = tabKey === 'clans' && clanRankingMode === 'war' ? CLAN_ROW_HEIGHT : ROW_HEIGHT;
               return (
