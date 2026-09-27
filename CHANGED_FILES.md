@@ -1,4 +1,4 @@
-# Changed Files — v67
+# Changed Files — v68
 
 * components/BottomNav.js — v52: removed bottom-nav labels and converted the main bar, selected indicator, and Home orb to fully rounded/circular shapes.
 * components/AppHeader.js — v53: added a smooth entrance animation.
@@ -52,5 +52,9 @@
 
 * components/EntityPreviewModal.js — v67: finalized the compact player/clan information popup and added the selected ranking country as a fallback country value for player previews.
 * screens/RankingsScreen.js — v67: passes the selected country into the player preview popup without changing ranking/API behavior.
+
+`app.json` was not modified.
+
+* components/EntityPreviewModal.js — v68: redesigned the player/clan preview popup from scratch as a square Material You card, with a 2×2 information grid and a dedicated clan/members row; kept the expand/close actions and removed the previous loose vertical layout.
 
 `app.json` was not modified.
