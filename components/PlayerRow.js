@@ -1,3 +1,4 @@
+// * components/PlayerRow.js — rounded list row update (v58)
 import React, { useEffect, useRef } from 'react';
 import { Animated, View, StyleSheet } from 'react-native';
 import { Card, Text, Avatar } from 'react-native-paper';
@@ -28,7 +29,7 @@ export default function PlayerRow({ item, index }) {
   );
 }
 const styles = StyleSheet.create({
-  card: { marginVertical: 6, borderRadius: 16, marginHorizontal: 12 },
+  card: { marginVertical: 6, borderRadius: 18, marginHorizontal: 12 },
   row: { flexDirection: 'row', alignItems: 'center' },
   rank: { width: 40, textAlign: 'center' },
   avatar: { marginHorizontal: 10 },
