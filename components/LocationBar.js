@@ -1,5 +1,5 @@
 // * components/LocationBar.js — fluid animated controls, popup dismissal, and aligned popup search controls, Global spacing, and balanced rank preset pills (v63)
-import React, { useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Animated, View, StyleSheet, Keyboard, Text, useWindowDimensions, ScrollView, Easing, Pressable } from 'react-native';
 import AnimatedPressable from './AnimatedPressable';
 import { Menu, Button, IconButton, TextInput, useTheme, Divider, Portal, Surface } from 'react-native-paper';
@@ -10,7 +10,7 @@ const LIMITS = [100, 250, 500];
 const CONTROL_HEIGHT = 36;
 const ICON_SIZE = 17;
 
-export default function LocationBar({ countries, selected, visible, onOpen, onClose, onSelect, selectedLimit, onSelectLimit, onSearchRank, searchOpen, onSearchOpen, onSearchClose, searchQuery, onSearchQueryChange, searchBy, onSearchByChange, isMergeTab = false }) {
+const LocationBar = forwardRef(function LocationBar({ countries, selected, visible, onOpen, onClose, onSelect, selectedLimit, onSelectLimit, onSearchRank, searchOpen, onSearchOpen, onSearchClose, searchQuery, onSearchQueryChange, searchBy, onSearchByChange, isMergeTab = false }, ref) {
   const theme = useTheme();
   const { width: windowWidth } = useWindowDimensions();
   const fixedControlWidth = 82;
@@ -42,6 +42,28 @@ export default function LocationBar({ countries, selected, visible, onOpen, onCl
   }, [searchOpen]);
 
   const closeSearch = () => { Keyboard.dismiss(); onSearchClose(); };
+
+  useImperativeHandle(ref, () => ({
+    handleBack: () => {
+      if (searchMenuVisible) {
+        setSearchMenuVisible(false);
+        return true;
+      }
+      if (countryMenuPosition) {
+        setCountrySearch('');
+        setCountryMenuPosition(null);
+        onClose?.();
+        return true;
+      }
+      if (limitMenuVisible || rankMenuPosition) {
+        setRankSearch('');
+        setLimitMenuVisible(false);
+        setRankMenuPosition(null);
+        return true;
+      }
+      return false;
+    },
+  }), [searchMenuVisible, countryMenuPosition, limitMenuVisible, rankMenuPosition, onClose]);
 
   useEffect(() => {
     if (!countryMenuPosition) return;
