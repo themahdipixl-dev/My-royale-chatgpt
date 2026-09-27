@@ -1,4 +1,4 @@
-// * components/LocationBar.js — changed in this revision (v48)
+// * components/LocationBar.js — fluid animated controls (v53)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View, StyleSheet, Keyboard, Text, Pressable, useWindowDimensions, ScrollView, Easing } from 'react-native';
 import { Menu, Button, IconButton, TextInput, useTheme, Divider, Portal, Surface } from 'react-native-paper';
@@ -27,6 +27,11 @@ export default function LocationBar({ countries, selected, visible, onOpen, onCl
   const rankPopupAnim = useRef(new Animated.Value(0)).current;
   const countryAnchorRef = useRef(null);
   const rankAnchorRef = useRef(null);
+  const entrance = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.spring(entrance, { toValue: 1, friction: 8, tension: 55, useNativeDriver: true }).start();
+  }, [entrance]);
 
   useEffect(() => {
     if (searchOpen) {
@@ -63,7 +68,10 @@ export default function LocationBar({ countries, selected, visible, onOpen, onCl
 
   if (searchOpen) {
     return (
-      <View style={[styles.searchRow, { backgroundColor: theme.colors.background }]}>
+      <Animated.View style={[styles.searchRow, {
+        opacity: entrance,
+        transform: [{ translateY: entrance.interpolate({ inputRange: [0, 1], outputRange: [-7, 0] }) }],
+      }]}> { backgroundColor: theme.colors.background }]}>
         <View style={[styles.searchFieldWrap, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
           <MaterialCommunityIcons name="magnify" size={ICON_SIZE} color={theme.colors.onSurfaceVariant} />
           <TextInput ref={searchRef} mode="flat" value={searchQuery} onChangeText={onSearchQueryChange} placeholder={searchPlaceholder} placeholderTextColor={searchFocused ? theme.colors.outline : theme.colors.onSurfaceVariant} textColor={theme.colors.onSurface} cursorColor={theme.colors.primary} underlineColor="transparent" activeUnderlineColor="transparent" style={styles.searchInput} contentStyle={styles.searchInputContent} keyboardType={searchBy === 'trophies' ? 'numeric' : 'default'} returnKeyType="search" onFocus={() => setSearchFocused(true)} onBlur={() => setSearchFocused(false)} />
@@ -75,12 +83,15 @@ export default function LocationBar({ countries, selected, visible, onOpen, onCl
           </Menu>
           <IconButton icon="close" size={19} iconColor={theme.colors.onSurfaceVariant} onPress={closeSearch} style={styles.searchClose} />
         </View>
-      </View>
+      </Animated.View>
     );
   }
 
   return (
-    <View style={[styles.row, { backgroundColor: theme.colors.background }]}>
+    <Animated.View style={[styles.row, {
+      opacity: entrance,
+      transform: [{ translateY: entrance.interpolate({ inputRange: [0, 1], outputRange: [-7, 0] }) }],
+    }]}> { backgroundColor: theme.colors.background }]}>
       <Pressable ref={countryAnchorRef} disabled={isMergeTab} onPress={() => { if (isMergeTab) return; setCountrySearch(''); countryAnchorRef.current?.measureInWindow((x, y, width, height) => { setCountryMenuPosition({ x, y: y + height, width }); onOpen(); }); }} style={[styles.control, { width: countryWidth, backgroundColor: theme.colors.surfaceContainerHighest }]} android_ripple={isMergeTab ? undefined : { color: theme.colors.onSurfaceVariant, borderless: false }}>
         <View style={styles.anchorContent}>
           {selected?.id === 'global' && <MaterialCommunityIcons name="earth" size={ICON_SIZE} color={theme.colors.onSurfaceVariant} />}
@@ -131,7 +142,7 @@ export default function LocationBar({ countries, selected, visible, onOpen, onCl
       <Pressable onPress={onSearchOpen} style={[styles.controlButton, { width: fixedControlWidth, backgroundColor: theme.colors.surfaceContainerHighest }]} android_ripple={{ color: theme.colors.onSurfaceVariant, borderless: false }}>
         <View style={styles.buttonInner}><MaterialCommunityIcons name="magnify" size={ICON_SIZE} color={theme.colors.onSurfaceVariant} /><Text style={[styles.controlLabel, { color: theme.colors.onSurface }]}>Find</Text></View>
       </Pressable>
-    </View>
+    </Animated.View>
   );
 }
 
