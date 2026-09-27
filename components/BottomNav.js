@@ -141,23 +141,7 @@ export default function BottomNav({ value, onChange }) {
                     color={selected ? theme.colors.onSecondaryContainer : theme.colors.onSurfaceVariant}
                   />
                 )}
-
-                {!isHome && (
-                  <Animated.Text
-                    numberOfLines={1}
-                    style={[
-                      styles.label,
-                      {
-                        color: selected ? theme.colors.onSecondaryContainer : theme.colors.onSurfaceVariant,
-                        opacity: labelOpacity,
-                        transform: [{ translateY: labelTranslateY }],
-                      },
-                    ]}
-                  >
-                    {item.label}
-                  </Animated.Text>
-                )}
-              </Animated.View>
+</Animated.View>
             </AnimatedPressable>
           );
         })}
