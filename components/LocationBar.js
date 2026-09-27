@@ -1,4 +1,4 @@
-// * components/LocationBar.js — fluid animated controls with shared spring interaction (v56)
+// * components/LocationBar.js — fluid animated controls, popup dismissal, and spring interactions (v57)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View, StyleSheet, Keyboard, Text, useWindowDimensions, ScrollView, Easing } from 'react-native';
 import AnimatedPressable from './AnimatedPressable';
@@ -97,7 +97,7 @@ export default function LocationBar({ countries, selected, visible, onOpen, onCl
 
   return (
     <Animated.View style={[styles.row, rowAnimationStyle]}>
-      <AnimatedPressable ref={countryAnchorRef} disabled={isMergeTab} onPress={() => { if (isMergeTab) return; setCountrySearch(''); countryAnchorRef.current?.measureInWindow((x, y, width, height) => { setCountryMenuPosition({ x, y: y + height, width }); onOpen(); }); }} style={[styles.control, { width: countryWidth, backgroundColor: theme.colors.surfaceContainerHighest }]} android_ripple={isMergeTab ? undefined : { color: theme.colors.onSurfaceVariant, borderless: false }}>
+      <AnimatedPressable ref={countryAnchorRef} disabled={isMergeTab} onPress={() => { if (isMergeTab) return; setCountrySearch(''); countryAnchorRef.current?.measureInWindow((x, y, width, height) => { setCountryMenuPosition({ x, y: y + height, width }); onOpen(); }); }} wrapperStyle={[styles.control, { width: countryWidth }]} style={[styles.control, { width: countryWidth, backgroundColor: theme.colors.surfaceContainerHighest }]} android_ripple={isMergeTab ? undefined : { color: theme.colors.onSurfaceVariant, borderless: false }}>
         <View style={styles.anchorContent}>
           {selected?.id === 'global' && <MaterialCommunityIcons name="earth" size={ICON_SIZE} color={theme.colors.onSurfaceVariant} />}
           <Text numberOfLines={1} style={[styles.anchorText, { color: theme.colors.onSurface }]}>{selected?.name || 'Select Country'}</Text>
@@ -107,44 +107,45 @@ export default function LocationBar({ countries, selected, visible, onOpen, onCl
 
       {countryMenuPosition && (
         <Portal>
-          <AnimatedPressable style={StyleSheet.absoluteFill} onPress={() => { setCountrySearch(''); setCountryMenuPosition(null); onClose(); }} />
+          <AnimatedPressable wrapperStyle={[StyleSheet.absoluteFill, styles.backdrop]} style={styles.backdropPressable} onPress={() => { setCountrySearch(''); setCountryMenuPosition(null); onClose(); }} />
           <Animated.View style={[styles.countryPopupAnimated, popupAnimation(countryPopupAnim), { left: Math.max(8, Math.min(countryMenuPosition.x + countryMenuPosition.width / 2 - 141, windowWidth - 290)), top: countryMenuPosition.y + 4, backgroundColor: theme.colors.surfaceContainer }]}>
             <Surface elevation={4} style={[styles.countryPopupSurface, { backgroundColor: theme.colors.surfaceContainer }]}>
               <View style={[styles.countrySearchWrap, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
                 <TextInput mode="flat" value={countrySearch} onChangeText={setCountrySearch} placeholder="Search countries" left={<TextInput.Icon icon="magnify" />} style={styles.countrySearch} textColor={theme.colors.onSurface} placeholderTextColor={countrySearchFocused ? theme.colors.outline : theme.colors.onSurfaceVariant} cursorColor={theme.colors.primary} underlineColor="transparent" activeUnderlineColor="transparent" onFocus={() => setCountrySearchFocused(true)} onBlur={() => setCountrySearchFocused(false)} />
               </View>
+              <IconButton icon="close" size={19} iconColor={theme.colors.onSurfaceVariant} onPress={() => { setCountrySearch(''); setCountryMenuPosition(null); onClose(); }} style={styles.popupClose} />
               <Divider />
               <ScrollView style={styles.countryList} keyboardShouldPersistTaps="handled">
-                <AnimatedPressable style={styles.countryItem} onPress={() => { setCountryMenuPosition(null); onClose(); onSelect({ id: 'global', name: 'Global' }); }}>
+                <AnimatedPressable wrapperStyle={styles.countryItem} style={styles.popupPressable} onPress={() => { setCountryMenuPosition(null); onClose(); onSelect({ id: 'global', name: 'Global' }); }}>
                   <MaterialCommunityIcons name="earth" size={21} color={theme.colors.onSurfaceVariant} /><Text style={[styles.countryItemText, { color: theme.colors.onSurface }]}>Global</Text>
                 </AnimatedPressable>
-                {filteredCountries.map((c) => <AnimatedPressable key={c.id} style={styles.countryItem} onPress={() => { setCountryMenuPosition(null); onClose(); onSelect({ id: c.id, name: c.name }); }}><Text style={[styles.countryItemText, { color: theme.colors.onSurface }]}>{c.name}</Text></AnimatedPressable>)}
+                {filteredCountries.map((c) => <AnimatedPressable key={c.id} wrapperStyle={styles.countryItem} style={styles.popupPressable} onPress={() => { setCountryMenuPosition(null); onClose(); onSelect({ id: c.id, name: c.name }); }}><Text style={[styles.countryItemText, { color: theme.colors.onSurface }]}>{c.name}</Text></AnimatedPressable>)}
               </ScrollView>
             </Surface>
           </Animated.View>
         </Portal>
       )}
 
-      <AnimatedPressable ref={rankAnchorRef} onPress={() => { rankAnchorRef.current?.measureInWindow((x, y, width, height) => { setRankMenuPosition({ x, y: y + height, width }); setLimitMenuVisible(true); }); }} style={[styles.controlButton, { width: fixedControlWidth, backgroundColor: theme.colors.surfaceContainerHighest }]} android_ripple={{ color: theme.colors.onSurfaceVariant, borderless: false }}>
+      <AnimatedPressable ref={rankAnchorRef} onPress={() => { rankAnchorRef.current?.measureInWindow((x, y, width, height) => { setRankMenuPosition({ x, y: y + height, width }); setLimitMenuVisible(true); }); }} wrapperStyle={[styles.controlButton, { width: fixedControlWidth }]} style={[styles.controlButton, { width: fixedControlWidth, backgroundColor: theme.colors.surfaceContainerHighest }]} android_ripple={{ color: theme.colors.onSurfaceVariant, borderless: false }}>
         <View style={styles.buttonInner}><MaterialCommunityIcons name="format-list-numbered" size={ICON_SIZE} color={theme.colors.onSurface} /><Text style={[styles.controlLabel, { color: theme.colors.onSurface }]}>{selectedLimit || 'Rank'}</Text></View>
       </AnimatedPressable>
 
       {limitMenuVisible && rankMenuPosition && (
         <Portal>
-          <AnimatedPressable style={StyleSheet.absoluteFill} onPress={() => { setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} />
+          <AnimatedPressable wrapperStyle={[StyleSheet.absoluteFill, styles.backdrop]} style={styles.backdropPressable} onPress={() => { setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} />
           <AnimatedSurface elevation={4} style={[styles.rankPopup, popupAnimation(rankPopupAnim), { left: Math.max(8, Math.min(rankMenuPosition.x + rankMenuPosition.width / 2 - 125, windowWidth - 266)), top: rankMenuPosition.y + 4, backgroundColor: theme.colors.surfaceContainer }]}>
             <View style={[styles.rankSearchWrap, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
               <TextInput value={rankSearch} onChangeText={(value) => setRankSearch(value.replace(/\D/g, ''))} placeholder="Search rank" left={<TextInput.Icon icon="magnify" />} right={rankSearch ? <TextInput.Icon icon="arrow-right" onPress={() => { onSearchRank?.(rankSearch); setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} /> : null} mode="flat" keyboardType="numeric" returnKeyType="search" onSubmitEditing={() => { if (!rankSearch) return; onSearchRank?.(rankSearch); setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} style={styles.rankSearch} textColor={theme.colors.onSurface} placeholderTextColor={theme.colors.onSurfaceVariant} cursorColor={theme.colors.primary} underlineColor="transparent" activeUnderlineColor="transparent" />
             </View>
             <Divider />
             <View style={styles.rankPresetsRow}>
-              {LIMITS.map((limit) => <AnimatedPressable key={limit} style={styles.rankItem} onPress={() => { onSelectLimit(limit); setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} android_ripple={{ color: theme.colors.onSurfaceVariant }}><Text style={[styles.rankItemText, { color: theme.colors.onSurface }]}>{String(limit)}</Text></AnimatedPressable>)}
+              {LIMITS.map((limit) => <AnimatedPressable key={limit} wrapperStyle={styles.rankItem} style={styles.popupPressable} onPress={() => { onSelectLimit(limit); setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} android_ripple={{ color: theme.colors.onSurfaceVariant }}><Text style={[styles.rankItemText, { color: theme.colors.onSurface }]}>{String(limit)}</Text></AnimatedPressable>)}
             </View>
           </AnimatedSurface>
         </Portal>
       )}
 
-      <AnimatedPressable onPress={onSearchOpen} style={[styles.controlButton, { width: fixedControlWidth, backgroundColor: theme.colors.surfaceContainerHighest }]} android_ripple={{ color: theme.colors.onSurfaceVariant, borderless: false }}>
+      <AnimatedPressable onPress={onSearchOpen} wrapperStyle={[styles.controlButton, { width: fixedControlWidth }]} style={[styles.controlButton, { width: fixedControlWidth, backgroundColor: theme.colors.surfaceContainerHighest }]} android_ripple={{ color: theme.colors.onSurfaceVariant, borderless: false }}>
         <View style={styles.buttonInner}><MaterialCommunityIcons name="magnify" size={ICON_SIZE} color={theme.colors.onSurfaceVariant} /><Text style={[styles.controlLabel, { color: theme.colors.onSurface }]}>Find</Text></View>
       </AnimatedPressable>
     </Animated.View>
@@ -170,15 +171,19 @@ const styles = StyleSheet.create({
   searchByLabel: { fontSize: 11.5, fontWeight: '700', marginHorizontal: 0, transform: [{ translateY: -2.5 }] },
   searchClose: { margin: 0 },
   menu: { borderRadius: 16 },
-  countryPopupAnimated: { width: 282, maxHeight: 520, borderRadius: 16, overflow: 'visible', position: 'absolute' },
+  countryPopupAnimated: { width: 282, maxHeight: 520, borderRadius: 16, overflow: 'visible', position: 'absolute', zIndex: 1001 },
   countryPopupSurface: { width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden' },
-  rankPopup: { width: 250, borderRadius: 16, overflow: 'hidden', position: 'absolute', paddingVertical: 4 },
+  rankPopup: { width: 250, borderRadius: 16, overflow: 'hidden', position: 'absolute', paddingVertical: 4, zIndex: 1001 },
   rankSearchWrap: { width: 234, height: 44, marginHorizontal: 8, marginTop: 8, marginBottom: 6, borderRadius: 16, overflow: 'hidden' },
   rankSearch: { width: 234, height: 44, backgroundColor: 'transparent' },
-  rankPresetsRow: { flexDirection: 'row', width: '100%' },
+  rankPresetsRow: { flexDirection: 'row', width: '100%', paddingHorizontal: 4 },
   rankItem: { flex: 1, height: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 },
   rankItemText: { fontSize: 14, textAlign: 'center' },
   countryList: { maxHeight: 450 },
-  countryItem: { minHeight: 48, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 12 },
+  countryItem: { width: '100%', minHeight: 48, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 12 },
   countryItemText: { fontSize: 14, flexShrink: 1 },
+  backdrop: { zIndex: 1000 },
+  backdropPressable: { backgroundColor: 'transparent' },
+  popupPressable: { width: '100%' },
+  popupClose: { position: 'absolute', right: 2, top: 2, margin: 0, zIndex: 2 },
 });
