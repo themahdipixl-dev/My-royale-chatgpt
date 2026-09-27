@@ -35,6 +35,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const [jumpToTop, setJumpToTop] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(0);
+  const [pagerWidth, setPagerWidth] = useState(0);
   const [animationKey, setAnimationKey] = useState(0);
   const jumpVisibility = useRef(new Animated.Value(0)).current;
   const jumpRotation = useRef(new Animated.Value(0)).current;
@@ -46,7 +47,6 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const [previewType, setPreviewType] = useState('player');
   const [detailEntity, setDetailEntity] = useState(null);
   const [detailType, setDetailType] = useState('player');
-  const swipeStart = useRef(null);
   const tabPagerX = useRef(new Animated.Value(0)).current;
   const tabSwipeProgress = useRef(new Animated.Value(0)).current;
   const pagerWidthRef = useRef(0);
@@ -248,14 +248,15 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
           onLayout={(event) => {
             setViewportHeight(event.nativeEvent.layout.height);
             pagerWidthRef.current = event.nativeEvent.layout.width;
+            setPagerWidth(event.nativeEvent.layout.width);
           }}
         >
-          <Animated.View style={[styles.tabPager, { width: Math.max(1, pagerWidthRef.current) * 3, transform: [{ translateX: tabPagerX }] }]}>
+          <Animated.View style={[styles.tabPager, { width: Math.max(1, pagerWidth) * 3, transform: [{ translateX: tabPagerX }] }]}>
             {TAB_VALUES.map((tabKey) => {
               const tabItems = tabKey === 'clans' ? clans : tabKey === 'merge' ? mergers : players;
               const tabRowHeight = tabKey === 'clans' && clanRankingMode === 'war' ? CLAN_ROW_HEIGHT : ROW_HEIGHT;
               return (
-                <View key={tabKey} style={[styles.tabPage, { width: Math.max(1, pagerWidthRef.current) }]}>
+                <View key={tabKey} style={[styles.tabPage, { width: Math.max(1, pagerWidth) }]}>
                   <FlatList
                     ref={tabKey === topTab ? listRef : undefined}
                     data={tabItems}
@@ -268,6 +269,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
                     getItemLayout={(_, index) => ({ length: tabRowHeight, offset: tabRowHeight * index, index })}
                     initialNumToRender={12} maxToRenderPerBatch={12} windowSize={7}
                     onScroll={tabKey === topTab ? handleScroll : undefined}
+                    onContentSizeChange={tabKey === topTab ? (width, height) => setContentHeight(height) : undefined}
                     scrollEventThrottle={16}
                     refreshControl={tabKey === topTab ? <RefreshControl refreshing={loading} onRefresh={() => loadData(selectedLocation?.id, tabKey)}
                       colors={[theme.colors.primary]} progressBackgroundColor={theme.colors.surfaceContainerHighest} progressViewOffset={4} tintColor={theme.colors.primary} /> : undefined}
