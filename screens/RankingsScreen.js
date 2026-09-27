@@ -215,6 +215,13 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
     },
   })).current;
 
+  useEffect(() => {
+    if (pagerWidthRef.current <= 0) return;
+    const index = tabValues.indexOf(topTab);
+    Animated.spring(tabPagerX, { toValue: -index * pagerWidthRef.current, friction: 8, tension: 72, useNativeDriver: true }).start();
+    Animated.spring(tabSwipeProgress, { toValue: index, friction: 8, tension: 72, useNativeDriver: true }).start();
+  }, [topTab, tabPagerX, tabSwipeProgress]);
+
   const expandPreview = useCallback(() => {
     setDetailEntity(previewEntity);
     setDetailType(previewType);
