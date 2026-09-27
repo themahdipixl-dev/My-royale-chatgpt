@@ -1,7 +1,7 @@
-// * components/EntityPreviewModal.js — animated square popup and stronger backdrop (v71)
+// * components/EntityPreviewModal.js — animated square popup without shadow (v72)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, View, Image } from 'react-native';
-import { IconButton, Surface, Text, useTheme } from 'react-native-paper';
+import { IconButton, Text, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const leagueIcon = require('../assets/league-icon.png');
@@ -150,7 +150,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
             },
           ]}
         >
-          <Surface elevation={5} style={[styles.card, { backgroundColor: theme.colors.surfaceContainer }]}>
+          <View style={[styles.card, { backgroundColor: theme.colors.surfaceContainer }]}>
             <View style={styles.header}>
               <View style={[styles.entityIcon, { backgroundColor: theme.colors.primaryContainer }]}>
                 {isClan ? (
@@ -204,7 +204,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
             <Text style={[styles.expandHint, { color: theme.colors.onSurfaceVariant }]}>
               Expand for full profile
             </Text>
-          </Surface>
+          </View>
         </Animated.View>
       </View>
     </Modal>
