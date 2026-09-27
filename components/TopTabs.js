@@ -1,6 +1,6 @@
 // * components/TopTabs.js — fluid animated tabs with shared spring interaction (v57)
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Animated, PanResponder, StyleSheet, View, useWindowDimensions } from 'react-native';
 import AnimatedPressable from './AnimatedPressable';
 import { Text, useTheme } from 'react-native-paper';
 
@@ -18,9 +18,13 @@ export default function TopTabs({ value, onChange, clanRankingMode, onClanRankin
   const [segmentedWidth, setSegmentedWidth] = useState(0);
   const selectedIndex = Math.max(0, TOP_TABS.findIndex((tab) => tab.value === value));
   const indicatorX = useRef(new Animated.Value(selectedIndex)).current;
+  const selectedIndexRef = useRef(selectedIndex);
+  const gestureActive = useRef(false);
   const entrance = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    selectedIndexRef.current = selectedIndex;
+    if (gestureActive.current) return;
     Animated.spring(indicatorX, { toValue: selectedIndex, friction: 8, tension: 75, useNativeDriver: true }).start();
   }, [selectedIndex, indicatorX]);
 
@@ -29,6 +33,34 @@ export default function TopTabs({ value, onChange, clanRankingMode, onClanRankin
   }, [entrance]);
 
   const handleTabPress = (tabValue) => { onChange(tabValue); };
+
+  const tabSwipeResponder = useRef(PanResponder.create({
+    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 8 && Math.abs(g.dx) > Math.abs(g.dy) * 1.25,
+    onPanResponderGrant: () => {
+      gestureActive.current = true;
+      indicatorX.stopAnimation();
+    },
+    onPanResponderMove: (_, g) => {
+      if (tabWidth <= 0) return;
+      const base = selectedIndexRef.current;
+      const raw = base + (g.dx / tabWidth);
+      const clamped = Math.max(0, Math.min(TOP_TABS.length - 1, raw));
+      indicatorX.setValue(clamped);
+    },
+    onPanResponderRelease: (_, g) => {
+      const base = selectedIndexRef.current;
+      const target = Math.abs(g.dx) >= tabWidth * 0.5
+        ? Math.max(0, Math.min(TOP_TABS.length - 1, base + (g.dx < 0 ? 1 : -1)))
+        : base;
+      gestureActive.current = false;
+      if (target !== base) onChange(TOP_TABS[target].value);
+      else Animated.spring(indicatorX, { toValue: base, friction: 8, tension: 75, useNativeDriver: true }).start();
+    },
+    onPanResponderTerminate: () => {
+      gestureActive.current = false;
+      Animated.spring(indicatorX, { toValue: selectedIndexRef.current, friction: 8, tension: 75, useNativeDriver: true }).start();
+    },
+  })).current;
   const tabWidth = segmentedWidth > 0 ? Math.max(0, (segmentedWidth - 2 - 4) / 3) : Math.max(0, (windowWidth - 28 - 2 - 4) / 3);
   const indicatorTranslate = indicatorX.interpolate({ inputRange: [0, 1, 2], outputRange: [0, tabWidth, tabWidth * 2] });
 
