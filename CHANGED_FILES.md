@@ -1,4 +1,4 @@
-# Changed Files — v53
+# Changed Files — v56
 
 * components/BottomNav.js — v52: removed bottom-nav labels and converted the main bar, selected indicator, and Home orb to fully rounded/circular shapes.
 * components/AppHeader.js — v53: added a smooth entrance animation.
@@ -10,3 +10,6 @@
 * components/ClanRow.js — existing staggered row animation retained.
 
 `app.json` was not modified.
+
+* components/LocationBar.js — v56: repaired/simplified animated row JSX to eliminate parser ambiguity.
+* components/TopTabs.js — v56: removed the extra closing View tag causing the JSX parser error.
