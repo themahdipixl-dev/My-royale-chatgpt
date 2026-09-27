@@ -1,6 +1,6 @@
 // * components/BottomNav.js — fixed pill layout with swipe navigation and spring interactions (v58)
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, View, PanResponder } from 'react-native';
+import { Animated, PanResponder, StyleSheet, View } from 'react-native';
 import { Surface, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AnimatedPressable from './AnimatedPressable';
@@ -17,21 +17,44 @@ export default function BottomNav({ value, onChange }) {
   const theme = useTheme();
   const [barWidth, setBarWidth] = useState(0);
   const activeIndex = Math.max(0, ITEMS.findIndex((item) => item.key === value));
+  const activeIndexRef = useRef(activeIndex);
+  const gestureActive = useRef(false);
   const previousIndex = useRef(activeIndex);
+  const slotWidth = barWidth > 0 ? (barWidth - 10) / ITEMS.length : 0;
+  const indicatorX = useRef(new Animated.Value(activeIndex)).current;
   const swipeResponder = useRef(PanResponder.create({
-    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 12 && Math.abs(g.dx) > Math.abs(g.dy) * 1.25,
+    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 8 && Math.abs(g.dx) > Math.abs(g.dy) * 1.25,
+    onPanResponderGrant: () => {
+      gestureActive.current = true;
+      indicatorX.stopAnimation();
+    },
+    onPanResponderMove: (_, g) => {
+      if (slotWidth <= 0) return;
+      const base = activeIndexRef.current;
+      const raw = base + (g.dx / slotWidth);
+      indicatorX.setValue(Math.max(0, Math.min(ITEMS.length - 1, raw)));
+    },
     onPanResponderRelease: (_, g) => {
-      if (Math.abs(g.dx) < 70) return;
-      const next = g.dx < 0 ? Math.min(ITEMS.length - 1, activeIndex + 1) : Math.max(0, activeIndex - 1);
-      if (next !== activeIndex) onChange(ITEMS[next].key);
+      const base = activeIndexRef.current;
+      const target = Math.abs(g.dx) >= slotWidth * 0.5
+        ? Math.max(0, Math.min(ITEMS.length - 1, base + (g.dx < 0 ? 1 : -1)))
+        : base;
+      gestureActive.current = false;
+      if (target !== base) onChange(ITEMS[target].key);
+      else Animated.spring(indicatorX, { toValue: base, friction: 8, tension: 72, useNativeDriver: true }).start();
+    },
+    onPanResponderTerminate: () => {
+      gestureActive.current = false;
+      Animated.spring(indicatorX, { toValue: activeIndexRef.current, friction: 8, tension: 72, useNativeDriver: true }).start();
     },
   })).current;
-  const indicatorX = useRef(new Animated.Value(activeIndex)).current;
   const itemProgress = useRef(
     Object.fromEntries(ITEMS.map((item, index) => [item.key, new Animated.Value(index === activeIndex ? 1 : 0)]))
   ).current;
 
   useEffect(() => {
+    activeIndexRef.current = activeIndex;
+    if (gestureActive.current) return;
     Animated.spring(indicatorX, {
       toValue: activeIndex,
       friction: 8,
@@ -51,7 +74,6 @@ export default function BottomNav({ value, onChange }) {
     previousIndex.current = activeIndex;
   }, [activeIndex, indicatorX, itemProgress, value]);
 
-  const slotWidth = barWidth > 0 ? (barWidth - 10) / ITEMS.length : 0;
   const indicatorOffset = (slotWidth - 44) / 2;
   const indicatorTranslate = indicatorX.interpolate({
     inputRange: ITEMS.map((_, index) => index),
