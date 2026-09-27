@@ -1,4 +1,4 @@
-// * components/BottomNav.js — pill nav, circular states, and spring interactions (v54)
+// * components/BottomNav.js — fixed pill layout, circular states, and spring interactions (v57)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import { Surface, useTheme } from 'react-native-paper';
@@ -101,7 +101,8 @@ export default function BottomNav({ value, onChange }) {
               accessibilityState={{ selected }}
               accessibilityLabel={item.label}
               onPress={() => onChange(item.key)}
-              style={styles.item}
+              wrapperStyle={styles.item}
+              style={styles.pressable}
               android_ripple={{ color: theme.colors.onSurfaceVariant, borderless: true }}
             >
               <Animated.View
@@ -177,6 +178,12 @@ const styles = StyleSheet.create({
   },
   item: {
     flex: 1,
+    height: 64,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pressable: {
+    width: '100%',
     height: 64,
     alignItems: 'center',
     justifyContent: 'center',
