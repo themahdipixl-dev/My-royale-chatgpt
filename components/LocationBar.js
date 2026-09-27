@@ -1,4 +1,4 @@
-// * components/LocationBar.js — fluid animated controls, popup dismissal, and aligned popup search controls, Global spacing, and rank preset layout (v61)
+// * components/LocationBar.js — fluid animated controls, popup dismissal, and aligned popup search controls, Global spacing, and pill rank presets (v62)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View, StyleSheet, Keyboard, Text, useWindowDimensions, ScrollView, Easing, Pressable } from 'react-native';
 import AnimatedPressable from './AnimatedPressable';
@@ -144,7 +144,7 @@ export default function LocationBar({ countries, selected, visible, onOpen, onCl
             </View>
             <Divider />
             <View style={styles.rankPresetsRow}>
-              {LIMITS.map((limit) => <AnimatedPressable key={limit} wrapperStyle={styles.rankItem} style={styles.popupPressable} onPress={() => { onSelectLimit(limit); setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} android_ripple={{ color: theme.colors.onSurfaceVariant }}><Text style={[styles.rankItemText, { color: theme.colors.onSurface }]}>{String(limit)}</Text></AnimatedPressable>)}
+              {LIMITS.map((limit) => <AnimatedPressable key={limit} wrapperStyle={styles.rankItem} style={[styles.rankItemPill, { backgroundColor: theme.colors.surfaceContainerHighest }]} onPress={() => { onSelectLimit(limit); setRankSearch(''); setLimitMenuVisible(false); setRankMenuPosition(null); }} android_ripple={{ color: theme.colors.onSurfaceVariant }}><Text style={[styles.rankItemText, { color: theme.colors.onSurface }]}>{String(limit)}</Text></AnimatedPressable>)}
             </View>
           </AnimatedSurface>
         </Portal>
@@ -181,9 +181,10 @@ const styles = StyleSheet.create({
   rankPopup: { width: 250, borderRadius: 22, overflow: 'hidden', position: 'absolute', paddingVertical: 4, zIndex: 1001 },
   rankSearchWrap: { flex: 1, height: 40, marginLeft: 8, marginRight: 8, borderRadius: 20, overflow: 'hidden' },
   rankSearch: { width: '100%', height: 40, backgroundColor: 'transparent' },
-  rankPresetsRow: { flexDirection: 'row', width: '100%', paddingHorizontal: 4, alignItems: 'center' },
-  rankItem: { flex: 1, height: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 0 },
+  rankPresetsRow: { flexDirection: 'row', width: '100%', paddingHorizontal: 6, alignItems: 'center', justifyContent: 'space-between', gap: 6 },
+  rankItem: { flex: 1, height: 42, alignItems: 'center', justifyContent: 'center', minWidth: 0 },
   rankItemText: { fontSize: 14, textAlign: 'center' },
+  rankItemPill: { width: '100%', height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
   countryList: { maxHeight: 450 },
   countryItem: { width: '100%', minHeight: 48, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 12 },
   countryItemText: { fontSize: 14, flexShrink: 1 },
