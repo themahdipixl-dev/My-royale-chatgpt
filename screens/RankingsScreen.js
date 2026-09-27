@@ -1,4 +1,4 @@
-// * screens/RankingsScreen.js — player/clan preview and detail navigation infrastructure (v65)
+// * screens/RankingsScreen.js — player/clan preview and detail navigation infrastructure (v67)
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { View, FlatList, StyleSheet, Keyboard, RefreshControl, Animated } from 'react-native';
 import { Text, Button, IconButton, Surface, useTheme } from 'react-native-paper';
@@ -201,7 +201,7 @@ export default function RankingsScreen() {
         </View>
       )}
 
-      <EntityPreviewModal visible={!!previewEntity} entity={previewEntity} type={previewType} onClose={() => setPreviewEntity(null)} onExpand={expandPreview} />
+      <EntityPreviewModal visible={!!previewEntity} entity={previewEntity} type={previewType} countryName={selectedLocation?.id === 'global' ? null : selectedLocation?.name} onClose={() => setPreviewEntity(null)} onExpand={expandPreview} />
 
       {error && <View style={styles.center}>
         <Text style={[styles.errorText, { color: theme.colors.onSurface }]}>{error}</Text>
