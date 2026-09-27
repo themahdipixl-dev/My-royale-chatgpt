@@ -1,6 +1,6 @@
-// * screens/ComingSoonScreen.js — added in this revision (v49)
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+// * screens/ComingSoonScreen.js — fluid animated placeholder screen (v53)
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, View } from 'react-native';
 import { Text, Surface, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -9,8 +9,21 @@ const TITLES = { clans: 'Clans', cards: 'Cards', profile: 'Profile' };
 
 export default function ComingSoonScreen({ type }) {
   const theme = useTheme();
+  const entrance = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.spring(entrance, { toValue: 1, friction: 8, tension: 55, useNativeDriver: true }).start();
+  }, [entrance]);
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Animated.View style={{
+        opacity: entrance,
+        transform: [
+          { translateY: entrance.interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
+          { scale: entrance.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) },
+        ],
+      }}>
       <Surface elevation={0} style={[styles.card, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
         <View style={[styles.icon, { backgroundColor: theme.colors.secondaryContainer }]}>
           <MaterialCommunityIcons name={ICONS[type]} size={30} color={theme.colors.onSecondaryContainer} />
@@ -18,6 +31,7 @@ export default function ComingSoonScreen({ type }) {
         <Text style={[styles.title, { color: theme.colors.onSurface }]}>{TITLES[type]}</Text>
         <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>Coming soon</Text>
       </Surface>
+      </Animated.View>
     </View>
   );
 }
