@@ -1,4 +1,4 @@
-// * components/TopTabs.js — fluid animated tabs with shared spring interaction (v56)
+// * components/TopTabs.js — fluid animated tabs with shared spring interaction (v57)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, View, useWindowDimensions } from 'react-native';
 import AnimatedPressable from './AnimatedPressable';
@@ -57,6 +57,7 @@ export default function TopTabs({ value, onChange, clanRankingMode, onClanRankin
             <AnimatedPressable
               key={tab.value}
               onPress={() => handleTabPress(tab.value)}
+              wrapperStyle={{ width: tabWidth, height: CONTROL_HEIGHT }}
               style={({ pressed }) => [
                 styles.control,
                 { width: tabWidth, backgroundColor: 'transparent' },
