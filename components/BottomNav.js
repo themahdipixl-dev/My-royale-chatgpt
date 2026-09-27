@@ -20,6 +20,7 @@ export default function BottomNav({ value, onChange }) {
   const activeIndexRef = useRef(activeIndex);
   const gestureActive = useRef(false);
   const previousIndex = useRef(activeIndex);
+  const slotWidth = barWidth > 0 ? (barWidth - 10) / ITEMS.length : 0;
   const indicatorX = useRef(new Animated.Value(activeIndex)).current;
   const swipeResponder = useRef(PanResponder.create({
     onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 8 && Math.abs(g.dx) > Math.abs(g.dy) * 1.25,
@@ -73,7 +74,6 @@ export default function BottomNav({ value, onChange }) {
     previousIndex.current = activeIndex;
   }, [activeIndex, indicatorX, itemProgress, value]);
 
-  const slotWidth = barWidth > 0 ? (barWidth - 10) / ITEMS.length : 0;
   const indicatorOffset = (slotWidth - 44) / 2;
   const indicatorTranslate = indicatorX.interpolate({
     inputRange: ITEMS.map((_, index) => index),
