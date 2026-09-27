@@ -10,10 +10,7 @@ export default function AppHeader() {
   const entrance = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(entrance, { toValue: 1, duration: 420, useNativeDriver: true }),
-      Animated.spring(entrance, { toValue: 1, friction: 8, tension: 55, useNativeDriver: true }),
-    ]).start();
+    Animated.spring(entrance, { toValue: 1, friction: 8, tension: 55, useNativeDriver: true }).start();
   }, [entrance]);
 
   const entranceStyle = {
