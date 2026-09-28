@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
   playerDashboard: { flex: 1, gap: 8 },
   heroRow: { height: 88, flexDirection: 'row', gap: 6 },
   rankCluster: { flex: 2.18, flexDirection: 'row', gap: 4, minWidth: 0, transform: [{ translateX: -4 }] },
-  rankColumn: { flex: 1.02, gap: 8, minWidth: 0, transform: [{ translateX: 5 }] },
+  rankColumn: { flex: 1.02, gap: 8, minWidth: 0, transform: [{ translateX: 6 }] },
   favoriteVisual: { flex: 0.46, minWidth: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 1, transform: [{ translateX: 1 }, { translateY: -8 }] },
   favoriteCardImage: { width: 87, height: 87, marginBottom: 1 },
   favoriteCardLabel: { fontSize: 7.5, fontWeight: '700', textAlign: 'center' },
