@@ -415,8 +415,6 @@ const styles = StyleSheet.create({
   titleBlock: { flex: 1, marginLeft: 11, minWidth: 0 },
   title: { fontSize: 18, fontWeight: '800', letterSpacing: -0.3 },
   tag: { fontSize: 10, marginTop: 2, fontWeight: '700' },
-  headerClan: { flexDirection: 'row', alignItems: 'center', marginTop: 4, minWidth: 0 },
-  headerClanText: { fontSize: 9.5, fontWeight: '600', marginLeft: 4, flexShrink: 1 },
   actionButton: { width: 38, height: 38, borderRadius: 19, margin: 0, marginLeft: 6 },
   playerDashboard: { flex: 1, gap: 8 },
   heroRow: { height: 88, flexDirection: 'row', gap: 10 },
