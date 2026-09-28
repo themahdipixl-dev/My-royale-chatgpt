@@ -282,28 +282,41 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
               <>
                 <View style={styles.playerDashboard}>
                   <View style={styles.heroRow}>
-                    <InfoTile
-                      icon="trophy-outline"
-                      label={progressLabel}
-                      value={playerLoading ? '…' : formatNumber(progressTrophies)}
-                      theme={theme}
-                      variant="featured"
-                    />
-                    <View style={styles.rankColumn}>
+                    <View style={styles.rankCluster}>
                       <InfoTile
-                        icon="podium"
-                        label="Current rank"
-                        value={playerLoading ? '…' : rankLabel}
+                        icon="trophy-outline"
+                        label={progressLabel}
+                        value={playerLoading ? '…' : formatNumber(progressTrophies)}
                         theme={theme}
-                        variant="compact"
+                        variant="featured"
                       />
-                      <InfoTile
-                        icon="trophy-award"
-                        label="Best rank"
-                        value={playerLoading ? '…' : bestRankLabel}
-                        theme={theme}
-                        variant="compact"
-                      />
+                      <View style={styles.rankColumn}>
+                        <InfoTile
+                          icon="podium"
+                          label="Current rank"
+                          value={playerLoading ? '…' : rankLabel}
+                          theme={theme}
+                          variant="compact"
+                        />
+                        <InfoTile
+                          icon="trophy-award"
+                          label="Best rank"
+                          value={playerLoading ? '…' : bestRankLabel}
+                          theme={theme}
+                          variant="compact"
+                        />
+                      </View>
+                    </View>
+
+                    <View style={styles.favoriteVisual}>
+                      {favouriteIcon ? (
+                        <Image source={{ uri: favouriteIcon }} style={styles.favoriteCardImage} resizeMode="contain" />
+                      ) : (
+                        <MaterialCommunityIcons name="cards-outline" size={48} color={theme.colors.primary} />
+                      )}
+                      <Text numberOfLines={1} style={[styles.favoriteCardLabel, { color: theme.colors.onSurfaceVariant }]}>
+                        Favorite card
+                      </Text>
                     </View>
                   </View>
 
@@ -337,22 +350,23 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                   <View style={styles.dashboardSection}>
                     <Text style={[styles.sectionCaption, { color: theme.colors.onSurfaceVariant }]}>PLAYER DETAILS</Text>
                     <View style={styles.dashboardRow}>
-                      <InfoTile
-                        imageUri={favouriteIcon}
-                        icon="cards-outline"
-                        label="Favorite card"
-                        value={null}
-                        theme={theme}
-                        variant="compact"
-                      />
-                      <InfoTile
-                        icon="account-group"
-                        label="Clan"
-                        value={clanName || 'No clan'}
-                        theme={theme}
-                        variant="compact"
-                        onPress={clanName && clanTag ? () => onClanPress?.({ name: clanName, tag: clanTag }, 'clan') : undefined}
-                      />
+                      <Pressable
+                        disabled={!clanTag}
+                        onPress={clanTag ? () => onClanPress?.({ name: clanName, tag: clanTag }, 'clan') : undefined}
+                        style={[styles.clanCard, { backgroundColor: theme.colors.surfaceContainerHighest }]}
+                      >
+                        <View style={[styles.clanIconWrap, { backgroundColor: theme.colors.primaryContainer }]}>
+                          <MaterialCommunityIcons name="account-group" size={22} color={theme.colors.primary} />
+                        </View>
+                        <View style={styles.clanCardText}>
+                          <Text style={[styles.clanCardLabel, { color: theme.colors.onSurfaceVariant }]}>Clan</Text>
+                          <Text numberOfLines={1} style={[styles.clanCardValue, { color: theme.colors.onSurface }]}>
+                            {clanName || 'No clan'}
+                          </Text>
+                        </View>
+                        {clanTag ? <MaterialCommunityIcons name="chevron-right" size={19} color={theme.colors.onSurfaceVariant} /> : null}
+                      </Pressable>
+
                       <InfoTile
                         icon="trophy-outline"
                         label="Best trophies"
@@ -380,7 +394,7 @@ const { width: screenWidth } = Dimensions.get('window');
 const modalWidth = Math.min(screenWidth * 0.90, 390);
 const contentWidth = modalWidth - 28;
 const tileSize = (contentWidth - 16) / 3;
-const popupHeight = 400;
+const popupHeight = 365;
 
 const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -397,13 +411,17 @@ const styles = StyleSheet.create({
   headerClanText: { fontSize: 9.5, fontWeight: '600', marginLeft: 4, flexShrink: 1 },
   actionButton: { width: 38, height: 38, borderRadius: 19, margin: 0, marginLeft: 6 },
   playerDashboard: { flex: 1, gap: 8 },
-  heroRow: { height: 88, flexDirection: 'row', gap: 8 },
-  rankColumn: { flex: 0.92, gap: 8 },
+  heroRow: { height: 88, flexDirection: 'row', gap: 10 },
+  rankCluster: { flex: 1.7, flexDirection: 'row', gap: 7, minWidth: 0 },
+  rankColumn: { flex: 0.72, gap: 7, minWidth: 0 },
+  favoriteVisual: { flex: 0.58, minWidth: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 },
+  favoriteCardImage: { width: 62, height: 62, marginBottom: 2 },
+  favoriteCardLabel: { fontSize: 8.5, fontWeight: '700', textAlign: 'center' },
   dashboardSection: { flex: 0, height: 65 },
   sectionCaption: { fontSize: 7.5, fontWeight: '800', letterSpacing: 1.1, marginBottom: 3, marginLeft: 2 },
   dashboardRow: { flex: 1, flexDirection: 'row', gap: 8 },
   infoTile: { flex: 1, minWidth: 0, borderRadius: 18, paddingHorizontal: 9, paddingVertical: 7, overflow: 'hidden', justifyContent: 'center' },
-  featuredTile: { flex: 1.18, borderRadius: 22, paddingHorizontal: 12, paddingVertical: 10 },
+  featuredTile: { flex: 1.05, borderRadius: 20, paddingHorizontal: 9, paddingVertical: 8 },
   compactTile: { borderRadius: 16, paddingHorizontal: 8, paddingVertical: 6 },
   tileContent: { width: '100%', flexDirection: 'row', alignItems: 'center', minWidth: 0 },
   featuredContent: { flex: 1 },
@@ -423,6 +441,12 @@ const styles = StyleSheet.create({
   tileValue: { fontSize: 12, fontWeight: '800', marginTop: 1, textAlign: 'left', flexShrink: 1 },
   featuredValue: { fontSize: 21, fontWeight: '900', marginTop: 2, letterSpacing: -0.4 },
   compactValue: { fontSize: 12, fontWeight: '800', marginTop: 1 },
+  clanCard: { flex: 1.35, minWidth: 0, borderRadius: 16, paddingHorizontal: 9, paddingVertical: 6, flexDirection: 'row', alignItems: 'center' },
+  clanIconWrap: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  clanCardText: { flex: 1, minWidth: 0, marginLeft: 7 },
+  clanCardLabel: { fontSize: 8, fontWeight: '600' },
+  clanCardValue: { fontSize: 11.5, fontWeight: '800', marginTop: 1 },
+
   loader: { position: 'absolute', bottom: 5, alignSelf: 'center' },
   clanBody: { flex: 1, justifyContent: 'center' },
   primaryStats: { flexDirection: 'row', gap: 7, marginTop: 9 },
