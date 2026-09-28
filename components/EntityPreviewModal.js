@@ -197,7 +197,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   const bestRank = firstValue(playerBestPol?.rank);
   const rankedUnlocked = !!playerCurrentPol;
   const progressTrophies = rankedUnlocked ? playerCurrentPol?.trophies : playerData?.trophies;
-  const progressLabel = 'Ranked trophies';
+  const progressLabel = 'Path Of\nLegends';
   const wins = Number(playerData?.wins);
   const losses = Number(playerData?.losses);
   const totalGames = wins + losses;
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
   dashboardSection: { flex: 0, height: 56 },
   dashboardRow: { flex: 1, flexDirection: 'row', gap: 8 },
   infoTile: { flex: 1, minWidth: 0, borderRadius: 18, paddingHorizontal: 9, paddingVertical: 7, overflow: 'hidden', justifyContent: 'center' },
-  featuredTile: { flex: 1.18, borderRadius: 20, paddingHorizontal: 9, paddingVertical: 8 },
+  featuredTile: { flex: 1.42, borderRadius: 20, paddingHorizontal: 9, paddingVertical: 8 },
   compactTile: { borderRadius: 16, paddingHorizontal: 8, paddingVertical: 6 },
   tileContent: { width: '100%', flexDirection: 'row', alignItems: 'center', minWidth: 0 },
   featuredContent: { flex: 1 },
@@ -443,14 +443,14 @@ const styles = StyleSheet.create({
   tileIconWrap: { width: 30, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   featuredIconWrap: { width: 66, height: 66, borderRadius: 18 },
   tileTextBlock: { flex: 1, minWidth: 0, marginLeft: 7, alignItems: 'flex-start', justifyContent: 'center' },
-  featuredTextBlock: { marginLeft: 5, transform: [{ translateX: -2 }] },
+  featuredTextBlock: { marginLeft: 5, alignItems: 'center', transform: [{ translateX: -2 }] },
   compactTextBlock: { marginLeft: 6, alignItems: 'center', justifyContent: 'center' },
   tileImage: { width: 28, height: 28 },
   featuredTileImage: { width: 58, height: 58 },
   cardIcon: { width: 30, height: 30 },
   featuredCardIcon: { width: 50, height: 50 },
   tileLabel: { fontSize: 8.5, fontWeight: '600', textAlign: 'left', flexShrink: 1 },
-  featuredLabel: { fontSize: 9.5, fontWeight: '700', lineHeight: 11 },
+  featuredLabel: { fontSize: 9.5, fontWeight: '700', lineHeight: 11, textAlign: 'center' },
   compactLabel: { fontSize: 8, fontWeight: '600', textAlign: 'center' },
   tileValue: { fontSize: 12, fontWeight: '800', marginTop: 1, textAlign: 'left', flexShrink: 1 },
   featuredValue: { fontSize: 21, fontWeight: '900', marginTop: 2, letterSpacing: -0.4 },
