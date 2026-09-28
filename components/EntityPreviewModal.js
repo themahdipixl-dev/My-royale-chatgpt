@@ -1,6 +1,6 @@
-// * components/EntityPreviewModal.js — compact 9-tile player preview (v84)
+// components/EntityPreviewModal.js
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Modal, Pressable, StyleSheet, View, Image, ActivityIndicator, Dimensions } from 'react-native';
+import { Animated, Modal, Pressable, StyleSheet, View, Image, ActivityIndicator } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { IconButton, Text, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -102,10 +102,9 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
     let cancelled = false;
     setPlayerLoading(true);
     setPlayerData(null);
-    Promise.all([fetchPlayer(tag)]).then(([player]) => {
+    fetchPlayer(tag).then((player) => {
       if (cancelled) return;
       setPlayerData(player);
-
     }).catch(() => {
       if (!cancelled) {
         setPlayerData(null);
@@ -176,7 +175,6 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
     countryName,
   );
 
-  const rank = firstValue(entity.rank);
   const clanName = firstValue(playerData?.clan?.name, entity.clan?.name);
   const clanTag = firstValue(playerData?.clan?.tag, entity.clan?.tag);
   const members = firstValue(entity.members, entity.memberCount, entity.membersCount);
@@ -407,10 +405,6 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   );
 }
 
-const { width: screenWidth } = Dimensions.get('window');
-const modalWidth = Math.min(screenWidth * 0.90, 390);
-const contentWidth = modalWidth - 28;
-const tileSize = (contentWidth - 16) / 3;
 const popupHeight = 365;
 
 const styles = StyleSheet.create({
