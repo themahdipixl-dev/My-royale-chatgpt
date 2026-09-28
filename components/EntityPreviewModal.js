@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   actionButton: { width: 38, height: 38, borderRadius: 19, margin: 0, marginLeft: 6 },
   playerDashboard: { flex: 1, gap: 8 },
   heroRow: { height: 88, flexDirection: 'row', gap: 8 },
-  rankCluster: { flex: 2.05, flexDirection: 'row', gap: 7, minWidth: 0, transform: [{ translateX: -4 }] },
+  rankCluster: { flex: 2.05, flexDirection: 'row', gap: 3, minWidth: 0, transform: [{ translateX: -4 }] },
   rankColumn: { flex: 0.94, gap: 8, minWidth: 0, transform: [{ translateX: 7 }] },
   favoriteVisual: { flex: 0.50, minWidth: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 1, transform: [{ translateX: -1 }, { translateY: -8 }] },
   favoriteCardImage: { width: 87, height: 87, marginBottom: 1 },
