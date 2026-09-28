@@ -405,7 +405,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   );
 }
 
-const popupHeight = 365;
+const popupHeight = 315;
 
 const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'center', alignItems: 'center' },
