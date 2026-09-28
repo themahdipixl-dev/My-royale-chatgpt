@@ -1,6 +1,6 @@
-// * components/EntityPreviewModal.js — compact 9-tile player preview (v83)
+// * components/EntityPreviewModal.js — compact 9-tile player preview (v84)
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Modal, Pressable, StyleSheet, View, Image, ActivityIndicator } from 'react-native';
+import { Animated, Modal, Pressable, StyleSheet, View, Image, ActivityIndicator, Dimensions } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { IconButton, Text, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -263,20 +263,26 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   );
 }
 
+const { width: screenWidth } = Dimensions.get('window');
+const modalWidth = Math.min(screenWidth * 0.84, 350);
+const contentWidth = modalWidth - 20;
+const tileSize = (contentWidth - 14) / 3;
+const popupHeight = 48 + 6 + (tileSize * 2) + 7 + 20;
+
 const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.46)' },
-  animated: { width: '84%', maxWidth: 350, height: 385 },
-  card: { flex: 1, borderRadius: 24, padding: 10, overflow: 'hidden', justifyContent: 'center' },
-  header: { flexDirection: 'row', alignItems: 'center', height: 48, marginHorizontal: 5 },
+  animated: { width: '84%', maxWidth: 350, height: popupHeight },
+  card: { flex: 1, borderRadius: 24, padding: 10, overflow: 'hidden' },
+  header: { flexDirection: 'row', alignItems: 'center', height: 48, marginHorizontal: 0 },
   entityIcon: { width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   playerIcon: { width: 27, height: 27 },
   titleBlock: { flex: 1, marginLeft: 8, minWidth: 0 },
   title: { fontSize: 14, fontWeight: '700' },
   tag: { fontSize: 9.5, marginTop: 1, fontWeight: '600' },
   actionButton: { width: 34, height: 34, borderRadius: 17, margin: 0, marginLeft: 5 },
-  tilesGrid: { width: '100%', height: 273, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignContent: 'center', gap: 7, marginTop: 6 },
-  infoTile: { width: '31.5%', aspectRatio: 1, minWidth: 0, borderRadius: 14, padding: 6, alignItems: 'center', justifyContent: 'center' },
+  tilesGrid: { width: '100%', height: tileSize * 2 + 7, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start', alignContent: 'flex-start', gap: 7, marginTop: 6 },
+  infoTile: { width: tileSize, height: tileSize, borderRadius: 14, padding: 6, alignItems: 'center', justifyContent: 'center' },
   tileImage: { width: 40, height: 40, marginBottom: 2 },
   cardIcon: { width: 52, height: 52, marginBottom: 2 },
   tileLabel: { fontSize: 9, fontWeight: '600', textAlign: 'center' },
@@ -291,5 +297,4 @@ const styles = StyleSheet.create({
   statValue: { fontSize: 16, fontWeight: '800', marginTop: 1 },
   secondaryRow: { flexDirection: 'row', gap: 7, marginTop: 7, height: 58 },
   detailLine: { minHeight: 46, borderRadius: 15, paddingHorizontal: 10, marginTop: 7, flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: 'rgba(127,127,127,0.10)' },
-  detailValue: { flex: 1, fontSize: 11.5, fontWeight: '700' },
 });
