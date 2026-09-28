@@ -34,26 +34,29 @@ function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant
         { backgroundColor: theme.colors.surfaceContainerHighest },
       ]}
     >
-      <View style={styles.tileAccent} />
-      {imageUri ? (
-        <Image source={{ uri: imageUri }} style={[styles.cardIcon, isFeatured && styles.featuredCardIcon]} resizeMode="contain" />
-      ) : image ? (
-        <Image source={image} style={[styles.tileImage, isFeatured && styles.featuredTileImage]} resizeMode="contain" />
-      ) : (
-        <MaterialCommunityIcons
-          name={icon}
-          size={isFeatured ? 32 : isCompact ? 21 : 27}
-          color={theme.colors.primary}
-        />
-      )}
-      <Text style={[styles.tileLabel, isFeatured && styles.featuredLabel, isCompact && styles.compactLabel, { color: theme.colors.onSurfaceVariant }]} numberOfLines={1}>
-        {label}
-      </Text>
-      {value !== null && value !== undefined && (
-        <Text style={[styles.tileValue, isFeatured && styles.featuredValue, isCompact && styles.compactValue, { color: theme.colors.onSurface }]} numberOfLines={1} ellipsizeMode="tail">
-          {value}
-        </Text>
-      )}
+      <View style={[styles.tileContent, isCompact && styles.compactContent]}>
+        {imageUri ? (
+          <Image source={{ uri: imageUri }} style={[styles.cardIcon, isFeatured && styles.featuredCardIcon, isCompact && styles.compactIcon]} resizeMode="contain" />
+        ) : image ? (
+          <Image source={image} style={[styles.tileImage, isFeatured && styles.featuredTileImage, isCompact && styles.compactIcon]} resizeMode="contain" />
+        ) : (
+          <MaterialCommunityIcons
+            name={icon}
+            size={isFeatured ? 32 : isCompact ? 21 : 27}
+            color={theme.colors.primary}
+          />
+        )}
+        <View style={[styles.tileTextBlock, isCompact && styles.compactTextBlock]}>
+          <Text style={[styles.tileLabel, isFeatured && styles.featuredLabel, isCompact && styles.compactLabel, { color: theme.colors.onSurfaceVariant }]} numberOfLines={1}>
+            {label}
+          </Text>
+          {value !== null && value !== undefined && (
+            <Text style={[styles.tileValue, isFeatured && styles.featuredValue, isCompact && styles.compactValue, { color: theme.colors.onSurface }]} numberOfLines={1} ellipsizeMode="tail">
+              {value}
+            </Text>
+          )}
+        </View>
+      </View>
     </Pressable>
   );
 }
@@ -396,20 +399,24 @@ const styles = StyleSheet.create({
   dashboardSection: { flex: 1, minHeight: 0 },
   sectionCaption: { fontSize: 8, fontWeight: '800', letterSpacing: 1.2, marginBottom: 4, marginLeft: 2 },
   dashboardRow: { flex: 1, flexDirection: 'row', gap: 8 },
-  infoTile: { flex: 1, minWidth: 0, borderRadius: 20, padding: 10, alignItems: 'flex-start', justifyContent: 'center', overflow: 'hidden', position: 'relative' },
-  featuredTile: { flex: 1.28, borderRadius: 24, padding: 14, alignItems: 'flex-start' },
-  compactTile: { borderRadius: 18, padding: 9 },
-  tileAccent: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, borderTopLeftRadius: 20, borderBottomLeftRadius: 20, backgroundColor: 'rgba(127,127,127,0.28)' },
+  tileContent: { alignItems: 'center', justifyContent: 'center', width: '100%' },
+  tileTextBlock: { alignItems: 'center', minWidth: 0, maxWidth: '100%' },
+  compactContent: { flex: 1, flexDirection: 'row', alignItems: 'center', minWidth: 0 },
+  compactTextBlock: { flex: 1, alignItems: 'flex-start', marginLeft: 8, minWidth: 0 },
+  compactIcon: { width: 28, height: 28, marginBottom: 0, flexShrink: 0 },
+  infoTile: { flex: 1, minWidth: 0, borderRadius: 20, padding: 10, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  featuredTile: { flex: 1.28, borderRadius: 24, padding: 14, alignItems: 'center' },
+  compactTile: { borderRadius: 18, paddingHorizontal: 9, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' },
   tileImage: { width: 34, height: 34, marginBottom: 4 },
   featuredTileImage: { width: 44, height: 44, marginBottom: 7 },
   cardIcon: { width: 42, height: 42, marginBottom: 4 },
   featuredCardIcon: { width: 58, height: 58, marginBottom: 6 },
-  tileLabel: { fontSize: 9, fontWeight: '600', textAlign: 'left' },
+  tileLabel: { fontSize: 9, fontWeight: '600', textAlign: 'center', maxWidth: '100%' },
   featuredLabel: { fontSize: 10, fontWeight: '700' },
-  compactLabel: { fontSize: 8.5, fontWeight: '600' },
-  tileValue: { fontSize: 12, fontWeight: '800', marginTop: 3, textAlign: 'left' },
+  compactLabel: { fontSize: 8.5, fontWeight: '600', textAlign: 'left', flexShrink: 1 },
+  tileValue: { fontSize: 12, fontWeight: '800', marginTop: 3, textAlign: 'center', maxWidth: '100%' },
   featuredValue: { fontSize: 22, fontWeight: '900', marginTop: 4, letterSpacing: -0.4 },
-  compactValue: { fontSize: 12.5, fontWeight: '800', marginTop: 2 },
+  compactValue: { fontSize: 12.5, fontWeight: '800', marginTop: 2, textAlign: 'left' },
   loader: { position: 'absolute', bottom: 5, alignSelf: 'center' },
   clanBody: { flex: 1, justifyContent: 'center' },
   primaryStats: { flexDirection: 'row', gap: 7, marginTop: 9 },
