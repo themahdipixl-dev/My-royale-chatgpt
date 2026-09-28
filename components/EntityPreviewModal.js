@@ -375,7 +375,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                         <View style={styles.bestTrophiesBlock}>
                           <MaterialCommunityIcons name="trophy-variant-outline" size={26} color={theme.colors.primary} />
                           <View style={styles.bestTrophiesText}>
-                            <Text style={[styles.clanCardLabel, { color: theme.colors.onSurfaceVariant }]}>Best trophies</Text>
+                            <Text style={[styles.clanCardLabel, { color: theme.colors.onSurfaceVariant }]}>Best trophy</Text>
                             <Text numberOfLines={1} style={[styles.clanCardValue, { color: theme.colors.onSurface }]}>
                               {playerLoading ? '…' : formatNumber(playerData?.bestTrophies)}
                             </Text>
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
   entityIcon: { width: 54, height: 54, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
   playerIcon: { width: 38, height: 38 },
   titleBlock: { flex: 1, marginLeft: 11, minWidth: 0 },
-  title: { fontSize: 19.5, fontWeight: '800', letterSpacing: -0.3, transform: [{ translateY: -2 }] },
+  title: { fontSize: 21.5, fontWeight: '800', letterSpacing: -0.3, transform: [{ translateY: -4 }] },
   tag: { fontSize: 10, marginTop: 2, fontWeight: '700' },
   actionButton: { width: 38, height: 38, borderRadius: 19, margin: 0, marginLeft: 6 },
   playerDashboard: { flex: 1, gap: 8 },
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
   rankCluster: { flex: 1.82, flexDirection: 'row', gap: 7, minWidth: 0, transform: [{ translateX: -4 }] },
   rankColumn: { flex: 0.82, gap: 8, minWidth: 0 },
   favoriteVisual: { flex: 0.50, minWidth: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 1, transform: [{ translateY: -4 }] },
-  favoriteCardImage: { width: 82, height: 82, marginBottom: 1 },
+  favoriteCardImage: { width: 87, height: 87, marginBottom: 1 },
   favoriteCardLabel: { fontSize: 7.5, fontWeight: '700', textAlign: 'center' },
   dashboardSection: { flex: 0, height: 56 },
   dashboardRow: { flex: 1, flexDirection: 'row', gap: 8 },
@@ -459,8 +459,8 @@ const styles = StyleSheet.create({
   bestArenaCard: { flex: 1, minWidth: 0, borderRadius: 16, paddingHorizontal: 9, paddingVertical: 4, flexDirection: 'row', alignItems: 'center' },
   bestTrophiesBlock: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', transform: [{ translateX: 4 }] },
   bestTrophiesText: { flex: 1, minWidth: 0, marginLeft: 6 },
-  arenaDivider: { width: 1, height: 28, marginHorizontal: 8, borderRadius: 1, transform: [{ translateX: 4 }] },
-  arenaBlock: { width: 48, alignItems: 'center', justifyContent: 'center', transform: [{ translateX: 4 }] },
+  arenaDivider: { width: 1, height: 28, marginHorizontal: 8, borderRadius: 1, transform: [{ translateX: -2 }] },
+  arenaBlock: { width: 54, alignItems: 'center', justifyContent: 'center', transform: [{ translateX: 4 }] },
   arenaLabel: { fontSize: 8, fontWeight: '600' },
   arenaValue: { fontSize: 11.5, fontWeight: '800', marginTop: 1 },
   clanIconWrap: { width: 28, height: 28, borderRadius: 9, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
