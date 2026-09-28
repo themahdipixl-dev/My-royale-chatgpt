@@ -267,13 +267,13 @@ const { width: screenWidth } = Dimensions.get('window');
 const modalWidth = Math.min(screenWidth * 0.84, 350);
 const contentWidth = modalWidth - 20;
 const tileSize = (contentWidth - 14) / 3;
-const popupHeight = 48 + 6 + (tileSize * 2) + 7 + 20;
+const popupHeight = 385;
 
 const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.46)' },
   animated: { width: '84%', maxWidth: 350, height: popupHeight },
-  card: { flex: 1, borderRadius: 24, padding: 10, overflow: 'hidden' },
+  card: { flex: 1, borderRadius: 24, padding: 10, overflow: 'hidden', justifyContent: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', height: 48, marginHorizontal: 0 },
   entityIcon: { width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   playerIcon: { width: 27, height: 27 },
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 14, fontWeight: '700' },
   tag: { fontSize: 9.5, marginTop: 1, fontWeight: '600' },
   actionButton: { width: 34, height: 34, borderRadius: 17, margin: 0, marginLeft: 5 },
-  tilesGrid: { width: '100%', height: tileSize * 2 + 7, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start', alignContent: 'flex-start', gap: 7, marginTop: 6 },
+  tilesGrid: { width: '100%', height: tileSize * 3 + 14, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start', alignContent: 'flex-start', gap: 7, marginTop: 6 },
   infoTile: { width: tileSize, height: tileSize, borderRadius: 14, padding: 6, alignItems: 'center', justifyContent: 'center' },
   tileImage: { width: 40, height: 40, marginBottom: 2 },
   cardIcon: { width: 52, height: 52, marginBottom: 2 },
