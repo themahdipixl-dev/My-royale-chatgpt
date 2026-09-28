@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
   tileIconWrap: { width: 30, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   featuredIconWrap: { width: 66, height: 66, borderRadius: 18 },
   tileTextBlock: { flex: 1, minWidth: 0, marginLeft: 7, alignItems: 'flex-start', justifyContent: 'center' },
-  featuredTextBlock: { marginLeft: 9, alignItems: 'center', transform: [{ translateX: 2 }] },
+  featuredTextBlock: { marginLeft: 9, alignItems: 'center', transform: [{ translateX: 5 }] },
   compactTextBlock: { marginLeft: 2, alignItems: 'center', justifyContent: 'center', transform: [{ translateX: -3 }] },
   tileImage: { width: 28, height: 28 },
   featuredTileImage: { width: 58, height: 58 },
