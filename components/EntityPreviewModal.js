@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
   dashboardSection: { flex: 0, height: 56 },
   dashboardRow: { flex: 1, flexDirection: 'row', gap: 8 },
   infoTile: { flex: 1, minWidth: 0, borderRadius: 18, paddingHorizontal: 9, paddingVertical: 7, overflow: 'hidden', justifyContent: 'center' },
-  featuredTile: { flex: 1.42, borderRadius: 20, paddingHorizontal: 9, paddingVertical: 8, transform: [{ translateX: 7 }] },
+  featuredTile: { flex: 1.42, borderRadius: 20, paddingHorizontal: 9, paddingVertical: 8, transform: [{ translateX: 3 }] },
   compactTile: { borderRadius: 16, paddingHorizontal: 8, paddingVertical: 6 },
   tileContent: { width: '100%', flexDirection: 'row', alignItems: 'center', minWidth: 0 },
   featuredContent: { flex: 1 },
