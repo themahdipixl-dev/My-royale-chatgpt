@@ -23,11 +23,11 @@ function formatArenaNumber(arena) {
   const rawId = arena?.id ?? arena;
   const id = Number(rawId);
 
-  if (Number.isFinite(id) && id >= 54000000 && id < 54000100) {
-    return String(id - 54000000);
+  if (Number.isFinite(id) && id >= 54000000) {
+    return String(id % 100);
   }
 
-  const name = String(arena?.name ?? '');
+  const name = String(arena?.name ?? arena ?? '');
   const match = name.match(/(?:arena\s*)?(\d{1,2})\b/i);
   return match ? String(Number(match[1])) : '—';
 }
@@ -355,7 +355,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                         style={[styles.clanCard, { backgroundColor: theme.colors.surfaceContainerHighest }]}
                       >
                         <View style={[styles.clanIconWrap, { backgroundColor: theme.colors.primaryContainer }]}>
-                          <MaterialCommunityIcons name="account-group" size={22} color={theme.colors.primary} />
+                          <MaterialCommunityIcons name="account-group" size={20} color={theme.colors.primary} />
                         </View>
                         <View style={styles.clanCardText}>
                           <Text style={[styles.clanCardLabel, { color: theme.colors.onSurfaceVariant }]}>Clan</Text>
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   favoriteVisual: { flex: 0.50, minWidth: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 1, transform: [{ translateY: -4 }] },
   favoriteCardImage: { width: 82, height: 82, marginBottom: 1 },
   favoriteCardLabel: { fontSize: 7.5, fontWeight: '700', textAlign: 'center' },
-  dashboardSection: { flex: 0, height: 64 },
+  dashboardSection: { flex: 0, height: 56 },
   dashboardRow: { flex: 1, flexDirection: 'row', gap: 8 },
   infoTile: { flex: 1, minWidth: 0, borderRadius: 18, paddingHorizontal: 9, paddingVertical: 7, overflow: 'hidden', justifyContent: 'center' },
   featuredTile: { flex: 1.05, borderRadius: 20, paddingHorizontal: 9, paddingVertical: 8 },
@@ -450,15 +450,15 @@ const styles = StyleSheet.create({
   tileValue: { fontSize: 12, fontWeight: '800', marginTop: 1, textAlign: 'left', flexShrink: 1 },
   featuredValue: { fontSize: 21, fontWeight: '900', marginTop: 2, letterSpacing: -0.4 },
   compactValue: { fontSize: 12, fontWeight: '800', marginTop: 1 },
-  clanCard: { flex: 1, minWidth: 0, borderRadius: 16, paddingHorizontal: 9, paddingVertical: 6, flexDirection: 'row', alignItems: 'center' },
-  bestArenaCard: { flex: 1, minWidth: 0, borderRadius: 16, paddingHorizontal: 9, paddingVertical: 6, flexDirection: 'row', alignItems: 'center' },
+  clanCard: { flex: 1, minWidth: 0, borderRadius: 16, paddingHorizontal: 9, paddingVertical: 4, flexDirection: 'row', alignItems: 'center' },
+  bestArenaCard: { flex: 1, minWidth: 0, borderRadius: 16, paddingHorizontal: 9, paddingVertical: 4, flexDirection: 'row', alignItems: 'center' },
   bestTrophiesBlock: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center' },
   bestTrophiesText: { flex: 1, minWidth: 0, marginLeft: 6 },
-  arenaDivider: { width: 1, height: 32, marginHorizontal: 8, borderRadius: 1 },
+  arenaDivider: { width: 1, height: 28, marginHorizontal: 8, borderRadius: 1 },
   arenaBlock: { width: 48, alignItems: 'flex-start', justifyContent: 'center' },
   arenaLabel: { fontSize: 8, fontWeight: '600' },
   arenaValue: { fontSize: 11.5, fontWeight: '800', marginTop: 1 },
-  clanIconWrap: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  clanIconWrap: { width: 28, height: 28, borderRadius: 9, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   clanCardText: { flex: 1, minWidth: 0, marginLeft: 7 },
   clanCardLabel: { fontSize: 8, fontWeight: '600' },
   clanCardValue: { fontSize: 11.5, fontWeight: '800', marginTop: 1 },
