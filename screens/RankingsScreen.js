@@ -10,6 +10,7 @@ import LocationBar from '../components/LocationBar';
 import TopTabs from '../components/TopTabs';
 import RankRow, { ROW_HEIGHT } from '../components/RankRow';
 import ClanRow, { CLAN_ROW_HEIGHT } from '../components/ClanRow';
+import EntityPreviewModal from '../components/EntityPreviewModal';
 import EntityDetailsScreen from './EntityDetailsScreen';
 
 const TAB_VALUES = ['players', 'clans', 'merge'];
@@ -43,6 +44,8 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const locationBarRef = useRef(null);
   const lastOffset = useRef(0);
   const lastDirectionOffset = useRef(0);
+  const [previewEntity, setPreviewEntity] = useState(null);
+  const [previewType, setPreviewType] = useState('player');
   const [detailEntity, setDetailEntity] = useState(null);
   const [detailType, setDetailType] = useState('player');
   const tabPagerX = useRef(new Animated.Value(0)).current;
@@ -76,6 +79,11 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       if (detailEntity) return false;
 
+      if (previewEntity) {
+        setPreviewEntity(null);
+        return true;
+      }
+
       if (locationBarRef.current?.handleBack?.()) {
         return true;
       }
@@ -92,7 +100,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
     });
 
     return () => subscription.remove();
-  }, [detailEntity, searchOpen, onRequestHome]);
+  }, [detailEntity, previewEntity, searchOpen, onRequestHome]);
 
   const loadData = useCallback((locationId, type = topTab, clanMode = clanRankingMode) => {
     if (!locationId) return;
@@ -186,6 +194,17 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
 
   const rowHeight = topTab === 'clans' && clanRankingMode === 'war' ? CLAN_ROW_HEIGHT : ROW_HEIGHT;
 
+  const openPreview = useCallback((entity, type) => {
+    setPreviewEntity(entity);
+    setPreviewType(type);
+  }, []);
+
+  const openClanDetails = useCallback((clan) => {
+    setPreviewEntity(null);
+    setDetailEntity(clan);
+    setDetailType('clan');
+  }, []);
+
   const horizontalSwipeResponder = useRef(PanResponder.create({
     onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 4 && Math.abs(g.dx) > Math.abs(g.dy) * 1.2,
     onPanResponderGrant: () => tabPagerX.stopAnimation(),
@@ -226,6 +245,12 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
     Animated.spring(tabSwipeProgress, { toValue: index, friction: 8, tension: 72, useNativeDriver: true }).start();
   }, [topTab, tabPagerX, tabSwipeProgress]);
 
+  const expandPreview = useCallback(() => {
+    setDetailEntity(previewEntity);
+    setDetailType(previewType);
+    setPreviewEntity(null);
+  }, [previewEntity, previewType]);
+
   if (detailEntity) {
     return <EntityDetailsScreen entity={detailEntity} type={detailType} onBack={() => setDetailEntity(null)} />;
   }
@@ -265,8 +290,8 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
                     data={visibleTabItems}
                     keyExtractor={(item, idx) => item.tag || item.id || (item.name || 'item') + '-' + (item.rank ?? idx)}
                     renderItem={({ item, index }) => tabKey === 'clans' && clanRankingMode === 'war'
-                      ? <ClanRow item={item} index={index} animationKey={animationKey} />
-                      : <RankRow item={item} index={index} animationKey={animationKey} />}
+                      ? <ClanRow item={item} index={index} animationKey={animationKey} onPress={(entity) => openPreview(entity, 'clan')} />
+                      : <RankRow item={item} index={index} animationKey={animationKey} onPress={(entity) => openPreview(entity, 'player')} />}
                     contentContainerStyle={styles.listContent}
                     style={styles.list}
                     getItemLayout={(_, index) => ({ length: tabRowHeight, offset: tabRowHeight * index, index })}
@@ -306,6 +331,8 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
           {loading && displayedItems.length === 0 && <View pointerEvents="none" style={styles.initialLoadingOverlay} />}
         </View>
       )}
+
+      <EntityPreviewModal visible={!!previewEntity} entity={previewEntity} type={previewType} countryName={selectedLocation?.id === 'global' ? null : selectedLocation?.name} onClose={() => setPreviewEntity(null)} onExpand={expandPreview} onClanPress={openClanDetails} />
 
       {error && <View style={styles.center}>
         <Text style={[styles.errorText, { color: theme.colors.onSurface }]}>{error}</Text>
