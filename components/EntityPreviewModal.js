@@ -20,14 +20,16 @@ function formatNumber(value) {
 }
 
 function formatArenaNumber(arena) {
-  const id = Number(arena?.id);
+  const rawId = arena?.id ?? arena;
+  const id = Number(rawId);
+
   if (Number.isFinite(id) && id >= 54000000 && id < 54000100) {
     return String(id - 54000000);
   }
 
-  const name = String(arena?.name ?? arena ?? '');
+  const name = String(arena?.name ?? '');
   const match = name.match(/(?:arena\s*)?(\d{1,2})\b/i);
-  return match ? match[1] : '—';
+  return match ? String(Number(match[1])) : '—';
 }
 
 function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant = 'default' }) {
@@ -54,14 +56,14 @@ function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant
           ) : (
             <MaterialCommunityIcons
               name={icon}
-              size={isFeatured ? 32 : isCompact ? 21 : 27}
+              size={isFeatured ? 48 : isCompact ? 21 : 27}
               color={theme.colors.primary}
             />
           )}
         </View>
 
         <View style={[styles.tileTextBlock, isFeatured && styles.featuredTextBlock, isCompact && styles.compactTextBlock]}>
-          <Text style={[styles.tileLabel, isFeatured && styles.featuredLabel, isCompact && styles.compactLabel, { color: theme.colors.onSurfaceVariant }]} numberOfLines={1}>
+          <Text style={[styles.tileLabel, isFeatured && styles.featuredLabel, isCompact && styles.compactLabel, { color: theme.colors.onSurfaceVariant }]} numberOfLines={isFeatured ? 2 : 1}>
             {label}
           </Text>
           {value !== null && value !== undefined && (
@@ -418,14 +420,14 @@ const styles = StyleSheet.create({
   title: { fontSize: 18, fontWeight: '800', letterSpacing: -0.3 },
   tag: { fontSize: 10, marginTop: 2, fontWeight: '700' },
   actionButton: { width: 38, height: 38, borderRadius: 19, margin: 0, marginLeft: 6 },
-  playerDashboard: { flex: 1, gap: 5 },
+  playerDashboard: { flex: 1, gap: 8 },
   heroRow: { height: 88, flexDirection: 'row', gap: 8 },
   rankCluster: { flex: 1.82, flexDirection: 'row', gap: 7, minWidth: 0 },
-  rankColumn: { flex: 0.92, gap: 7, minWidth: 0 },
-  favoriteVisual: { flex: 0.50, minWidth: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 1 },
+  rankColumn: { flex: 0.82, gap: 8, minWidth: 0 },
+  favoriteVisual: { flex: 0.50, minWidth: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 1, transform: [{ translateY: -4 }] },
   favoriteCardImage: { width: 82, height: 82, marginBottom: 1 },
   favoriteCardLabel: { fontSize: 7.5, fontWeight: '700', textAlign: 'center' },
-  dashboardSection: { flex: 0, height: 60 },
+  dashboardSection: { flex: 0, height: 64 },
   dashboardRow: { flex: 1, flexDirection: 'row', gap: 8 },
   infoTile: { flex: 1, minWidth: 0, borderRadius: 18, paddingHorizontal: 9, paddingVertical: 7, overflow: 'hidden', justifyContent: 'center' },
   featuredTile: { flex: 1.05, borderRadius: 20, paddingHorizontal: 9, paddingVertical: 8 },
@@ -434,16 +436,16 @@ const styles = StyleSheet.create({
   featuredContent: { flex: 1 },
   compactContent: { flex: 1 },
   tileIconWrap: { width: 30, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  featuredIconWrap: { width: 58, height: 58, borderRadius: 16 },
+  featuredIconWrap: { width: 66, height: 66, borderRadius: 18 },
   tileTextBlock: { flex: 1, minWidth: 0, marginLeft: 7, alignItems: 'flex-start', justifyContent: 'center' },
   featuredTextBlock: { marginLeft: 9 },
   compactTextBlock: { marginLeft: 6 },
   tileImage: { width: 28, height: 28 },
-  featuredTileImage: { width: 50, height: 50 },
+  featuredTileImage: { width: 58, height: 58 },
   cardIcon: { width: 30, height: 30 },
   featuredCardIcon: { width: 50, height: 50 },
   tileLabel: { fontSize: 8.5, fontWeight: '600', textAlign: 'left', flexShrink: 1 },
-  featuredLabel: { fontSize: 9.5, fontWeight: '700' },
+  featuredLabel: { fontSize: 9.5, fontWeight: '700', lineHeight: 11 },
   compactLabel: { fontSize: 8, fontWeight: '600' },
   tileValue: { fontSize: 12, fontWeight: '800', marginTop: 1, textAlign: 'left', flexShrink: 1 },
   featuredValue: { fontSize: 21, fontWeight: '900', marginTop: 2, letterSpacing: -0.4 },
