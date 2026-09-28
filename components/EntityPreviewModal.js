@@ -34,19 +34,22 @@ function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant
         { backgroundColor: theme.colors.surfaceContainerHighest },
       ]}
     >
-      <View style={[styles.tileContent, isCompact && styles.compactContent]}>
-        {imageUri ? (
-          <Image source={{ uri: imageUri }} style={[styles.cardIcon, isFeatured && styles.featuredCardIcon, isCompact && styles.compactIcon]} resizeMode="contain" />
-        ) : image ? (
-          <Image source={image} style={[styles.tileImage, isFeatured && styles.featuredTileImage, isCompact && styles.compactIcon]} resizeMode="contain" />
-        ) : (
-          <MaterialCommunityIcons
-            name={icon}
-            size={isFeatured ? 32 : isCompact ? 21 : 27}
-            color={theme.colors.primary}
-          />
-        )}
-        <View style={[styles.tileTextBlock, isCompact && styles.compactTextBlock]}>
+      <View style={[styles.tileContent, isFeatured && styles.featuredContent, isCompact && styles.compactContent]}>
+        <View style={[styles.tileIconWrap, isFeatured && styles.featuredIconWrap]}>
+          {imageUri ? (
+            <Image source={{ uri: imageUri }} style={[styles.cardIcon, isFeatured && styles.featuredCardIcon]} resizeMode="contain" />
+          ) : image ? (
+            <Image source={image} style={[styles.tileImage, isFeatured && styles.featuredTileImage]} resizeMode="contain" />
+          ) : (
+            <MaterialCommunityIcons
+              name={icon}
+              size={isFeatured ? 32 : isCompact ? 21 : 27}
+              color={theme.colors.primary}
+            />
+          )}
+        </View>
+
+        <View style={[styles.tileTextBlock, isFeatured && styles.featuredTextBlock, isCompact && styles.compactTextBlock]}>
           <Text style={[styles.tileLabel, isFeatured && styles.featuredLabel, isCompact && styles.compactLabel, { color: theme.colors.onSurfaceVariant }]} numberOfLines={1}>
             {label}
           </Text>
@@ -377,7 +380,7 @@ const { width: screenWidth } = Dimensions.get('window');
 const modalWidth = Math.min(screenWidth * 0.90, 390);
 const contentWidth = modalWidth - 28;
 const tileSize = (contentWidth - 16) / 3;
-const popupHeight = 430;
+const popupHeight = 400;
 
 const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -394,29 +397,32 @@ const styles = StyleSheet.create({
   headerClanText: { fontSize: 9.5, fontWeight: '600', marginLeft: 4, flexShrink: 1 },
   actionButton: { width: 38, height: 38, borderRadius: 19, margin: 0, marginLeft: 6 },
   playerDashboard: { flex: 1, gap: 8 },
-  heroRow: { height: 108, flexDirection: 'row', gap: 8 },
-  rankColumn: { flex: 0.88, gap: 8 },
-  dashboardSection: { flex: 1, minHeight: 0 },
-  sectionCaption: { fontSize: 8, fontWeight: '800', letterSpacing: 1.2, marginBottom: 4, marginLeft: 2 },
+  heroRow: { height: 88, flexDirection: 'row', gap: 8 },
+  rankColumn: { flex: 0.92, gap: 8 },
+  dashboardSection: { flex: 0, height: 65 },
+  sectionCaption: { fontSize: 7.5, fontWeight: '800', letterSpacing: 1.1, marginBottom: 3, marginLeft: 2 },
   dashboardRow: { flex: 1, flexDirection: 'row', gap: 8 },
-  tileContent: { alignItems: 'center', justifyContent: 'center', width: '100%' },
-  tileTextBlock: { alignItems: 'center', minWidth: 0, maxWidth: '100%' },
-  compactContent: { flex: 1, flexDirection: 'row', alignItems: 'center', minWidth: 0 },
-  compactTextBlock: { flex: 1, alignItems: 'flex-start', marginLeft: 8, minWidth: 0 },
-  compactIcon: { width: 28, height: 28, marginBottom: 0, flexShrink: 0 },
-  infoTile: { flex: 1, minWidth: 0, borderRadius: 20, padding: 10, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  featuredTile: { flex: 1.28, borderRadius: 24, padding: 14, alignItems: 'center' },
-  compactTile: { borderRadius: 18, paddingHorizontal: 9, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' },
-  tileImage: { width: 34, height: 34, marginBottom: 4 },
-  featuredTileImage: { width: 44, height: 44, marginBottom: 7 },
-  cardIcon: { width: 42, height: 42, marginBottom: 4 },
-  featuredCardIcon: { width: 58, height: 58, marginBottom: 6 },
-  tileLabel: { fontSize: 9, fontWeight: '600', textAlign: 'center', maxWidth: '100%' },
-  featuredLabel: { fontSize: 10, fontWeight: '700' },
-  compactLabel: { fontSize: 8.5, fontWeight: '600', textAlign: 'left', flexShrink: 1 },
-  tileValue: { fontSize: 12, fontWeight: '800', marginTop: 3, textAlign: 'center', maxWidth: '100%' },
-  featuredValue: { fontSize: 22, fontWeight: '900', marginTop: 4, letterSpacing: -0.4 },
-  compactValue: { fontSize: 12.5, fontWeight: '800', marginTop: 2, textAlign: 'left' },
+  infoTile: { flex: 1, minWidth: 0, borderRadius: 18, paddingHorizontal: 9, paddingVertical: 7, overflow: 'hidden', justifyContent: 'center' },
+  featuredTile: { flex: 1.18, borderRadius: 22, paddingHorizontal: 12, paddingVertical: 10 },
+  compactTile: { borderRadius: 16, paddingHorizontal: 8, paddingVertical: 6 },
+  tileContent: { width: '100%', flexDirection: 'row', alignItems: 'center', minWidth: 0 },
+  featuredContent: { flex: 1 },
+  compactContent: { flex: 1 },
+  tileIconWrap: { width: 30, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  featuredIconWrap: { width: 46, height: 46, borderRadius: 14 },
+  tileTextBlock: { flex: 1, minWidth: 0, marginLeft: 7, alignItems: 'flex-start', justifyContent: 'center' },
+  featuredTextBlock: { marginLeft: 9 },
+  compactTextBlock: { marginLeft: 6 },
+  tileImage: { width: 28, height: 28 },
+  featuredTileImage: { width: 40, height: 40 },
+  cardIcon: { width: 30, height: 30 },
+  featuredCardIcon: { width: 46, height: 46 },
+  tileLabel: { fontSize: 8.5, fontWeight: '600', textAlign: 'left', flexShrink: 1 },
+  featuredLabel: { fontSize: 9.5, fontWeight: '700' },
+  compactLabel: { fontSize: 8, fontWeight: '600' },
+  tileValue: { fontSize: 12, fontWeight: '800', marginTop: 1, textAlign: 'left', flexShrink: 1 },
+  featuredValue: { fontSize: 21, fontWeight: '900', marginTop: 2, letterSpacing: -0.4 },
+  compactValue: { fontSize: 12, fontWeight: '800', marginTop: 1 },
   loader: { position: 'absolute', bottom: 5, alignSelf: 'center' },
   clanBody: { flex: 1, justifyContent: 'center' },
   primaryStats: { flexDirection: 'row', gap: 7, marginTop: 9 },
