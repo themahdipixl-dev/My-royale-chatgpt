@@ -292,7 +292,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                       <InfoTile
                         icon="trophy-outline"
                         label={progressLabel}
-                        value={playerLoading ? '…' : formatNumber(progressTrophies)}
+                        value={playerLoading ? '…' : String(progressTrophies ?? '—')}
                         theme={theme}
                         variant="featured"
                       />
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
   tileIconWrap: { width: 30, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   featuredIconWrap: { width: 66, height: 66, borderRadius: 18 },
   tileTextBlock: { flex: 1, minWidth: 0, marginLeft: 7, alignItems: 'flex-start', justifyContent: 'center' },
-  featuredTextBlock: { marginLeft: 9, alignItems: 'center', transform: [{ translateX: 5 }] },
+  featuredTextBlock: { marginLeft: 9, alignItems: 'center', transform: [{ translateX: 2 }] },
   compactTextBlock: { marginLeft: 2, alignItems: 'center', justifyContent: 'center', transform: [{ translateX: -3 }] },
   tileImage: { width: 28, height: 28 },
   featuredTileImage: { width: 58, height: 58 },
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   bestArenaCard: { flex: 1, minWidth: 0, borderRadius: 16, paddingHorizontal: 9, paddingVertical: 4, flexDirection: 'row', alignItems: 'center' },
   bestTrophiesBlock: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', transform: [{ translateX: 4 }] },
   bestTrophiesText: { flex: 1, minWidth: 0, marginLeft: 6 },
-  arenaDivider: { width: 1, height: 28, marginHorizontal: 8, borderRadius: 1, transform: [{ translateX: 4 }] },
+  arenaDivider: { width: 1, height: 28, marginHorizontal: 8, borderRadius: 1, transform: [{ translateX: 10 }] },
   arenaBlock: { width: 54, alignItems: 'center', justifyContent: 'center', transform: [{ translateX: 4 }] },
   arenaLabel: { fontSize: 8, fontWeight: '600' },
   arenaValue: { fontSize: 11.5, fontWeight: '800', marginTop: 1 },
