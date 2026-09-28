@@ -10,7 +10,7 @@ const LIMITS = [100, 250, 500];
 const CONTROL_HEIGHT = 36;
 const ICON_SIZE = 17;
 
-const LocationBar = forwardRef(function LocationBar({ countries, selected, visible, onOpen, onClose, onSelect, selectedLimit, onSelectLimit, onSearchRank, searchOpen, onSearchOpen, onSearchClose, searchQuery, onSearchQueryChange, searchBy, onSearchByChange, isMergeTab = false }, ref) {
+const LocationBar = forwardRef(function LocationBar({ countries, countriesLoading = false, selected, visible, onOpen, onClose, onSelect, selectedLimit, onSelectLimit, onSearchRank, searchOpen, onSearchOpen, onSearchClose, searchQuery, onSearchQueryChange, searchBy, onSearchByChange, isMergeTab = false }, ref) {
   const theme = useTheme();
   const { width: windowWidth } = useWindowDimensions();
   const fixedControlWidth = 82;
@@ -141,7 +141,14 @@ const LocationBar = forwardRef(function LocationBar({ countries, selected, visib
                 <AnimatedPressable wrapperStyle={styles.countryItem} style={styles.popupPressable} onPress={() => { setCountryMenuPosition(null); onClose(); onSelect({ id: 'global', name: 'Global' }); }}>
                   <MaterialCommunityIcons name="earth" size={21} color={theme.colors.onSurfaceVariant} /><Text style={[styles.countryItemText, { color: theme.colors.onSurface, marginLeft: 4 }]}>Global</Text>
                 </AnimatedPressable>
-                {filteredCountries.map((c) => <AnimatedPressable key={c.id} wrapperStyle={styles.countryItem} style={styles.popupPressable} onPress={() => { setCountryMenuPosition(null); onClose(); onSelect({ id: c.id, name: c.name }); }}><Text style={[styles.countryItemText, { color: theme.colors.onSurface }]}>{c.name}</Text></AnimatedPressable>)}
+                {countriesLoading ? (
+                  <View style={styles.countryItem}>
+                    <MaterialCommunityIcons name="loading" size={21} color={theme.colors.onSurfaceVariant} />
+                    <Text style={[styles.countryItemText, { color: theme.colors.onSurfaceVariant }]}>Loading countries…</Text>
+                  </View>
+                ) : (
+                  filteredCountries.map((c) => <AnimatedPressable key={c.id} wrapperStyle={styles.countryItem} style={styles.popupPressable} onPress={() => { setCountryMenuPosition(null); onClose(); onSelect({ id: c.id, name: c.name }); }}><Text style={[styles.countryItemText, { color: theme.colors.onSurface }]}>{c.name}</Text></AnimatedPressable>)
+                )}
               </ScrollView>
             </Surface>
           </Animated.View>
