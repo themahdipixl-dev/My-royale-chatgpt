@@ -19,6 +19,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const theme = useTheme();
   const [topTab, setTopTab] = useState('players');
   const [countries, setCountries] = useState([]);
+  const [countriesLoading, setCountriesLoading] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState({ id: 'global', name: 'Global' });
   const [menuVisible, setMenuVisible] = useState(false);
   const [players, setPlayers] = useState([]);
@@ -50,11 +51,29 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const tabPagerX = useRef(new Animated.Value(0)).current;
   const tabSwipeProgress = useRef(new Animated.Value(0)).current;
   const pagerWidthRef = useRef(0);
+  const countriesLoadedRef = useRef(false);
+  const countriesLoadingRef = useRef(false);
   const topTabRef = useRef(topTab);
   const handleTopTabChangeRef = useRef(null);
   topTabRef.current = topTab;
 
-  useEffect(() => { fetchCountries().then(setCountries).catch(() => setCountries([])); }, []);
+  const handleCountryOpen = useCallback(() => {
+    if (countriesLoadedRef.current || countriesLoadingRef.current) return;
+
+    countriesLoadingRef.current = true;
+    setCountriesLoading(true);
+
+    fetchCountries()
+      .then((items) => {
+        setCountries(items);
+        countriesLoadedRef.current = true;
+      })
+      .catch(() => setCountries([]))
+      .finally(() => {
+        countriesLoadingRef.current = false;
+        setCountriesLoading(false);
+      });
+  }, []);
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -240,7 +259,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
     <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
       <AppHeader />
       <TopTabs value={topTab} onChange={handleTopTabChange} clanRankingMode={clanRankingMode} onClanRankingModeChange={handleClanRankingModeChange} swipeProgress={tabSwipeProgress} />
-      <LocationBar ref={locationBarRef} countries={countries} selected={selectedLocation} visible={menuVisible} onOpen={() => setMenuVisible(true)} onClose={() => setMenuVisible(false)}
+      <LocationBar ref={locationBarRef} countries={countries} countriesLoading={countriesLoading} selected={selectedLocation} visible={menuVisible} onOpen={() => { handleCountryOpen(); setMenuVisible(true); }} onClose={() => setMenuVisible(false)}
         onSelect={(loc) => { setSelectedLocation(loc); setMenuVisible(false); }} selectedLimit={selectedLimit} onSelectLimit={handleSelectLimit}
         onSearchRank={handleSearchRank} searchOpen={searchOpen} onSearchOpen={() => setSearchOpen(true)} onSearchClose={() => { setSearchOpen(false); setSearchQuery(''); }}
         searchQuery={searchQuery} onSearchQueryChange={setSearchQuery} searchBy={searchBy}
