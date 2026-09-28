@@ -16,7 +16,7 @@ function firstValue(...values) {
 function formatNumber(value) {
   if (value === null || value === undefined || value === '') return '—';
   const number = Number(value);
-  return Number.isFinite(number) ? number.toLocaleString() : String(value);
+  return Number.isFinite(number) ? String(number) : String(value);
 }
 
 function formatArenaNumber(arena) {
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   bestArenaCard: { flex: 1, minWidth: 0, borderRadius: 16, paddingHorizontal: 9, paddingVertical: 4, flexDirection: 'row', alignItems: 'center' },
   bestTrophiesBlock: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', transform: [{ translateX: 4 }] },
   bestTrophiesText: { flex: 1, minWidth: 0, marginLeft: 6 },
-  arenaDivider: { position: 'absolute', left: 66, width: 1, height: 28, borderRadius: 1 },
+  arenaDivider: { position: 'absolute', left: 86, width: 1, height: 28, borderRadius: 1 },
   arenaBlock: { width: 54, alignItems: 'center', justifyContent: 'center', transform: [{ translateX: 4 }] },
   arenaLabel: { fontSize: 8, fontWeight: '600' },
   arenaValue: { fontSize: 11.5, fontWeight: '800', marginTop: 1 },
