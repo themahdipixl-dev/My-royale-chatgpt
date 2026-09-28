@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   bestArenaCard: { flex: 1, minWidth: 0, borderRadius: 16, paddingHorizontal: 9, paddingVertical: 4, flexDirection: 'row', alignItems: 'center' },
   bestTrophiesBlock: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', transform: [{ translateX: 4 }] },
   bestTrophiesText: { flex: 1, minWidth: 0, marginLeft: 6 },
-  arenaDivider: { width: 1, height: 28, marginLeft: 12, marginRight: 8, borderRadius: 1 },
+  arenaDivider: { width: 1, height: 28, marginLeft: 22, marginRight: 8, borderRadius: 1 },
   arenaBlock: { width: 54, alignItems: 'center', justifyContent: 'center', transform: [{ translateX: 4 }] },
   arenaLabel: { fontSize: 8, fontWeight: '600' },
   arenaValue: { fontSize: 11.5, fontWeight: '800', marginTop: 1 },
