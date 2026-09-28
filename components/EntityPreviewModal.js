@@ -266,7 +266,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
 const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.46)' },
-  animated: { width: '84%', maxWidth: 350, aspectRatio: 1 },
+  animated: { width: '84%', maxWidth: 350, height: 385 },
   card: { flex: 1, borderRadius: 24, padding: 10, overflow: 'hidden' },
   header: { flexDirection: 'row', alignItems: 'center', height: 48, marginHorizontal: 5 },
   entityIcon: { width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
