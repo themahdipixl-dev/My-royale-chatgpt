@@ -207,8 +207,8 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
       Animated.spring(tabSwipeProgress, { toValue: next, friction: 8, tension: 72, useNativeDriver: true }).start();
       if (next !== index) {
         handleTopTabChangeRef.current?.(TAB_VALUES[next]);
-      } else if (index === TAB_VALUES.length - 1 && g.dx > 0) {
-        // From Mergers, a right swipe advances the bottom navigation.
+      } else if (index === TAB_VALUES.length - 1 && g.dx < 0) {
+        // From Mergers, continuing the leftward swipe advances the bottom navigation.
         onRequestBottomNext?.();
       }
     },
