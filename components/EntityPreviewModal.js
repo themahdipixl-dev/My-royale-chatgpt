@@ -27,7 +27,7 @@ function InfoTile({ icon, image, label, value, theme, imageUri, onPress }) {
       ) : image ? (
         <Image source={image} style={styles.tileImage} resizeMode="contain" />
       ) : (
-        <MaterialCommunityIcons name={icon} size={31} color={theme.colors.primary} />
+        <MaterialCommunityIcons name={icon} size={27} color={theme.colors.primary} />
       )}
       <Text style={[styles.tileLabel, { color: theme.colors.onSurfaceVariant }]} numberOfLines={1}>{label}</Text>
       {value !== null && value !== undefined && <Text style={[styles.tileValue, { color: theme.colors.onSurface }]} numberOfLines={1} ellipsizeMode="tail">{value}</Text>}
@@ -275,12 +275,12 @@ const styles = StyleSheet.create({
   title: { fontSize: 14, fontWeight: '700' },
   tag: { fontSize: 9.5, marginTop: 1, fontWeight: '600' },
   actionButton: { width: 34, height: 34, borderRadius: 17, margin: 0, marginLeft: 5 },
-  tilesGrid: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start', columnGap: 7, rowGap: 7, marginTop: 6 },
-  infoTile: { flexBasis: '31%', flexGrow: 1, flexShrink: 1, aspectRatio: 1, minWidth: 0, borderRadius: 17, padding: 7, alignItems: 'center', justifyContent: 'center' },
-  tileImage: { width: 46, height: 46, marginBottom: 2 },
-  cardIcon: { width: 62, height: 62, marginBottom: 2 },
-  tileLabel: { fontSize: 10, fontWeight: '600', textAlign: 'center' },
-  tileValue: { fontSize: 13, fontWeight: '800', marginTop: 3, textAlign: 'center' },
+  tilesGrid: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 7, marginTop: 6 },
+  infoTile: { width: '29%', aspectRatio: 1, minWidth: 0, borderRadius: 14, padding: 6, alignItems: 'center', justifyContent: 'center' },
+  tileImage: { width: 40, height: 40, marginBottom: 2 },
+  cardIcon: { width: 52, height: 52, marginBottom: 2 },
+  tileLabel: { fontSize: 9, fontWeight: '600', textAlign: 'center' },
+  tileValue: { fontSize: 11.5, fontWeight: '800', marginTop: 2, textAlign: 'center' },
   loader: { position: 'absolute', bottom: 5, alignSelf: 'center' },
   clanBody: { flex: 1, justifyContent: 'center' },
   primaryStats: { flexDirection: 'row', gap: 7, marginTop: 9 },
