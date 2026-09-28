@@ -20,16 +20,21 @@ function formatNumber(value) {
 }
 
 function formatArenaNumber(arena) {
-  const rawId = arena?.id ?? arena;
-  const id = Number(rawId);
+  const rawName = String(arena?.rawName ?? '');
 
-  if (Number.isFinite(id) && id >= 54000000) {
-    return String(id % 100);
+  // Arena_14 → 14
+  const normalMatch = rawName.match(/^Arena_(\d+)$/i);
+  if (normalMatch) {
+    return String(Number(normalMatch[1]));
   }
 
-  const name = String(arena?.name ?? arena ?? '');
-  const match = name.match(/(?:arena\s*)?(\d{1,2})\b/i);
-  return match ? String(Number(match[1])) : '—';
+  // Arena_L1 → 15, Arena_L2 → 16, ... Arena_L18 → 32
+  const leagueMatch = rawName.match(/^Arena_L(\d+)$/i);
+  if (leagueMatch) {
+    return String(Number(leagueMatch[1]) + 14);
+  }
+
+  return '—';
 }
 
 function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant = 'default' }) {
