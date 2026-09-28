@@ -19,6 +19,13 @@ function formatNumber(value) {
   return Number.isFinite(number) ? number.toLocaleString() : String(value);
 }
 
+function formatArenaNumber(arena) {
+  const id = Number(arena?.id ?? arena);
+  if (!Number.isFinite(id)) return '—';
+  const arenaNumber = id >= 54000000 && id < 54000100 ? id - 54000000 : id;
+  return String(arenaNumber);
+}
+
 function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant = 'default' }) {
   const isFeatured = variant === 'featured';
   const isCompact = variant === 'compact';
@@ -221,18 +228,6 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                 <Pressable onPress={() => tag && Clipboard.setStringAsync(tag)} disabled={!tag}>
                   <Text numberOfLines={1} style={[styles.tag, { color: theme.colors.primary }]}>{tag || 'Player'}</Text>
                 </Pressable>
-                {clanName ? (
-                  <Pressable
-                    onPress={clanTag ? () => onClanPress?.({ name: clanName, tag: clanTag }, 'clan') : undefined}
-                    disabled={!clanTag}
-                    style={styles.headerClan}
-                  >
-                    <MaterialCommunityIcons name="account-group-outline" size={14} color={theme.colors.primary} />
-                    <Text numberOfLines={1} style={[styles.headerClanText, { color: theme.colors.onSurfaceVariant }]}>
-                      {clanName}
-                    </Text>
-                  </Pressable>
-                ) : null}
               </View>
 
               <IconButton
@@ -293,14 +288,14 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                       <View style={styles.rankColumn}>
                         <InfoTile
                           icon="podium"
-                          label="Current rank"
+                          label="Current"
                           value={playerLoading ? '…' : rankLabel}
                           theme={theme}
                           variant="compact"
                         />
                         <InfoTile
                           icon="trophy-award"
-                          label="Best rank"
+                          label="Best"
                           value={playerLoading ? '…' : bestRankLabel}
                           theme={theme}
                           variant="compact"
@@ -367,13 +362,26 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                         {clanTag ? <MaterialCommunityIcons name="chevron-right" size={19} color={theme.colors.onSurfaceVariant} /> : null}
                       </Pressable>
 
-                      <InfoTile
-                        icon="trophy-outline"
-                        label="Best trophies"
-                        value={playerLoading ? '…' : formatNumber(playerData?.bestTrophies)}
-                        theme={theme}
-                        variant="compact"
-                      />
+                      <View style={[styles.bestArenaCard, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+                        <View style={styles.bestTrophiesBlock}>
+                          <Image source={pointIcon} style={styles.bestTrophiesIcon} resizeMode="contain" />
+                          <View style={styles.bestTrophiesText}>
+                            <Text style={[styles.clanCardLabel, { color: theme.colors.onSurfaceVariant }]}>Best trophies</Text>
+                            <Text numberOfLines={1} style={[styles.clanCardValue, { color: theme.colors.onSurface }]}>
+                              {playerLoading ? '…' : formatNumber(playerData?.bestTrophies)}
+                            </Text>
+                          </View>
+                        </View>
+
+                        <View style={[styles.arenaDivider, { backgroundColor: theme.colors.outlineVariant }]} />
+
+                        <View style={styles.arenaBlock}>
+                          <Text style={[styles.arenaLabel, { color: theme.colors.onSurfaceVariant }]}>Arena</Text>
+                          <Text style={[styles.arenaValue, { color: theme.colors.primary }]}>
+                            {playerLoading ? '…' : formatArenaNumber(playerData?.arena)}
+                          </Text>
+                        </View>
+                      </View>
                     </View>
                   </View>
                 </View>
@@ -415,8 +423,8 @@ const styles = StyleSheet.create({
   rankCluster: { flex: 1.7, flexDirection: 'row', gap: 7, minWidth: 0 },
   rankColumn: { flex: 0.72, gap: 7, minWidth: 0 },
   favoriteVisual: { flex: 0.58, minWidth: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 },
-  favoriteCardImage: { width: 62, height: 62, marginBottom: 2 },
-  favoriteCardLabel: { fontSize: 8.5, fontWeight: '700', textAlign: 'center' },
+  favoriteCardImage: { width: 76, height: 76, marginBottom: 1 },
+  favoriteCardLabel: { fontSize: 7.5, fontWeight: '700', textAlign: 'center' },
   dashboardSection: { flex: 0, height: 65 },
   sectionCaption: { fontSize: 7.5, fontWeight: '800', letterSpacing: 1.1, marginBottom: 3, marginLeft: 2 },
   dashboardRow: { flex: 1, flexDirection: 'row', gap: 8 },
@@ -427,21 +435,29 @@ const styles = StyleSheet.create({
   featuredContent: { flex: 1 },
   compactContent: { flex: 1 },
   tileIconWrap: { width: 30, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  featuredIconWrap: { width: 46, height: 46, borderRadius: 14 },
+  featuredIconWrap: { width: 58, height: 58, borderRadius: 16 },
   tileTextBlock: { flex: 1, minWidth: 0, marginLeft: 7, alignItems: 'flex-start', justifyContent: 'center' },
   featuredTextBlock: { marginLeft: 9 },
   compactTextBlock: { marginLeft: 6 },
   tileImage: { width: 28, height: 28 },
-  featuredTileImage: { width: 40, height: 40 },
+  featuredTileImage: { width: 50, height: 50 },
   cardIcon: { width: 30, height: 30 },
-  featuredCardIcon: { width: 46, height: 46 },
+  featuredCardIcon: { width: 50, height: 50 },
   tileLabel: { fontSize: 8.5, fontWeight: '600', textAlign: 'left', flexShrink: 1 },
   featuredLabel: { fontSize: 9.5, fontWeight: '700' },
   compactLabel: { fontSize: 8, fontWeight: '600' },
   tileValue: { fontSize: 12, fontWeight: '800', marginTop: 1, textAlign: 'left', flexShrink: 1 },
   featuredValue: { fontSize: 21, fontWeight: '900', marginTop: 2, letterSpacing: -0.4 },
   compactValue: { fontSize: 12, fontWeight: '800', marginTop: 1 },
-  clanCard: { flex: 1.35, minWidth: 0, borderRadius: 16, paddingHorizontal: 9, paddingVertical: 6, flexDirection: 'row', alignItems: 'center' },
+  clanCard: { flex: 1, minWidth: 0, borderRadius: 16, paddingHorizontal: 9, paddingVertical: 6, flexDirection: 'row', alignItems: 'center' },
+  bestArenaCard: { flex: 1, minWidth: 0, borderRadius: 16, paddingHorizontal: 9, paddingVertical: 6, flexDirection: 'row', alignItems: 'center' },
+  bestTrophiesBlock: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center' },
+  bestTrophiesIcon: { width: 28, height: 28, flexShrink: 0 },
+  bestTrophiesText: { flex: 1, minWidth: 0, marginLeft: 6 },
+  arenaDivider: { width: 1, height: 32, marginHorizontal: 8, borderRadius: 1 },
+  arenaBlock: { width: 48, alignItems: 'flex-start', justifyContent: 'center' },
+  arenaLabel: { fontSize: 8, fontWeight: '600' },
+  arenaValue: { fontSize: 11.5, fontWeight: '800', marginTop: 1 },
   clanIconWrap: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   clanCardText: { flex: 1, minWidth: 0, marginLeft: 7 },
   clanCardLabel: { fontSize: 8, fontWeight: '600' },
