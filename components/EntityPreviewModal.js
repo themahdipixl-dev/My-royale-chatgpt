@@ -20,10 +20,14 @@ function formatNumber(value) {
 }
 
 function formatArenaNumber(arena) {
-  const id = Number(arena?.id ?? arena);
-  if (!Number.isFinite(id)) return '—';
-  const arenaNumber = id >= 54000000 && id < 54000100 ? id - 54000000 : id;
-  return String(arenaNumber);
+  const id = Number(arena?.id);
+  if (Number.isFinite(id) && id >= 54000000 && id < 54000100) {
+    return String(id - 54000000);
+  }
+
+  const name = String(arena?.name ?? arena ?? '');
+  const match = name.match(/(?:arena\s*)?(\d{1,2})\b/i);
+  return match ? match[1] : '—';
 }
 
 function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant = 'default' }) {
@@ -316,7 +320,6 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                   </View>
 
                   <View style={styles.dashboardSection}>
-                    <Text style={[styles.sectionCaption, { color: theme.colors.onSurfaceVariant }]}>PERFORMANCE</Text>
                     <View style={styles.dashboardRow}>
                       <InfoTile
                         icon="gamepad-variant"
@@ -343,7 +346,6 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                   </View>
 
                   <View style={styles.dashboardSection}>
-                    <Text style={[styles.sectionCaption, { color: theme.colors.onSurfaceVariant }]}>PLAYER DETAILS</Text>
                     <View style={styles.dashboardRow}>
                       <Pressable
                         disabled={!clanTag}
@@ -364,7 +366,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
 
                       <View style={[styles.bestArenaCard, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
                         <View style={styles.bestTrophiesBlock}>
-                          <Image source={pointIcon} style={styles.bestTrophiesIcon} resizeMode="contain" />
+                          <MaterialCommunityIcons name="trophy-variant-outline" size={26} color={theme.colors.primary} />
                           <View style={styles.bestTrophiesText}>
                             <Text style={[styles.clanCardLabel, { color: theme.colors.onSurfaceVariant }]}>Best trophies</Text>
                             <Text numberOfLines={1} style={[styles.clanCardValue, { color: theme.colors.onSurface }]}>
@@ -416,15 +418,14 @@ const styles = StyleSheet.create({
   title: { fontSize: 18, fontWeight: '800', letterSpacing: -0.3 },
   tag: { fontSize: 10, marginTop: 2, fontWeight: '700' },
   actionButton: { width: 38, height: 38, borderRadius: 19, margin: 0, marginLeft: 6 },
-  playerDashboard: { flex: 1, gap: 8 },
-  heroRow: { height: 88, flexDirection: 'row', gap: 10 },
-  rankCluster: { flex: 1.7, flexDirection: 'row', gap: 7, minWidth: 0 },
-  rankColumn: { flex: 0.72, gap: 7, minWidth: 0 },
-  favoriteVisual: { flex: 0.58, minWidth: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 },
-  favoriteCardImage: { width: 76, height: 76, marginBottom: 1 },
+  playerDashboard: { flex: 1, gap: 5 },
+  heroRow: { height: 88, flexDirection: 'row', gap: 8 },
+  rankCluster: { flex: 1.82, flexDirection: 'row', gap: 7, minWidth: 0 },
+  rankColumn: { flex: 0.92, gap: 7, minWidth: 0 },
+  favoriteVisual: { flex: 0.50, minWidth: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 1 },
+  favoriteCardImage: { width: 82, height: 82, marginBottom: 1 },
   favoriteCardLabel: { fontSize: 7.5, fontWeight: '700', textAlign: 'center' },
-  dashboardSection: { flex: 0, height: 65 },
-  sectionCaption: { fontSize: 7.5, fontWeight: '800', letterSpacing: 1.1, marginBottom: 3, marginLeft: 2 },
+  dashboardSection: { flex: 0, height: 60 },
   dashboardRow: { flex: 1, flexDirection: 'row', gap: 8 },
   infoTile: { flex: 1, minWidth: 0, borderRadius: 18, paddingHorizontal: 9, paddingVertical: 7, overflow: 'hidden', justifyContent: 'center' },
   featuredTile: { flex: 1.05, borderRadius: 20, paddingHorizontal: 9, paddingVertical: 8 },
@@ -450,7 +451,6 @@ const styles = StyleSheet.create({
   clanCard: { flex: 1, minWidth: 0, borderRadius: 16, paddingHorizontal: 9, paddingVertical: 6, flexDirection: 'row', alignItems: 'center' },
   bestArenaCard: { flex: 1, minWidth: 0, borderRadius: 16, paddingHorizontal: 9, paddingVertical: 6, flexDirection: 'row', alignItems: 'center' },
   bestTrophiesBlock: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center' },
-  bestTrophiesIcon: { width: 28, height: 28, flexShrink: 0 },
   bestTrophiesText: { flex: 1, minWidth: 0, marginLeft: 6 },
   arenaDivider: { width: 1, height: 32, marginHorizontal: 8, borderRadius: 1 },
   arenaBlock: { width: 48, alignItems: 'flex-start', justifyContent: 'center' },
