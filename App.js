@@ -4,9 +4,7 @@ import { BackHandler, Animated, StyleSheet, PanResponder, useWindowDimensions } 
 import { Text, useTheme } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppThemeProvider } from './theme/theme';
-import RankingsScreen from './screens/RankingsScreen';
 import HomeScreen from './screens/HomeScreen';
-import ComingSoonScreen from './screens/ComingSoonScreen';
 import BottomNav from './components/BottomNav';
 
 export default function App() {
@@ -86,11 +84,15 @@ export default function App() {
 
   const renderScreen = () => {
     if (activeTab === 'home') return <HomeScreen />;
-    if (activeTab === 'rankings') return <RankingsScreen onRequestHome={() => setActiveTab('home')} onRequestBottomNext={() => setActiveTab((current) => {
-      const order = ['rankings', 'clans', 'home', 'cards', 'profile'];
-      const index = order.indexOf(current);
-      return order[Math.min(order.length - 1, index + 1)];
-    })} />;
+    if (activeTab === 'rankings') {
+      const RankingsScreen = require('./screens/RankingsScreen').default;
+      return <RankingsScreen onRequestHome={() => setActiveTab('home')} onRequestBottomNext={() => setActiveTab((current) => {
+        const order = ['rankings', 'clans', 'home', 'cards', 'profile'];
+        const index = order.indexOf(current);
+        return order[Math.min(order.length - 1, index + 1)];
+      })} />;
+    }
+    const ComingSoonScreen = require('./screens/ComingSoonScreen').default;
     return <ComingSoonScreen type={activeTab} />;
   };
 
