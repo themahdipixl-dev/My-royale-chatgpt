@@ -262,7 +262,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
       <LocationBar ref={locationBarRef} countries={countries} countriesLoading={countriesLoading} selected={selectedLocation} visible={menuVisible} onOpen={() => { handleCountryOpen(); setMenuVisible(true); }} onClose={() => setMenuVisible(false)}
         onSelect={(loc) => { setSelectedLocation(loc); setMenuVisible(false); }} selectedLimit={selectedLimit} onSelectLimit={handleSelectLimit}
         onSearchRank={handleSearchRank} searchOpen={searchOpen} onSearchOpen={() => setSearchOpen(true)} onSearchClose={() => { setSearchOpen(false); setSearchQuery(''); }}
-        searchQuery={searchQuery} onSearchQueryChange={setSearchQuery} searchBy={searchBy}
+        searchQuery={searchQuery} onSearchQueryChange={setSearchQuery} searchBy={searchBy} isClanTab={topTab === 'clans'}
         onSearchByChange={(mode) => { setSearchBy(mode); setSearchQuery(''); }} isMergeTab={topTab === 'merge'} />
 
       {!error && (
