@@ -108,7 +108,7 @@ function AnimatedCounterText({ value, style, numberOfLines = 1, ellipsizeMode = 
       clearTimeout(delayTimer);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, [raw, target, prefix, suffix, decimals, delay]);
+  }, [raw, match, target, prefix, suffix, decimals, delay]);
 
   return (
     <Text numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode} style={style}>
