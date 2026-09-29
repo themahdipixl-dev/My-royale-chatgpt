@@ -38,6 +38,45 @@ function formatArenaNumber(arena) {
 }
 
 
+function findSeasonalTrophyRoad(player) {
+  let best = null;
+  const visit = (value) => {
+    if (!value || typeof value !== 'object') return;
+    for (const [key, child] of Object.entries(value)) {
+      if (/^seasonal-trophy-road-(\d+)$/i.test(key) && child && typeof child === 'object') {
+        const numericBest = Number(child.bestTrophies);
+        if (Number.isFinite(numericBest)) {
+          const seasonId = Number(key.match(/(\d+)$/)?.[1] || 0);
+          if (!best || seasonId > best.seasonId) best = { seasonId, data: child };
+        }
+      }
+      if (child && typeof child === 'object') visit(child);
+    }
+  };
+  visit(player);
+  return best?.data ?? null;
+}
+
+function toRoman(value) {
+  const number = Number(value);
+  if (!Number.isInteger(number) || number < 1 || number > 3999) return null;
+  const values = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+  let result = '';
+  let remaining = number;
+  for (const [unit, symbol] of values) {
+    while (remaining >= unit) { result += symbol; remaining -= unit; }
+  }
+  return result;
+}
+
+function formatSeasonalArena(arena) {
+  const name = String(arena?.name ?? '');
+  const match = name.match(/^Seasonal Arena\s+(\d+)$/i);
+  if (!match) return null;
+  const roman = toRoman(Number(match[1]));
+  return roman ? 'Seasonal Arena ' + roman : name;
+}
+
 function AnimatedTypingText({ children, style, numberOfLines, ellipsizeMode, delay = 0 }) {
   const fullText = String(children ?? '');
   const [visibleText, setVisibleText] = useState('');
@@ -321,6 +360,10 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
     typeof entity.arena === 'string' ? entity.arena : entity.arena?.name,
   );
 
+  const seasonalTrophyRoad = findSeasonalTrophyRoad(playerData);
+  const seasonalBestTrophies = seasonalTrophyRoad?.bestTrophies;
+  const seasonalArena = seasonalTrophyRoad?.arena;
+
   const playerCurrentPol = playerData?.currentPathOfLegendSeasonResult;
   const playerBestPol = playerData?.bestPathOfLegendSeasonResult;
   const currentRank = firstValue(playerCurrentPol?.rank, entity.rank);
@@ -549,7 +592,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                               style={[styles.clanCardValue, { color: theme.colors.onSurface }]}
                               numberOfLines={1}
                             >
-                              {playerLoading ? '…' : formatNumber(playerData?.bestTrophies)}
+                              {playerLoading ? '…' : formatNumber(seasonalBestTrophies ?? playerData?.bestTrophies)}
                             </AnimatedCounterText>
                           </View>
                         </View>
@@ -569,7 +612,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                             style={[styles.arenaValue, { color: theme.colors.primary }]}
                             numberOfLines={1}
                           >
-                            {playerLoading ? '…' : formatArenaNumber(playerData?.arena)}
+                            {playerLoading ? '…' : seasonalArena ? (formatSeasonalArena(seasonalArena) || seasonalArena.name || '—') : formatArenaNumber(playerData?.arena)}
                           </AnimatedCounterText>
                         </View>
                       </View>
