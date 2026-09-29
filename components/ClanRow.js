@@ -1,6 +1,6 @@
 // * components/ClanRow.js — clan row press handling infrastructure (v65)
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text, View, Image, Pressable } from 'react-native';
+import { Animated, StyleSheet, Text, View, Pressable } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Surface, useTheme } from 'react-native-paper';
 
@@ -46,7 +46,7 @@ export default function ClanRow({ item, index, animationKey = 0, onPress }) {
           <Text style={[styles.members, { color: theme.colors.onSurfaceVariant }]} numberOfLines={1}>{getMembers(item)} members</Text>
         </View>
         <View style={styles.scoreBox}>
-          <Image source={require('../assets/Point-icon.png')} style={styles.pointIcon} resizeMode="contain" />
+          <MaterialCommunityIcons name="trophy-variant" size={22} color={theme.colors.primary} style={styles.pointIcon} />
           <Text style={[styles.score, { color: theme.colors.onSurface }]}>{getClanScore(item)}</Text>
         </View>
       </Surface></Pressable>
@@ -63,6 +63,6 @@ const styles = StyleSheet.create({
   name: { fontSize: 14.5, fontWeight: '600' },
   members: { fontSize: 11.3, marginTop: 1 },
   scoreBox: { width: 74, flexDirection: 'row', alignItems: 'center' },
-  pointIcon: { width: 24, height: 24, marginRight: 4, transform: [{ translateX: -5 }] },
+  pointIcon: { marginRight: 4, transform: [{ translateX: -5 }] },
   score: { width: 44, fontSize: 12.5, fontWeight: '700', textAlign: 'left', transform: [{ translateY: -1.5 }] },
 });
