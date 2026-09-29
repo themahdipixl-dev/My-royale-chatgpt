@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, View, Text, Image, StyleSheet, Pressable } from 'react-native';
 import { Surface, useTheme } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const RANK_COLORS = { 1: '#F5B942', 2: '#B8C2D1', 3: '#CD8B4F' };
 const leagueIcon = require('../assets/league-icon.png');
@@ -12,7 +13,7 @@ function getTrophies(item) {
   return value !== undefined && value !== null ? value : '—';
 }
 
-export default function RankRow({ item, index, animationKey = 0, onPress }) {
+export default function RankRow({ item, index, animationKey = 0, onPress, trophyIcon = 'trophy' }) {
   const theme = useTheme();
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(18)).current;
@@ -46,7 +47,7 @@ export default function RankRow({ item, index, animationKey = 0, onPress }) {
           <Text style={[styles.clan, { color: theme.colors.primary }, !clanName && { color: theme.colors.onSurfaceVariant }]} numberOfLines={1}>{clanName || 'no clan'}</Text>
         </View>
         <View style={styles.trophyBox}>
-          <Image source={require('../assets/Point-icon.png')} style={styles.pointIcon} resizeMode="contain" />
+          <MaterialCommunityIcons name={trophyIcon} size={22} color={theme.colors.primary} style={styles.pointIcon} />
           <Text style={[styles.trophyText, { color: theme.colors.onSurface }]}>{getTrophies(item)}</Text>
         </View>
       </Surface></Pressable>
@@ -63,6 +64,6 @@ const styles = StyleSheet.create({
   name: { fontSize: 14.5, fontWeight: '600' },
   clan: { fontSize: 11.3, marginTop: 1 },
   trophyBox: { width: 67, flexDirection: 'row', alignItems: 'center' },
-  pointIcon: { width: 24, height: 24, marginRight: 6 },
+  pointIcon: { marginRight: 6 },
   trophyText: { width: 34, fontSize: 12.5, fontWeight: '700', textAlign: 'left', transform: [{ translateY: -1.5 }] },
 });
