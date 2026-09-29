@@ -37,7 +37,119 @@ function formatArenaNumber(arena) {
   return '—';
 }
 
-function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant = 'default' }) {
+
+function AnimatedTypingText({ children, style, numberOfLines, ellipsizeMode, delay = 0 }) {
+  const fullText = String(children ?? '');
+  const [visibleText, setVisibleText] = useState('');
+
+  useEffect(() => {
+    let timer;
+    let index = 0;
+    setVisibleText('');
+
+    const start = () => {
+      timer = setInterval(() => {
+        index += 1;
+        setVisibleText(fullText.slice(0, index));
+        if (index >= fullText.length) clearInterval(timer);
+      }, 24);
+    };
+
+    const delayTimer = setTimeout(start, delay);
+    return () => {
+      clearTimeout(delayTimer);
+      if (timer) clearInterval(timer);
+    };
+  }, [fullText, delay]);
+
+  return (
+    <Text numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode} style={style}>
+      {visibleText}
+    </Text>
+  );
+}
+
+function AnimatedCounterText({ value, style, numberOfLines = 1, ellipsizeMode = 'tail', delay = 0 }) {
+  const raw = String(value ?? '');
+  const match = raw.match(/^([^\\d-]*)(-?\\d+(?:\\.\\d+)?)(.*)$/);
+  const target = match ? Number(match[2]) : null;
+  const prefix = match?.[1] ?? '';
+  const suffix = match?.[3] ?? '';
+  const decimals = match?.[2]?.includes('.') ? match[2].split('.')[1].length : 0;
+  const [display, setDisplay] = useState(match ? prefix + '0' + suffix : '');
+
+  useEffect(() => {
+    if (!match || !Number.isFinite(target)) {
+      setDisplay(raw);
+      return undefined;
+    }
+
+    let frame;
+    let startTime;
+    let delayTimer;
+    const duration = 620;
+
+    const animate = (time) => {
+      if (startTime == null) startTime = time;
+      const progress = Math.min((time - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = target * eased;
+      const formatted = decimals > 0 ? current.toFixed(decimals) : Math.round(current).toString();
+      setDisplay(prefix + formatted + suffix);
+
+      if (progress < 1) frame = requestAnimationFrame(animate);
+    };
+
+    delayTimer = setTimeout(() => {
+      frame = requestAnimationFrame(animate);
+    }, delay);
+
+    return () => {
+      clearTimeout(delayTimer);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [raw, target, prefix, suffix, decimals, delay]);
+
+  return (
+    <Text numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode} style={style}>
+      {display}
+    </Text>
+  );
+}
+
+function AnimatedIcon({ children, delay = 0, style }) {
+  const progress = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    progress.setValue(0);
+    Animated.spring(progress, {
+      toValue: 1,
+      friction: 7,
+      tension: 80,
+      delay,
+      useNativeDriver: true,
+    }).start();
+  }, [progress, delay]);
+
+  return (
+    <Animated.View
+      style={[
+        style,
+        {
+          opacity: progress,
+          transform: [
+            { scale: progress.interpolate({ inputRange: [0, 1], outputRange: [0.45, 1] }) },
+            { rotate: progress.interpolate({ inputRange: [0, 1], outputRange: ['-12deg', '0deg'] }) },
+          ],
+        },
+      ]}
+    >
+      {children}
+    </Animated.View>
+  );
+}
+
+function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant = 'default', delay = 0 }) {
   const isFeatured = variant === 'featured';
   const isCompact = variant === 'compact';
 
@@ -54,27 +166,38 @@ function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant
     >
       <View style={[styles.tileContent, isFeatured && styles.featuredContent, isCompact && styles.compactContent]}>
         <View style={[styles.tileIconWrap, isFeatured && styles.featuredIconWrap]}>
-          {imageUri ? (
-            <Image source={{ uri: imageUri }} style={[styles.cardIcon, isFeatured && styles.featuredCardIcon]} resizeMode="contain" />
-          ) : image ? (
-            <Image source={image} style={[styles.tileImage, isFeatured && styles.featuredTileImage]} resizeMode="contain" />
-          ) : (
-            <MaterialCommunityIcons
-              name={icon}
-              size={isFeatured ? 48 : isCompact ? 21 : 27}
-              color={theme.colors.primary}
-            />
-          )}
+          <AnimatedIcon delay={delay}>
+            {imageUri ? (
+              <Image source={{ uri: imageUri }} style={[styles.cardIcon, isFeatured && styles.featuredCardIcon]} resizeMode="contain" />
+            ) : image ? (
+              <Image source={image} style={[styles.tileImage, isFeatured && styles.featuredTileImage]} resizeMode="contain" />
+            ) : (
+              <MaterialCommunityIcons
+                name={icon}
+                size={isFeatured ? 48 : isCompact ? 21 : 27}
+                color={theme.colors.primary}
+              />
+            )}
+          </AnimatedIcon>
         </View>
 
         <View style={[styles.tileTextBlock, isFeatured && styles.featuredTextBlock, isCompact && styles.compactTextBlock]}>
-          <Text style={[styles.tileLabel, isFeatured && styles.featuredLabel, isCompact && styles.compactLabel, { color: theme.colors.onSurfaceVariant }]} numberOfLines={isFeatured ? 2 : 1}>
+          <AnimatedTypingText
+            style={[styles.tileLabel, isFeatured && styles.featuredLabel, isCompact && styles.compactLabel, { color: theme.colors.onSurfaceVariant }]}
+            numberOfLines={isFeatured ? 2 : 1}
+            delay={delay + 70}
+          >
             {label}
-          </Text>
+          </AnimatedTypingText>
           {value !== null && value !== undefined && (
-            <Text style={[styles.tileValue, isFeatured && styles.featuredValue, isCompact && styles.compactValue, { color: theme.colors.onSurface }]} numberOfLines={1} ellipsizeMode="tail">
+            <AnimatedCounterText
+              style={[styles.tileValue, isFeatured && styles.featuredValue, isCompact && styles.compactValue, { color: theme.colors.onSurface }]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              delay={delay + 180}
+            >
               {value}
-            </Text>
+            </AnimatedCounterText>
           )}
         </View>
       </View>
@@ -343,6 +466,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                       <InfoTile
                         icon="gamepad-variant"
                         label="Games played"
+                        delay={320}
                         value={playerLoading ? '…' : totalGames > 0 ? formatNumber(totalGames) : '—'}
                         theme={theme}
                         variant="compact"
@@ -350,6 +474,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                       <InfoTile
                         icon="trophy"
                         label="Total wins"
+                        delay={390}
                         value={playerLoading ? '…' : Number.isFinite(wins) ? formatNumber(wins) : '—'}
                         theme={theme}
                         variant="compact"
@@ -357,6 +482,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                       <InfoTile
                         icon="percent"
                         label="Win rate"
+                        delay={460}
                         value={playerLoading ? '…' : winRate}
                         theme={theme}
                         variant="compact"
