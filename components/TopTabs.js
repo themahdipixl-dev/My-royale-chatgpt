@@ -5,9 +5,9 @@ import AnimatedPressable from './AnimatedPressable';
 import { Text, useTheme } from 'react-native-paper';
 
 const TOP_TABS = [
-  { value: 'players', label: 'Top Players' },
-  { value: 'clans', label: 'Top Clans' },
-  { value: 'merge', label: 'Top Mergers' },
+  { value: 'players', label: 'POL', subtitle: ['Path Of', 'Legend'] },
+  { value: 'clans', label: 'Clan Wars' },
+  { value: 'merge', label: 'Merge Tactics' },
 ];
 
 const CONTROL_HEIGHT = 36;
@@ -102,9 +102,22 @@ export default function TopTabs({ value, onChange, clanRankingMode, onClanRankin
               accessibilityState={{ selected }}
             >
               <View style={styles.tabInner}>
-                <Text numberOfLines={1} style={[styles.tabText, { color: selected ? theme.colors.onSecondaryContainer : theme.colors.onSurfaceVariant }]}>
-                  {tab.label}
-                </Text>
+                {tab.subtitle ? (
+                  <>
+                    <Text numberOfLines={1} style={[styles.tabText, styles.polText, { color: selected ? theme.colors.onSecondaryContainer : theme.colors.onSurfaceVariant }]}>
+                      {tab.label}
+                    </Text>
+                    <View style={styles.subtitleStack}>
+                      {tab.subtitle.map((line) => (
+                        <Text key={line} numberOfLines={1} style={[styles.tabSubtitle, { color: selected ? theme.colors.onSecondaryContainer : theme.colors.onSurfaceVariant }]}>{line}</Text>
+                      ))}
+                    </View>
+                  </>
+                ) : (
+                  <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={[styles.tabText, { color: selected ? theme.colors.onSecondaryContainer : theme.colors.onSurfaceVariant }]}>
+                    {tab.label}
+                  </Text>
+                )}
               </View>
             </AnimatedPressable>
           );
@@ -119,6 +132,9 @@ const styles = StyleSheet.create({
   segmentedContainer: { flex: 1, height: 40, flexDirection: 'row', alignItems: 'center', padding: 2, borderWidth: 1, borderRadius: 21 },
   selectionIndicator: { position: 'absolute', left: 2, top: 2, height: CONTROL_HEIGHT - 2, borderRadius: 999 },
   control: { flexGrow: 0, flexShrink: 0, height: CONTROL_HEIGHT, borderRadius: 18, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  tabInner: { height: CONTROL_HEIGHT, width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 3, paddingHorizontal: 6 },
+  tabInner: { height: CONTROL_HEIGHT, width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, paddingHorizontal: 5 },
   tabText: { fontSize: 12.5, fontWeight: '600', includeFontPadding: false, lineHeight: 15, transform: [{ translateY: -1 }] },
+  polText: { fontSize: 13.5, fontWeight: '800' },
+  subtitleStack: { justifyContent: 'center', alignItems: 'flex-start' },
+  tabSubtitle: { fontSize: 7.2, fontWeight: '500', includeFontPadding: false, lineHeight: 8.5, opacity: 0.62 },
 });
