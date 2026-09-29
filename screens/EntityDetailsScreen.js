@@ -62,8 +62,9 @@ function findSeasonalTrophyRoad(player) {
   const visit = (value) => {
     if (!value || typeof value !== 'object') return;
     for (const [key, child] of Object.entries(value)) {
-      if (/^seasonal-trophy-road-(\d+)$/i.test(key) && child && typeof child === 'object') {
-        const seasonId = Number(key.match(/(\d+)$/)?.[1] || 0);
+      const match = key.match(/^seasonal-trophy-road-(\d+)$/i);
+      if (match && child && typeof child === 'object') {
+        const seasonId = Number(match[1]);
         if (!best || seasonId > best.seasonId) best = { seasonId, data: child };
       }
       if (child && typeof child === 'object') visit(child);
