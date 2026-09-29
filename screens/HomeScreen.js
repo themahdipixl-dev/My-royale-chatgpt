@@ -1,6 +1,6 @@
 // * screens/HomeScreen.js — Home search with results, history, and tag lookup (v54)
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Keyboard, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Animated, BackHandler, Keyboard, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Surface, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -25,6 +25,17 @@ export default function HomeScreen() {
   useEffect(() => {
     Animated.spring(entrance, { toValue: 1, friction: 8, tension: 55, useNativeDriver: true }).start();
   }, [entrance]);
+
+  useEffect(() => {
+    if (!searchOpen) return undefined;
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      setSearchOpen(false);
+      return true;
+    });
+
+    return () => subscription.remove();
+  }, [searchOpen]);
 
   useEffect(() => {
     Animated.spring(searchProgress, { toValue: searchOpen ? 1 : 0, friction: 8, tension: 75, useNativeDriver: true }).start();
