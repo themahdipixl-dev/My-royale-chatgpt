@@ -475,9 +475,9 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                         delay={370}
                         style={[styles.favoriteCardLabel, { color: theme.colors.onSurfaceVariant }]}
                         numberOfLines={1}
-                      > numberOfLines={1} style={[styles.favoriteCardLabel, { color: theme.colors.onSurfaceVariant }]}>
+                      >
                         Favorite card
-                      </Text>
+                      </AnimatedTypingText>
                     </View>
                   </View>
 
