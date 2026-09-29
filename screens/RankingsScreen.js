@@ -291,7 +291,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
                     keyExtractor={(item, idx) => item.tag || item.id || (item.name || 'item') + '-' + (item.rank ?? idx)}
                     renderItem={({ item, index }) => tabKey === 'clans' && clanRankingMode === 'war'
                       ? <ClanRow item={item} index={index} animationKey={animationKey} onPress={(entity) => openPreview(entity, 'clan')} />
-                      : <RankRow item={item} index={index} animationKey={animationKey} onPress={(entity) => openPreview(entity, 'player')} />}
+                      : <RankRow item={item} index={index} animationKey={animationKey} trophyIcon={tabKey === 'merge' ? 'trophy-award' : 'trophy'} onPress={(entity) => openPreview(entity, 'player')} />}
                     contentContainerStyle={styles.listContent}
                     style={styles.list}
                     getItemLayout={(_, index) => ({ length: tabRowHeight, offset: tabRowHeight * index, index })}
