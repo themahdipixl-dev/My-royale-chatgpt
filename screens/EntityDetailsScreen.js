@@ -316,9 +316,12 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const seasonalTrophyRoad = findSeasonalTrophyRoad(data);
   const seasonalBestTrophies = seasonalTrophyRoad?.bestTrophies;
   const seasonalArena = seasonalTrophyRoad?.arena;
+  const sourceBestTrophies = data?.bestTrophies ?? entity?.bestTrophies;
   const displayedBestTrophies = Number.isFinite(Number(seasonalBestTrophies))
     ? Number(seasonalBestTrophies)
-    : data.bestTrophies;
+    : Number.isFinite(Number(sourceBestTrophies))
+      ? Number(sourceBestTrophies)
+      : null;
   const displayedArenaName = seasonalArena
     ? (formatSeasonalArena(seasonalArena) || seasonalArena.name || data.arena?.name || '—')
     : firstValue(data.arena?.name, '—');
