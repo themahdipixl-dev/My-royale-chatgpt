@@ -145,7 +145,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
         }
       });
     }
-  }, [visible, entity, modalVisible, progress, backdropProgress]);
+  }, [visible, entity, modalVisible, progress, backdropProgress, contentProgress]);
 
   const requestClose = () => {
     if (closing.current) return;
