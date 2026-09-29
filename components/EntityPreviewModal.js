@@ -71,44 +71,51 @@ function AnimatedTypingText({ children, style, numberOfLines, ellipsizeMode, del
 
 function AnimatedCounterText({ value, style, numberOfLines = 1, ellipsizeMode = 'tail', delay = 0 }) {
   const raw = String(value ?? '');
-  const match = raw.match(/^([^0-9-]*)(-?[0-9]+(?:\\.[0-9]+)?)(.*)$/);
-  const target = match ? Number(match[2]) : null;
-  const prefix = match?.[1] ?? '';
-  const suffix = match?.[3] ?? '';
-  const decimals = match?.[2]?.includes('.') ? match[2].split('.')[1].length : 0;
-  const [display, setDisplay] = useState(match ? prefix + '0' + suffix : '');
+  const [display, setDisplay] = useState(raw);
 
   useEffect(() => {
+    const match = raw.match(/^([^0-9-]*)(-?[0-9]+(?:\.[0-9]+)?)(.*)$/);
+    const target = match ? Number(match[2]) : null;
+    const prefix = match?.[1] ?? '';
+    const suffix = match?.[3] ?? '';
+    const decimals = match?.[2]?.includes('.') ? match[2].split('.')[1].length : 0;
+
     if (!match || !Number.isFinite(target)) {
       setDisplay(raw);
       return undefined;
     }
 
-    let frame;
-    let startTime;
+    let interval;
     let delayTimer;
     const duration = 620;
+    const startedAt = Date.now();
 
-    const animate = (time) => {
-      if (startTime == null) startTime = time;
-      const progress = Math.min((time - startTime) / duration, 1);
+    const animate = () => {
+      const progress = Math.min((Date.now() - startedAt) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
       const current = target * eased;
-      const formatted = decimals > 0 ? current.toFixed(decimals) : Math.round(current).toString();
+      const formatted = decimals > 0
+        ? current.toFixed(decimals)
+        : Math.round(current).toString();
+
       setDisplay(prefix + formatted + suffix);
 
-      if (progress < 1) frame = requestAnimationFrame(animate);
+      if (progress >= 1 && interval) {
+        clearInterval(interval);
+        interval = null;
+      }
     };
 
     delayTimer = setTimeout(() => {
-      frame = requestAnimationFrame(animate);
+      animate();
+      interval = setInterval(animate, 32);
     }, delay);
 
     return () => {
       clearTimeout(delayTimer);
-      if (frame) cancelAnimationFrame(frame);
+      if (interval) clearInterval(interval);
     };
-  }, [raw, match, target, prefix, suffix, decimals, delay]);
+  }, [raw, delay]);
 
   return (
     <Text numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode} style={style}>
@@ -116,7 +123,6 @@ function AnimatedCounterText({ value, style, numberOfLines = 1, ellipsizeMode = 
     </Text>
   );
 }
-
 function AnimatedIcon({ children, delay = 0, style }) {
   const progress = useRef(new Animated.Value(0)).current;
 
