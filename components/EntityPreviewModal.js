@@ -325,14 +325,17 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
 
   const playerCurrentPol = playerData?.currentPathOfLegendSeasonResult;
   const playerBestPol = playerData?.bestPathOfLegendSeasonResult;
-  const currentRank = firstValue(entity.rank, playerCurrentPol?.rank);
-  const bestRank = firstValue(playerBestPol?.rank);
-  const rankedUnlocked = !!playerCurrentPol;
-  const progressTrophies = rankedUnlocked ? playerCurrentPol?.trophies : playerData?.trophies;
+  const currentRank = firstValue(playerCurrentPol?.rank, entity.rank);
+  const bestRank = firstValue(playerBestPol?.rank, entity.bestRank);
+  const progressTrophies = firstValue(playerCurrentPol?.trophies, playerData?.trophies);
   const progressLabel = 'Path Of\nLegends';
-  const wins = Number(playerData?.wins);
-  const losses = Number(playerData?.losses);
-  const totalGames = wins + losses;
+
+  const battleCount = Number(playerData?.battleCount);
+  const rawWins = Number(playerData?.wins);
+  const rawLosses = Number(playerData?.losses);
+  const wins = Number.isFinite(rawWins) ? rawWins : 0;
+  const losses = Number.isFinite(rawLosses) ? rawLosses : Math.max(0, battleCount - wins);
+  const totalGames = Number.isFinite(battleCount) ? battleCount : wins + losses;
   const winRate = totalGames > 0 ? `${((wins / totalGames) * 100).toFixed(1)}%` : '—';
 
   const favouriteCard = playerData?.currentFavouriteCard;
@@ -436,6 +439,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                         value={playerLoading ? '…' : String(progressTrophies ?? '—')}
                         theme={theme}
                         variant="featured"
+                        delay={80}
                       />
                       <View style={styles.rankColumn}>
                         <InfoTile
@@ -444,6 +448,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                           value={playerLoading ? '…' : rankLabel}
                           theme={theme}
                           variant="compact"
+                          delay={170}
                         />
                         <InfoTile
                           icon="trophy-award"
@@ -451,17 +456,26 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                           value={playerLoading ? '…' : bestRankLabel}
                           theme={theme}
                           variant="compact"
+                          delay={240}
                         />
                       </View>
                     </View>
 
                     <View style={styles.favoriteVisual}>
                       {favouriteIcon ? (
-                        <Image source={{ uri: favouriteIcon }} style={styles.favoriteCardImage} resizeMode="contain" />
+                        <AnimatedIcon delay={300}>
+                          <Image source={{ uri: favouriteIcon }} style={styles.favoriteCardImage} resizeMode="contain" />
+                        </AnimatedIcon>
                       ) : (
-                        <MaterialCommunityIcons name="cards-outline" size={48} color={theme.colors.primary} />
+                        <AnimatedIcon delay={300}>
+                          <MaterialCommunityIcons name="cards-outline" size={48} color={theme.colors.primary} />
+                        </AnimatedIcon>
                       )}
-                      <Text numberOfLines={1} style={[styles.favoriteCardLabel, { color: theme.colors.onSurfaceVariant }]}>
+                      <AnimatedTypingText
+                        delay={370}
+                        style={[styles.favoriteCardLabel, { color: theme.colors.onSurfaceVariant }]}
+                        numberOfLines={1}
+                      > numberOfLines={1} style={[styles.favoriteCardLabel, { color: theme.colors.onSurfaceVariant }]}>
                         Favorite card
                       </Text>
                     </View>
@@ -481,7 +495,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                         icon="trophy"
                         label="Total wins"
                         delay={390}
-                        value={playerLoading ? '…' : Number.isFinite(wins) ? formatNumber(wins) : '—'}
+                        value={playerLoading ? '…' : formatNumber(wins)}
                         theme={theme}
                         variant="compact"
                       />
@@ -503,36 +517,62 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                         onPress={clanTag ? () => onClanPress?.({ name: clanName, tag: clanTag }, 'clan') : undefined}
                         style={[styles.clanCard, { backgroundColor: theme.colors.surfaceContainerHighest }]}
                       >
-                        <View style={[styles.clanIconWrap, { backgroundColor: theme.colors.primaryContainer }]}>
+                        <AnimatedIcon delay={540} style={[styles.clanIconWrap, { backgroundColor: theme.colors.primaryContainer }]}>
                           <MaterialCommunityIcons name="account-group" size={20} color={theme.colors.primary} />
-                        </View>
+                        </AnimatedIcon>
                         <View style={styles.clanCardText}>
                           <Text style={[styles.clanCardLabel, { color: theme.colors.onSurfaceVariant }]}>Clan</Text>
                           <Text numberOfLines={1} style={[styles.clanCardValue, { color: theme.colors.onSurface }]}>
                             {clanName || 'No clan'}
                           </Text>
                         </View>
-                        {clanTag ? <MaterialCommunityIcons name="chevron-right" size={19} color={theme.colors.onSurfaceVariant} /> : null}
+                        {clanTag ? (
+                          <AnimatedIcon delay={610}>
+                            <MaterialCommunityIcons name="chevron-right" size={19} color={theme.colors.onSurfaceVariant} />
+                          </AnimatedIcon>
+                        ) : null}
                       </Pressable>
 
                       <View style={[styles.bestArenaCard, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
                         <View style={styles.bestTrophiesBlock}>
-                          <MaterialCommunityIcons name="trophy-variant-outline" size={26} color={theme.colors.primary} />
+                          <AnimatedIcon delay={680}>
+                            <MaterialCommunityIcons name="trophy-variant-outline" size={26} color={theme.colors.primary} />
+                          </AnimatedIcon>
                           <View style={styles.bestTrophiesText}>
-                            <Text style={[styles.clanCardLabel, { color: theme.colors.onSurfaceVariant }]}>Best trophy</Text>
-                            <Text numberOfLines={1} style={[styles.clanCardValue, { color: theme.colors.onSurface }]}>
+                            <AnimatedTypingText
+                              delay={750}
+                              style={[styles.clanCardLabel, { color: theme.colors.onSurfaceVariant }]}
+                              numberOfLines={1}
+                            >
+                              Best trophy
+                            </AnimatedTypingText>
+                            <AnimatedCounterText
+                              delay={820}
+                              style={[styles.clanCardValue, { color: theme.colors.onSurface }]}
+                              numberOfLines={1}
+                            >
                               {playerLoading ? '…' : formatNumber(playerData?.bestTrophies)}
-                            </Text>
+                            </AnimatedCounterText>
                           </View>
                         </View>
 
                         <View style={[styles.arenaDivider, { backgroundColor: theme.colors.outlineVariant }]} />
 
                         <View style={styles.arenaBlock}>
-                          <Text style={[styles.arenaLabel, { color: theme.colors.onSurfaceVariant }]}>Arena</Text>
-                          <Text style={[styles.arenaValue, { color: theme.colors.primary }]}>
+                          <AnimatedTypingText
+                            delay={750}
+                            style={[styles.arenaLabel, { color: theme.colors.onSurfaceVariant }]}
+                            numberOfLines={1}
+                          >
+                            Arena
+                          </AnimatedTypingText>
+                          <AnimatedCounterText
+                            delay={820}
+                            style={[styles.arenaValue, { color: theme.colors.primary }]}
+                            numberOfLines={1}
+                          >
                             {playerLoading ? '…' : formatArenaNumber(playerData?.arena)}
-                          </Text>
+                          </AnimatedCounterText>
                         </View>
                       </View>
                     </View>
