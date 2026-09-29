@@ -53,8 +53,17 @@ export default function HomeScreen() {
     if (!value) {
       setResults([]);
       setSearching(false);
+      resultsProgress.setValue(0);
       return undefined;
     }
+
+    resultsProgress.setValue(0);
+    Animated.spring(resultsProgress, {
+      toValue: 1,
+      friction: 8,
+      tension: 65,
+      useNativeDriver: true,
+    }).start();
 
     let cancelled = false;
     const timer = setTimeout(async () => {
@@ -73,8 +82,6 @@ export default function HomeScreen() {
 
         if (cancelled) return;
         setResults(Array.isArray(items) ? items : []);
-        resultsProgress.setValue(0);
-        Animated.spring(resultsProgress, { toValue: 1, friction: 8, tension: 65, useNativeDriver: true }).start();
       } catch {
         if (!cancelled) setResults([]);
       } finally {
@@ -240,7 +247,10 @@ export default function HomeScreen() {
               backgroundColor: theme.colors.surfaceContainer,
               borderColor: theme.colors.outlineVariant,
               opacity: resultsProgress,
-              transform: [{ translateY: resultsProgress.interpolate({ inputRange: [0, 1], outputRange: [-10, 0] }) }],
+              transform: [
+                { translateY: resultsProgress.interpolate({ inputRange: [0, 1], outputRange: [-14, 0] }) },
+                { scale: resultsProgress.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1] }) },
+              ],
             },
           ]}
         >
