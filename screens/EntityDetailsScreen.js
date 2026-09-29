@@ -241,11 +241,11 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const favouriteCard = data.currentFavouriteCard;
   const currentDeck = Array.isArray(data.currentDeck) ? data.currentDeck : [];
   const currentDeckSupport = Array.isArray(data.currentDeckSupportCards) ? data.currentDeckSupportCards : [];
-  const cards = Array.isArray(data.cards) ? data.cards : [];
-  const supportCards = Array.isArray(data.supportCards) ? data.supportCards : [];
   const badges = Array.isArray(data.badges) ? data.badges : [];
 
   const allCards = useMemo(() => {
+    const cards = Array.isArray(data.cards) ? data.cards : [];
+    const supportCards = Array.isArray(data.supportCards) ? data.supportCards : [];
     const seen = new Set();
     return [...cards, ...supportCards].filter((card) => {
       const key = card?.id ?? card?.name;
@@ -253,7 +253,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
       seen.add(key);
       return true;
     });
-  }, [cards, supportCards]);
+  }, [data.cards, data.supportCards]);
 
   const cardCount = allCards.length;
   const maxLevelCards = allCards.filter((card) => number(card?.level) >= number(card?.maxLevel) && card?.maxLevel).length;
