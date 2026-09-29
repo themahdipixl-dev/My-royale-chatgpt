@@ -65,7 +65,10 @@ function findSeasonalTrophyRoad(player) {
       const match = key.match(/^seasonal-trophy-road-(\d+)$/i);
       if (match && child && typeof child === 'object') {
         const seasonId = Number(match[1]);
-        if (!best || seasonId > best.seasonId) best = { seasonId, data: child };
+        const seasonalBest = Number(child.bestTrophies);
+        if (Number.isFinite(seasonalBest) && seasonalBest > 0) {
+          if (!best || seasonId > best.seasonId) best = { seasonId, data: child };
+        }
       }
       if (child && typeof child === 'object') visit(child);
     }
@@ -317,7 +320,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const seasonalBestTrophies = seasonalTrophyRoad?.bestTrophies;
   const seasonalArena = seasonalTrophyRoad?.arena;
   const sourceBestTrophies = data?.bestTrophies ?? entity?.bestTrophies;
-  const displayedBestTrophies = Number.isFinite(Number(seasonalBestTrophies))
+  const displayedBestTrophies = Number.isFinite(Number(seasonalBestTrophies)) && Number(seasonalBestTrophies) > 0
     ? Number(seasonalBestTrophies)
     : Number.isFinite(Number(sourceBestTrophies))
       ? Number(sourceBestTrophies)
