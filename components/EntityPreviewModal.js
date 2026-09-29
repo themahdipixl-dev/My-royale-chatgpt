@@ -86,6 +86,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   const theme = useTheme();
   const progress = useRef(new Animated.Value(0)).current;
   const backdropProgress = useRef(new Animated.Value(0)).current;
+  const contentProgress = useRef(new Animated.Value(0)).current;
   const closing = useRef(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [playerData, setPlayerData] = useState(null);
@@ -122,9 +123,11 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
       setModalVisible(true);
       progress.setValue(0);
       backdropProgress.setValue(0);
+      contentProgress.setValue(0);
       Animated.parallel([
         Animated.spring(progress, { toValue: 1, friction: 9, tension: 70, useNativeDriver: true }),
         Animated.timing(backdropProgress, { toValue: 1, duration: 220, useNativeDriver: true }),
+        Animated.spring(contentProgress, { toValue: 1, friction: 10, tension: 65, delay: 90, useNativeDriver: true }),
       ]).start();
       return;
     }
@@ -134,6 +137,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
       Animated.parallel([
         Animated.timing(progress, { toValue: 0, duration: 180, useNativeDriver: true }),
         Animated.timing(backdropProgress, { toValue: 0, duration: 180, useNativeDriver: true }),
+        Animated.timing(contentProgress, { toValue: 0, duration: 120, useNativeDriver: true }),
       ]).start(({ finished }) => {
         if (finished) {
           setModalVisible(false);
@@ -149,6 +153,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
     Animated.parallel([
       Animated.timing(progress, { toValue: 0, duration: 180, useNativeDriver: true }),
       Animated.timing(backdropProgress, { toValue: 0, duration: 180, useNativeDriver: true }),
+      Animated.timing(contentProgress, { toValue: 0, duration: 120, useNativeDriver: true }),
     ]).start(({ finished }) => {
       if (finished) {
         setModalVisible(false);
@@ -227,6 +232,15 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
           ]}
         >
           <View style={[styles.card, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <Animated.View
+              style={[
+                styles.contentAnimated,
+                {
+                  opacity: contentProgress,
+                  transform: [{ translateY: contentProgress.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }],
+                },
+              ]}
+            >
             <View style={styles.header}>
               <View style={[styles.entityIcon, { backgroundColor: theme.colors.primaryContainer }]}>
                 <Image source={leagueIcon} style={styles.playerIcon} resizeMode="contain" />
@@ -398,6 +412,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
             {playerLoading && !isClan && (
               <ActivityIndicator size="small" color={theme.colors.primary} style={styles.loader} />
             )}
+            </Animated.View>
           </View>
         </Animated.View>
       </View>
@@ -411,6 +426,7 @@ const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.46)' },
   animated: { width: '90%', maxWidth: 390, height: popupHeight },
+  contentAnimated: { flex: 1 },
   card: { flex: 1, borderRadius: 30, padding: 14, overflow: 'hidden' },
   header: { flexDirection: 'row', alignItems: 'center', height: 62, marginBottom: 8 },
   entityIcon: { width: 54, height: 54, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
