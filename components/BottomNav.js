@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 12,
     right: 12,
-    bottom: 14,
+    bottom: 18,
     zIndex: 50,
   },
   bar: {
