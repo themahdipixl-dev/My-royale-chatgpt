@@ -4,7 +4,7 @@ import { Animated, Keyboard, Pressable, StyleSheet, TextInput, View } from 'reac
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Surface, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { fetchSearch, fetchPlayer } from '../api/client';
+import { fetchSearch } from '../api/client';
 import EntityDetailsScreen from './EntityDetailsScreen';
 import TournamentDetailsScreen from './TournamentDetailsScreen';
 
@@ -70,15 +70,7 @@ export default function HomeScreen() {
       setSearching(true);
       try {
         let items = [];
-        const normalizedTag = value.startsWith('#') ? value : '#' + value;
-        const looksLikeTag = /^#?[0289PYLQGRJCUV]+$/i.test(value);
-
-        if (looksLikeTag) {
-          const player = await fetchPlayer(normalizedTag);
-          items = player ? [{ type: 'player', data: player, name: player.name, tag: player.tag || normalizedTag }] : [];
-        } else {
-          items = await fetchSearch(value);
-        }
+        items = await fetchSearch(value);
 
         if (cancelled) return;
         setResults(Array.isArray(items) ? items : []);
