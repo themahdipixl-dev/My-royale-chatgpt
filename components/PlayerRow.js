@@ -17,7 +17,7 @@ export default function PlayerRow({ item, index }) {
       <Card style={styles.card} mode="contained">
         <Card.Content style={styles.row}>
           <Text variant="titleMedium" style={styles.rank}>#{item.rank ?? index + 1}</Text>
-          <Avatar.Text size={40} label={(item.name || '?').slice(0, 2).toUpperCase()} style={styles.avatar} />
+          <Avatar.Text size={43} label={(item.name || '?').slice(0, 2).toUpperCase()} style={styles.avatar} />
           <View style={styles.info}>
             <Text variant="bodyLarge" numberOfLines={1}>{item.name}</Text>
             <Text variant="bodySmall" style={styles.subtitle} numberOfLines={1}>{item.clan?.name || 'بدون کلن'}</Text>
@@ -29,10 +29,10 @@ export default function PlayerRow({ item, index }) {
   );
 }
 const styles = StyleSheet.create({
-  card: { marginVertical: 6, borderRadius: 18, marginHorizontal: 12 },
+  card: { marginVertical: 7, borderRadius: 19, marginHorizontal: 12 },
   row: { flexDirection: 'row', alignItems: 'center' },
   rank: { width: 40, textAlign: 'center' },
-  avatar: { marginHorizontal: 10 },
+  avatar: { marginHorizontal: 11 },
   info: { flex: 1 },
   subtitle: { opacity: 0.6 },
 });
