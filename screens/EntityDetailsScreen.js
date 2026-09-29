@@ -93,7 +93,7 @@ function formatSeasonalArena(arena) {
   const match = name.match(/^Seasonal Arena\s+(\d+)$/i);
   if (!match) return null;
   const roman = toRoman(Number(match[1]));
-  return roman ? 'Seasonal Arena ' + roman : name;
+  return roman || name;
 }
 
 function SectionTitle({ icon, title, right, theme }) {
@@ -322,7 +322,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     ? (formatSeasonalArena(seasonalArena) || seasonalArena.name || data.arena?.name || '—')
     : firstValue(data.arena?.name, '—');
   const displayedArenaNumber = seasonalArena
-    ? (formatSeasonalArena(seasonalArena)?.match(/Seasonal Arena[ ]+(.+)$/i)?.[1] || null)
+    ? (formatSeasonalArena(seasonalArena) || null)
     : arenaNumber(data.arena);
   const favouriteCard = data.currentFavouriteCard;
   const currentDeck = Array.isArray(data.currentDeck) ? data.currentDeck : [];
