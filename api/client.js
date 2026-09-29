@@ -42,6 +42,11 @@ export async function fetchClanWarRankings(locationId, limit = 500) {
   return getItems(data);
 }
 
+export async function fetchSearch(query) {
+  const data = await getJson(`/api/search?q=${encodeURIComponent(String(query || '').trim())}`);
+  return Array.isArray(data) ? data : getItems(data);
+}
+
 export async function fetchPlayer(tag) {
   return getJson(`/api/player/${encodeTag(tag)}`);
 }
