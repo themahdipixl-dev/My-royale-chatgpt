@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   controlButton: { flexGrow: 0, flexShrink: 0, height: CONTROL_HEIGHT, minHeight: CONTROL_HEIGHT, borderRadius: 18, overflow: 'hidden' },
   buttonInner: { height: CONTROL_HEIGHT, width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingHorizontal: 5 },
   controlLabel: { fontSize: 12.5, fontWeight: '600', includeFontPadding: false, lineHeight: 15, transform: [{ translateY: -1 }] },
-  searchRow: { zIndex: 5, elevation: 0, paddingHorizontal: 14, paddingTop: 17, paddingBottom: 7, height: 64 },
+  searchRow: { zIndex: 5, elevation: 0, paddingHorizontal: 14, paddingTop: 9, paddingBottom: 7, height: 56 },
   searchFieldWrap: { height: CONTROL_HEIGHT, width: '100%', flexDirection: 'row', alignItems: 'center', borderRadius: 18, paddingLeft: 10 },
   searchInput: { flex: 1, height: CONTROL_HEIGHT, backgroundColor: 'transparent', fontSize: 13.5 },
   searchInputContent: { paddingHorizontal: 7 },
