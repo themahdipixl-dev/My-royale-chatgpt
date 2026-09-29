@@ -117,7 +117,7 @@ export default function TopTabs({ value, onChange, clanRankingMode, onClanRankin
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingTop: 13, paddingBottom: 0, height: 49, backgroundColor: 'transparent', zIndex: 6 },
   segmentedContainer: { flex: 1, height: 40, flexDirection: 'row', alignItems: 'center', padding: 2, borderWidth: 1, borderRadius: 21 },
-  selectionIndicator: { position: 'absolute', left: 2, top: 2, height: CONTROL_HEIGHT, borderRadius: 999 },
+  selectionIndicator: { position: 'absolute', left: 2, top: 3, height: CONTROL_HEIGHT - 2, borderRadius: 999 },
   control: { flexGrow: 0, flexShrink: 0, height: CONTROL_HEIGHT, borderRadius: 18, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   tabInner: { height: CONTROL_HEIGHT, width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 3, paddingHorizontal: 6 },
   tabText: { fontSize: 12.5, fontWeight: '600', includeFontPadding: false, lineHeight: 15, transform: [{ translateY: -1 }] },
