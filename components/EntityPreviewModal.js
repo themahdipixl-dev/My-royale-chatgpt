@@ -71,7 +71,7 @@ function AnimatedTypingText({ children, style, numberOfLines, ellipsizeMode, del
 
 function AnimatedCounterText({ value, style, numberOfLines = 1, ellipsizeMode = 'tail', delay = 0 }) {
   const raw = String(value ?? '');
-  const match = raw.match(/^([^\\d-]*)(-?\\d+(?:\\.\\d+)?)(.*)$/);
+  const match = raw.match(/^([^0-9-]*)(-?[0-9]+(?:\\.[0-9]+)?)(.*)$/);
   const target = match ? Number(match[2]) : null;
   const prefix = match?.[1] ?? '';
   const suffix = match?.[3] ?? '';
