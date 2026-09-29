@@ -29,6 +29,7 @@ const LocationBar = forwardRef(function LocationBar({ countries, countriesLoadin
   const countryAnchorRef = useRef(null);
   const rankAnchorRef = useRef(null);
   const entrance = useRef(new Animated.Value(0)).current;
+  const searchEntrance = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.spring(entrance, { toValue: 1, friction: 8, tension: 55, useNativeDriver: true }).start();
@@ -36,10 +37,12 @@ const LocationBar = forwardRef(function LocationBar({ countries, countriesLoadin
 
   useEffect(() => {
     if (searchOpen) {
+      searchEntrance.setValue(0);
+      Animated.spring(searchEntrance, { toValue: 1, friction: 7, tension: 90, useNativeDriver: true }).start();
       const timer = setTimeout(() => searchRef.current?.focus(), 100);
       return () => clearTimeout(timer);
     }
-  }, [searchOpen]);
+  }, [searchOpen, searchEntrance]);
 
   const closeSearch = () => { Keyboard.dismiss(); onSearchClose(); };
 
@@ -92,8 +95,12 @@ const LocationBar = forwardRef(function LocationBar({ countries, countriesLoadin
   if (searchOpen) {
     return (
       <Animated.View style={[styles.searchRow, {
-        opacity: entrance,
-        transform: [{ translateY: entrance.interpolate({ inputRange: [0, 1], outputRange: [-7, 0] }) }],
+        opacity: searchEntrance,
+        transform: [
+          { translateY: searchEntrance.interpolate({ inputRange: [0, 1], outputRange: [-10, 0] }) },
+          { scaleX: searchEntrance.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] }) },
+          { scaleY: searchEntrance.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] }) },
+        ],
       }]}>
         <View style={[styles.searchFieldWrap, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
           <MaterialCommunityIcons name="magnify" size={ICON_SIZE} color={theme.colors.onSurfaceVariant} />
@@ -194,7 +201,7 @@ const styles = StyleSheet.create({
   controlButton: { flexGrow: 0, flexShrink: 0, height: CONTROL_HEIGHT, minHeight: CONTROL_HEIGHT, borderRadius: 18, overflow: 'hidden' },
   buttonInner: { height: CONTROL_HEIGHT, width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingHorizontal: 5 },
   controlLabel: { fontSize: 12.5, fontWeight: '600', includeFontPadding: false, lineHeight: 15, transform: [{ translateY: -1 }] },
-  searchRow: { zIndex: 5, elevation: 0, paddingHorizontal: 14, paddingTop: 10, paddingBottom: 6, height: 56 },
+  searchRow: { zIndex: 5, elevation: 0, paddingHorizontal: 14, paddingTop: 11, paddingBottom: 5, height: 56 },
   searchFieldWrap: { height: CONTROL_HEIGHT, width: '100%', flexDirection: 'row', alignItems: 'center', borderRadius: 18, paddingLeft: 10 },
   searchInput: { flex: 1, height: CONTROL_HEIGHT, backgroundColor: 'transparent', fontSize: 13.5 },
   searchInputContent: { paddingHorizontal: 7 },
