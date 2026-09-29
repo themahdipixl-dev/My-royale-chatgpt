@@ -322,7 +322,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     ? (formatSeasonalArena(seasonalArena) || seasonalArena.name || data.arena?.name || '—')
     : firstValue(data.arena?.name, '—');
   const displayedArenaNumber = seasonalArena
-    ? (formatSeasonalArena(seasonalArena)?.match(/Seasonal Arenas+(.+)$/i)?.[1] || null)
+    ? (formatSeasonalArena(seasonalArena)?.match(/Seasonal Arena[ ]+(.+)$/i)?.[1] || null)
     : arenaNumber(data.arena);
   const favouriteCard = data.currentFavouriteCard;
   const currentDeck = Array.isArray(data.currentDeck) ? data.currentDeck : [];
