@@ -10,7 +10,7 @@ const LIMITS = [100, 250, 500];
 const CONTROL_HEIGHT = 36;
 const ICON_SIZE = 17;
 
-const LocationBar = forwardRef(function LocationBar({ countries, countriesLoading = false, selected, visible, onOpen, onClose, onSelect, selectedLimit, onSelectLimit, onSearchRank, searchOpen, onSearchOpen, onSearchClose, searchQuery, onSearchQueryChange, searchBy, onSearchByChange, isMergeTab = false }, ref) {
+const LocationBar = forwardRef(function LocationBar({ countries, countriesLoading = false, selected, visible, onOpen, onClose, onSelect, selectedLimit, onSelectLimit, onSearchRank, searchOpen, onSearchOpen, onSearchClose, searchQuery, onSearchQueryChange, searchBy, onSearchByChange, isMergeTab = false, isClanTab = false }, ref) {
   const theme = useTheme();
   const { width: windowWidth } = useWindowDimensions();
   const fixedControlWidth = 82;
@@ -91,6 +91,8 @@ const LocationBar = forwardRef(function LocationBar({ countries, countriesLoadin
   const filteredCountries = countries.filter((country) => String(country.name || '').toLowerCase().includes(countrySearch.trim().toLowerCase()));
   const searchPlaceholder = searchBy === 'trophies' ? 'Search trophies' : (searchBy === 'name' ? 'Search clan name' : 'Search player name');
   const searchByIcon = searchBy === 'trophies' ? 'trophy-outline' : 'account-group-outline';
+  const secondarySearchLabel = isClanTab ? 'Clan Name' : 'Player Name';
+  const secondarySearchIcon = isClanTab ? 'account-group-outline' : 'account-outline';
 
   if (searchOpen) {
     return (
@@ -109,7 +111,7 @@ const LocationBar = forwardRef(function LocationBar({ countries, countriesLoadin
             <Button compact mode="text" icon={({ color }) => <View style={styles.searchByIconRow}><MaterialCommunityIcons name={searchByIcon} size={15} color={color} /><MaterialCommunityIcons name="chevron-down" size={15} color={color} /></View>} contentStyle={styles.searchByButtonContent} labelStyle={[styles.searchByLabel, { color: theme.colors.onSurface }]} textColor={theme.colors.onSurface} onPress={() => setSearchMenuVisible(true)}>Search By</Button>
           } contentStyle={[styles.menu, { backgroundColor: theme.colors.surfaceContainer }]}>
             <Menu.Item title="Trophies / Cups" leadingIcon="trophy-outline" onPress={() => { onSearchByChange('trophies'); setSearchMenuVisible(false); }} />
-            <Menu.Item title="Clan Name" leadingIcon="account-group-outline" onPress={() => { onSearchByChange('name'); setSearchMenuVisible(false); }} />
+            <Menu.Item title={secondarySearchLabel} leadingIcon={secondarySearchIcon} onPress={() => { onSearchByChange(isClanTab ? 'name' : 'player'); setSearchMenuVisible(false); }} />
           </Menu>
           <IconButton icon="close" size={19} iconColor={theme.colors.onSurfaceVariant} onPress={closeSearch} style={styles.searchClose} />
         </View>
