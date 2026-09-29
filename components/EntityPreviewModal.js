@@ -363,6 +363,12 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
 
   const seasonalTrophyRoad = findSeasonalTrophyRoad(playerData);
   const seasonalBestTrophies = seasonalTrophyRoad?.bestTrophies;
+  const sourceBestTrophies = playerData?.bestTrophies ?? entity?.bestTrophies;
+  const displayedBestTrophies = Number.isFinite(Number(seasonalBestTrophies))
+    ? Number(seasonalBestTrophies)
+    : Number.isFinite(Number(sourceBestTrophies))
+      ? Number(sourceBestTrophies)
+      : null;
   const seasonalArena = seasonalTrophyRoad?.arena;
 
   const playerCurrentPol = playerData?.currentPathOfLegendSeasonResult;
@@ -594,7 +600,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                               numberOfLines={1}
                             >
                               {playerLoading ? '…' : formatNumber(
-  Number.isFinite(Number(seasonalBestTrophies)) ? Number(seasonalBestTrophies) : playerData?.bestTrophies
+  displayedBestTrophies
 )}
                             </AnimatedCounterText>
                           </View>
