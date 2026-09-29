@@ -1,6 +1,7 @@
 // * screens/HomeScreen.js — fluid animated home screen (v53)
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Keyboard, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Surface, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchSearch } from '../api/client';
@@ -9,6 +10,7 @@ import TournamentDetailsScreen from './TournamentDetailsScreen';
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const entrance = useRef(new Animated.Value(0)).current;
   const searchProgress = useRef(new Animated.Value(0)).current;
   const resultsProgress = useRef(new Animated.Value(0)).current;
@@ -51,7 +53,7 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.homeTopBar}>
+      <View style={[styles.homeTopBar, { top: insets.top + 10 }]}>
         <Animated.View style={[styles.searchCapsule, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant, opacity: searchProgress, transform: [{ scaleX: searchProgress }] }]} pointerEvents={searchOpen ? 'auto' : 'none'}>
           <MaterialCommunityIcons name="magnify" size={21} color={theme.colors.onSurfaceVariant} />
           <TextInput value={query} onChangeText={setQuery} placeholder="Search player, clan or tournament" placeholderTextColor={theme.colors.onSurfaceVariant} style={[styles.searchInput, { color: theme.colors.onSurface }]} autoFocus={searchOpen} />
