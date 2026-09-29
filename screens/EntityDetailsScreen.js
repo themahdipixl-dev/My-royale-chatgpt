@@ -63,11 +63,8 @@ function findSeasonalTrophyRoad(player) {
     if (!value || typeof value !== 'object') return;
     for (const [key, child] of Object.entries(value)) {
       if (/^seasonal-trophy-road-(\d+)$/i.test(key) && child && typeof child === 'object') {
-        const numericBest = Number(child.bestTrophies);
-        if (Number.isFinite(numericBest)) {
-          const seasonId = Number(key.match(/(\d+)$/)?.[1] || 0);
-          if (!best || seasonId > best.seasonId) best = { seasonId, data: child };
-        }
+        const seasonId = Number(key.match(/(\d+)$/)?.[1] || 0);
+        if (!best || seasonId > best.seasonId) best = { seasonId, data: child };
       }
       if (child && typeof child === 'object') visit(child);
     }
@@ -90,10 +87,13 @@ function toRoman(value) {
 
 function formatSeasonalArena(arena) {
   const name = String(arena?.name ?? '');
+  const rawName = String(arena?.rawName ?? '');
   const match = name.match(/^Seasonal Arena\s+(\d+)$/i);
-  if (!match) return null;
-  const roman = toRoman(Number(match[1]));
-  return roman || name;
+  if (match) return toRoman(Number(match[1])) || null;
+  const rawMatch = rawName.match(/SeasonalArenas_\d+_Arena(\d+)$/i);
+  if (rawMatch) return toRoman(Number(rawMatch[1])) || null;
+  const numeralMatch = name.match(/^Seasonal Arena\s+([IVXLCDM]+)$/i);
+  return numeralMatch ? numeralMatch[1].toUpperCase() : null;
 }
 
 function SectionTitle({ icon, title, right, theme }) {
@@ -316,7 +316,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const seasonalBestTrophies = seasonalTrophyRoad?.bestTrophies;
   const seasonalArena = seasonalTrophyRoad?.arena;
   const displayedBestTrophies = Number.isFinite(Number(seasonalBestTrophies))
-    ? seasonalBestTrophies
+    ? Number(seasonalBestTrophies)
     : data.bestTrophies;
   const displayedArenaName = seasonalArena
     ? (formatSeasonalArena(seasonalArena) || seasonalArena.name || data.arena?.name || '—')
