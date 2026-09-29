@@ -44,14 +44,14 @@ function formatDate(value) {
 function shortTag(tag) {
   if (!tag) return '—';
   const clean = String(tag);
-  return clean.length > 13 ? \`\${clean.slice(0, 6)}…\${clean.slice(-5)}\` : clean;
+  return clean.length > 13 ? `${clean.slice(0, 6)}…${clean.slice(-5)}` : clean;
 }
 
 function arenaNumber(arena) {
   const raw = String(arena?.rawName ?? '');
-  const normal = raw.match(/^Arena_(\\d+)$/i);
+  const normal = raw.match(/^Arena_(\d+)$/i);
   if (normal) return String(Number(normal[1]));
-  const league = raw.match(/^Arena_L(\\d+)$/i);
+  const league = raw.match(/^Arena_L(\d+)$/i);
   if (league) return String(Number(league[1]) + 14);
   return null;
 }
@@ -147,7 +147,7 @@ function BattleRow({ battle, theme, index }) {
       <View style={styles.battleMain}>
         <Text numberOfLines={1} style={[styles.battleMode, { color: theme.colors.onSurface }]}>{mode}</Text>
         <Text numberOfLines={1} style={[styles.battleDate, { color: theme.colors.onSurfaceVariant }]}>
-          {date ? formatDate(date) : \`Battle \${index + 1}\`}
+          {date ? formatDate(date) : `Battle ${index + 1}`}
         </Text>
       </View>
       <Text style={[styles.battleScore, { color: theme.colors.onSurface }]}>
@@ -382,8 +382,8 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                 </View>
               </View>
               <View style={[styles.barTrack, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-                <View style={[styles.winBar, { width: \`\${winRate}%\`, backgroundColor: theme.colors.primary }]} />
-                <View style={[styles.lossBar, { width: \`\${lossRate}%\`, backgroundColor: theme.colors.error }]} />
+                <View style={[styles.winBar, { width: `${winRate}%`, backgroundColor: theme.colors.primary }]} />
+                <View style={[styles.lossBar, { width: `${lossRate}%`, backgroundColor: theme.colors.error }]} />
               </View>
               <View style={styles.barLegend}>
                 <Text style={[styles.legendText, { color: theme.colors.primary }]}>Wins {winRate.toFixed(1)}%</Text>
@@ -407,12 +407,12 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <SectionTitle icon="sword" title="Path of Legends" theme={theme} />
               <View style={styles.polGrid}>
-                <StatTile icon="podium" label="Current league" value={currentPol?.leagueNumber ? \`League \${currentPol.leagueNumber}\` : '—'} theme={theme} image={leagueIcon} />
+                <StatTile icon="podium" label="Current league" value={currentPol?.leagueNumber ? `League ${currentPol.leagueNumber}` : '—'} theme={theme} image={leagueIcon} />
                 <StatTile icon="trophy-outline" label="Current trophies" value={formatNumber(currentPol?.trophies)} theme={theme} />
-                <StatTile icon="medal" label="Current rank" value={currentPol?.rank ? \`#\${formatNumber(currentPol.rank)}\` : '—'} theme={theme} />
-                <StatTile icon="history" label="Last league" value={lastPol?.leagueNumber ? \`League \${lastPol.leagueNumber}\` : '—'} theme={theme} />
+                <StatTile icon="medal" label="Current rank" value={currentPol?.rank ? `#${formatNumber(currentPol.rank)}` : '—'} theme={theme} />
+                <StatTile icon="history" label="Last league" value={lastPol?.leagueNumber ? `League ${lastPol.leagueNumber}` : '—'} theme={theme} />
                 <StatTile icon="trophy-award" label="Last trophies" value={formatNumber(lastPol?.trophies)} theme={theme} />
-                <StatTile icon="medal-outline" label="Last rank" value={lastPol?.rank ? \`#\${formatNumber(lastPol.rank)}\` : '—'} theme={theme} />
+                <StatTile icon="medal-outline" label="Last rank" value={lastPol?.rank ? `#${formatNumber(lastPol.rank)}` : '—'} theme={theme} />
               </View>
             </Surface>
 
@@ -463,7 +463,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             </Surface>
 
             <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
-              <SectionTitle icon="cards" title="Current deck" right={\`\${currentDeck.length} cards\`} theme={theme} />
+              <SectionTitle icon="cards" title="Current deck" right={`${currentDeck.length} cards`} theme={theme} />
               <View style={styles.deckGrid}>
                 {currentDeck.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact />)}
               </View>
@@ -495,7 +495,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             </Surface>
 
             <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
-              <SectionTitle icon="archive" title="Card collection" right={\`\${cardCount} cards\`} theme={theme} />
+              <SectionTitle icon="archive" title="Card collection" right={`${cardCount} cards`} theme={theme} />
               <View style={styles.collectionSummary}>
                 <StatTile icon="check-decagram" label="Max level" value={formatNumber(maxLevelCards)} theme={theme} />
                 <StatTile icon="auto-fix" label="Evolved" value={formatNumber(evolvedCards)} theme={theme} />
@@ -506,7 +506,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             </Surface>
 
             <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
-              <SectionTitle icon="medal" title="Badges & achievements" right={\`\${badges.length}\`} theme={theme} />
+              <SectionTitle icon="medal" title="Badges & achievements" right={`${badges.length}`} theme={theme} />
               {badges.length === 0 ? (
                 <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No badge data.</Text>
               ) : (
@@ -524,11 +524,11 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                           <MaterialCommunityIcons name="medal-outline" size={34} color={theme.colors.primary} />
                         )}
                         <Text numberOfLines={2} style={[styles.badgeName, { color: theme.colors.onSurface }]}>{badge?.name || 'Badge'}</Text>
-                        <Text style={[styles.badgeLevel, { color: theme.colors.primary }]}>Level {badge?.level ?? '—'}{badge?.maxLevel ? \` / \${badge.maxLevel}\` : ''}</Text>
+                        <Text style={[styles.badgeLevel, { color: theme.colors.primary }]}>Level {badge?.level ?? '—'}{badge?.maxLevel ? ` / ${badge.maxLevel}` : ''}</Text>
                         {target > 0 ? (
                           <>
                             <View style={[styles.badgeTrack, { backgroundColor: theme.colors.surfaceContainer }]}>
-                              <View style={[styles.badgeFill, { width: \`\${ratio * 100}%\`, backgroundColor: theme.colors.primary }]} />
+                              <View style={[styles.badgeFill, { width: `${ratio * 100}%`, backgroundColor: theme.colors.primary }]} />
                             </View>
                             <Text style={[styles.badgeProgress, { color: theme.colors.onSurfaceVariant }]}>
                               {formatNumber(progress)} / {formatNumber(target)}
@@ -543,7 +543,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             </Surface>
 
             <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
-              <SectionTitle icon="sword-cross" title="Battle log" right={battlelog.length ? \`\${battlelog.length} battles\` : undefined} theme={theme} />
+              <SectionTitle icon="sword-cross" title="Battle log" right={battlelog.length ? `${battlelog.length} battles` : undefined} theme={theme} />
               {battleLoading ? (
                 <View style={styles.battleLoading}>
                   <ActivityIndicator size="small" color={theme.colors.primary} />
