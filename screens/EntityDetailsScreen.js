@@ -1,18 +1,182 @@
-// * screens/EntityDetailsScreen.js — detail page with Android back handling (v73)
-import React, { useRef, useEffect } from 'react';
-import { Animated, BackHandler, StyleSheet, View } from 'react-native';
+// * screens/EntityDetailsScreen.js — full player details page (v83)
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Animated,
+  BackHandler,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { IconButton, Surface, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { fetchPlayer, fetchPlayerBattlelog } from '../api/client';
+
+const leagueIcon = require('../assets/league-icon.png');
+const pointIcon = require('../assets/Point-icon.png');
+
+function firstValue(...values) {
+  return values.find((value) => value !== undefined && value !== null && value !== '') ?? null;
+}
+
+function number(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function formatNumber(value) {
+  if (value === undefined || value === null || value === '') return '—';
+  const n = Number(value);
+  if (!Number.isFinite(n)) return String(value);
+  return n.toLocaleString();
+}
+
+function formatDate(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleDateString();
+}
+
+function shortTag(tag) {
+  if (!tag) return '—';
+  const clean = String(tag);
+  return clean.length > 13 ? \`\${clean.slice(0, 6)}…\${clean.slice(-5)}\` : clean;
+}
+
+function arenaNumber(arena) {
+  const raw = String(arena?.rawName ?? '');
+  const normal = raw.match(/^Arena_(\\d+)$/i);
+  if (normal) return String(Number(normal[1]));
+  const league = raw.match(/^Arena_L(\\d+)$/i);
+  if (league) return String(Number(league[1]) + 14);
+  return null;
+}
+
+function SectionTitle({ icon, title, right, theme }) {
+  return (
+    <View style={styles.sectionTitleRow}>
+      <View style={styles.sectionTitleLeft}>
+        <View style={[styles.sectionIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+          <MaterialCommunityIcons name={icon} size={18} color={theme.colors.onPrimaryContainer} />
+        </View>
+        <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>{title}</Text>
+      </View>
+      {right ? <Text style={[styles.sectionRight, { color: theme.colors.onSurfaceVariant }]}>{right}</Text> : null}
+    </View>
+  );
+}
+
+function StatTile({ icon, label, value, theme, image }) {
+  return (
+    <View style={[styles.statTile, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+      <View style={[styles.statIcon, { backgroundColor: theme.colors.surfaceContainer }]}>
+        {image ? (
+          <Image source={image} style={styles.statImage} resizeMode="contain" />
+        ) : (
+          <MaterialCommunityIcons name={icon} size={20} color={theme.colors.primary} />
+        )}
+      </View>
+      <Text numberOfLines={1} style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
+      <Text numberOfLines={1} style={[styles.statValue, { color: theme.colors.onSurface }]}>{value}</Text>
+    </View>
+  );
+}
+
+function InfoRow({ icon, label, value, theme }) {
+  return (
+    <View style={styles.infoRow}>
+      <MaterialCommunityIcons name={icon} size={19} color={theme.colors.primary} />
+      <Text style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
+      <Text numberOfLines={1} style={[styles.infoValue, { color: theme.colors.onSurface }]}>{value}</Text>
+    </View>
+  );
+}
+
+function CardItem({ card, theme, compact = false }) {
+  const image = card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium;
+  return (
+    <View style={[styles.cardItem, compact && styles.compactCardItem, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+      {image ? (
+        <Image source={{ uri: image }} style={compact ? styles.compactCardImage : styles.cardImage} resizeMode="contain" />
+      ) : (
+        <View style={[styles.cardImageFallback, { backgroundColor: theme.colors.primaryContainer }]}>
+          <MaterialCommunityIcons name="cards-outline" size={28} color={theme.colors.onPrimaryContainer} />
+        </View>
+      )}
+      <Text numberOfLines={1} style={[styles.cardName, { color: theme.colors.onSurface }]}>{card?.name || 'Unknown'}</Text>
+      <View style={styles.cardMeta}>
+        <Text style={[styles.cardLevel, { color: theme.colors.primary }]}>Lv {card?.level ?? '—'}</Text>
+        {card?.elixirCost !== undefined ? (
+          <Text style={[styles.cardElixir, { color: theme.colors.onSurfaceVariant }]}>{card.elixirCost} elixir</Text>
+        ) : null}
+      </View>
+      {card?.evolutionLevel > 0 ? (
+        <View style={[styles.evolutionPill, { backgroundColor: theme.colors.primaryContainer }]}>
+          <Text style={[styles.evolutionText, { color: theme.colors.onPrimaryContainer }]}>Evolution</Text>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function BattleRow({ battle, theme, index }) {
+  const team = Array.isArray(battle?.team) ? battle.team : [];
+  const opponent = Array.isArray(battle?.opponent) ? battle.opponent : [];
+  const teamCrowns = team.reduce((sum, p) => sum + number(p?.crowns), 0);
+  const opponentCrowns = opponent.reduce((sum, p) => sum + number(p?.crowns), 0);
+  const won = teamCrowns > opponentCrowns;
+  const draw = teamCrowns === opponentCrowns;
+  const mode = firstValue(battle?.gameMode?.name, battle?.gameMode?.id, battle?.type, battle?.arena?.name, 'Battle');
+  const date = firstValue(battle?.battleTime, battle?.createdDate, battle?.date);
+
+  return (
+    <View style={[styles.battleRow, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+      <View style={[styles.resultIcon, {
+        backgroundColor: draw ? theme.colors.surfaceContainer : won ? theme.colors.primaryContainer : theme.colors.errorContainer,
+      }]}>
+        <MaterialCommunityIcons
+          name={draw ? 'minus' : won ? 'check' : 'close'}
+          size={18}
+          color={draw ? theme.colors.onSurfaceVariant : won ? theme.colors.onPrimaryContainer : theme.colors.onErrorContainer}
+        />
+      </View>
+      <View style={styles.battleMain}>
+        <Text numberOfLines={1} style={[styles.battleMode, { color: theme.colors.onSurface }]}>{mode}</Text>
+        <Text numberOfLines={1} style={[styles.battleDate, { color: theme.colors.onSurfaceVariant }]}>
+          {date ? formatDate(date) : \`Battle \${index + 1}\`}
+        </Text>
+      </View>
+      <Text style={[styles.battleScore, { color: theme.colors.onSurface }]}>
+        {teamCrowns} — {opponentCrowns}
+      </Text>
+    </View>
+  );
+}
 
 export default function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const theme = useTheme();
   const entrance = useRef(new Animated.Value(0)).current;
+  const scrollRef = useRef(null);
+  const [player, setPlayer] = useState(null);
+  const [battlelog, setBattlelog] = useState([]);
+  const [loading, setLoading] = useState(type === 'player');
+  const [battleLoading, setBattleLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const isClan = type === 'clan';
-  const title = isClan ? (entity?.name ?? entity?.clan?.name ?? 'Clan') : (entity?.name ?? 'Player');
+  const tag = firstValue(entity?.tag, entity?.playerTag);
 
   useEffect(() => {
-    Animated.spring(entrance, { toValue: 1, friction: 8, tension: 55, useNativeDriver: true }).start();
+    Animated.spring(entrance, {
+      toValue: 1,
+      friction: 8,
+      tension: 55,
+      useNativeDriver: true,
+    }).start();
   }, [entrance]);
 
   useEffect(() => {
@@ -22,6 +186,106 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     });
     return () => subscription.remove();
   }, [onBack]);
+
+  useEffect(() => {
+    if (isClan || !tag) {
+      setLoading(false);
+      return undefined;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    fetchPlayer(tag)
+      .then((data) => {
+        if (!cancelled) setPlayer(data);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err?.message || 'Could not load player details.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isClan, tag]);
+
+  const loadBattlelog = useCallback(() => {
+    if (isClan || !tag) return;
+    setBattleLoading(true);
+    fetchPlayerBattlelog(tag)
+      .then((items) => setBattlelog(Array.isArray(items) ? items : []))
+      .catch(() => setBattlelog([]))
+      .finally(() => setBattleLoading(false));
+  }, [isClan, tag]);
+
+  useEffect(() => {
+    loadBattlelog();
+  }, [loadBattlelog]);
+
+  const data = player || entity || {};
+  const wins = number(data.wins);
+  const losses = number(data.losses);
+  const battles = number(data.battleCount) || wins + losses;
+  const winRate = battles > 0 ? (wins / battles) * 100 : 0;
+  const lossRate = battles > 0 ? (losses / battles) * 100 : 0;
+  const threeCrowns = number(data.threeCrownWins);
+  const currentPol = data.currentPathOfLegendSeasonResult;
+  const lastPol = data.lastPathOfLegendSeasonResult;
+  const currentLeagueStats = data.leagueStatistics?.currentSeason;
+  const previousLeagueStats = data.leagueStatistics?.previousSeason;
+  const bestLeagueStats = data.leagueStatistics?.bestSeason;
+  const favouriteCard = data.currentFavouriteCard;
+  const currentDeck = Array.isArray(data.currentDeck) ? data.currentDeck : [];
+  const currentDeckSupport = Array.isArray(data.currentDeckSupportCards) ? data.currentDeckSupportCards : [];
+  const cards = Array.isArray(data.cards) ? data.cards : [];
+  const supportCards = Array.isArray(data.supportCards) ? data.supportCards : [];
+  const badges = Array.isArray(data.badges) ? data.badges : [];
+
+  const allCards = useMemo(() => {
+    const seen = new Set();
+    return [...cards, ...supportCards].filter((card) => {
+      const key = card?.id ?? card?.name;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [cards, supportCards]);
+
+  const cardCount = allCards.length;
+  const maxLevelCards = allCards.filter((card) => number(card?.level) >= number(card?.maxLevel) && card?.maxLevel).length;
+  const evolvedCards = allCards.filter((card) => number(card?.evolutionLevel) > 0).length;
+
+  const title = isClan
+    ? firstValue(data.name, data.clan?.name, 'Clan')
+    : firstValue(data.name, entity?.name, 'Player');
+
+  if (isClan) {
+    return (
+      <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
+        <View style={styles.header}>
+          <IconButton icon="arrow-left" size={24} onPress={onBack} style={styles.back} />
+          <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>{title}</Text>
+        </View>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <Surface elevation={0} style={[styles.heroCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <View style={[styles.heroIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+              <MaterialCommunityIcons name="account-group" size={30} color={theme.colors.onPrimaryContainer} />
+            </View>
+            <Text style={[styles.heroName, { color: theme.colors.onSurface }]}>{title}</Text>
+            <Text style={[styles.heroTag, { color: theme.colors.primary }]}>{firstValue(data.tag, data.clan?.tag, '—')}</Text>
+            <View style={styles.statGrid}>
+              <StatTile icon="trophy-outline" label="Clan score" value={formatNumber(firstValue(data.clanScore, data.clanWarTrophies, data.score, data.trophies))} theme={theme} image={pointIcon} />
+              <StatTile icon="account-group" label="Members" value={formatNumber(firstValue(data.members, data.memberCount, data.membersCount))} theme={theme} />
+            </View>
+          </Surface>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
@@ -34,23 +298,268 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
           <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>{title}</Text>
         </View>
 
-        <View style={styles.content}>
-          <Surface elevation={0} style={[styles.placeholderCard, { backgroundColor: theme.colors.surfaceContainer }]}>
-            <View style={[styles.icon, { backgroundColor: theme.colors.primaryContainer }]}>
-              <MaterialCommunityIcons
-                name={isClan ? 'account-group' : 'account'}
-                size={26}
-                color={theme.colors.onPrimaryContainer}
-              />
+        {loading && !player ? (
+          <View style={styles.center}>
+            <ActivityIndicator size="small" color={theme.colors.primary} />
+            <Text style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}>Loading player...</Text>
+          </View>
+        ) : error && !player ? (
+          <View style={styles.center}>
+            <View style={[styles.errorIcon, { backgroundColor: theme.colors.errorContainer }]}>
+              <MaterialCommunityIcons name="alert-outline" size={28} color={theme.colors.onErrorContainer} />
             </View>
-            <Text style={[styles.placeholderTitle, { color: theme.colors.onSurface }]}>
-              {isClan ? 'Clan details' : 'Player details'}
-            </Text>
-            <Text style={[styles.placeholderText, { color: theme.colors.onSurfaceVariant }]}>
-              Detailed information will be added here.
-            </Text>
-          </Surface>
-        </View>
+            <Text style={[styles.errorTitle, { color: theme.colors.onSurface }]}>Couldn't load player</Text>
+            <Text style={[styles.errorText, { color: theme.colors.onSurfaceVariant }]}>{error}</Text>
+            <Pressable onPress={() => {
+              setError(null);
+              setLoading(true);
+              fetchPlayer(tag)
+                .then(setPlayer)
+                .catch((err) => setError(err?.message || 'Could not load player details.'))
+                .finally(() => setLoading(false));
+            }} style={[styles.retryButton, { backgroundColor: theme.colors.primaryContainer }]}>
+              <Text style={[styles.retryText, { color: theme.colors.onPrimaryContainer }]}>Retry</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <ScrollView
+            ref={scrollRef}
+            contentContainerStyle={styles.content}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            <Surface elevation={0} style={[styles.heroCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+              <View style={styles.heroTop}>
+                <View style={[styles.heroIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+                  <Image source={leagueIcon} style={styles.heroLeagueIcon} resizeMode="contain" />
+                </View>
+                <View style={styles.heroIdentity}>
+                  <Text numberOfLines={1} style={[styles.heroName, { color: theme.colors.onSurface }]}>{title}</Text>
+                  <Text numberOfLines={1} style={[styles.heroTag, { color: theme.colors.primary }]}>{shortTag(data.tag || tag)}</Text>
+                  <Text numberOfLines={1} style={[styles.heroSub, { color: theme.colors.onSurfaceVariant }]}>
+                    {firstValue(data.role, 'Player')} · {firstValue(data.arena?.name, 'Arena')}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.heroStats}>
+                <View style={styles.heroTrophy}>
+                  <Image source={pointIcon} style={styles.heroPointIcon} resizeMode="contain" />
+                  <View>
+                    <Text style={[styles.heroStatLabel, { color: theme.colors.onSurfaceVariant }]}>Trophies</Text>
+                    <Text style={[styles.heroTrophyValue, { color: theme.colors.onSurface }]}>{formatNumber(data.trophies)}</Text>
+                  </View>
+                </View>
+                <View style={styles.heroBest}>
+                  <MaterialCommunityIcons name="trophy-award" size={22} color={theme.colors.primary} />
+                  <View>
+                    <Text style={[styles.heroStatLabel, { color: theme.colors.onSurfaceVariant }]}>Best</Text>
+                    <Text style={[styles.heroBestValue, { color: theme.colors.onSurface }]}>{formatNumber(data.bestTrophies)}</Text>
+                  </View>
+                </View>
+              </View>
+            </Surface>
+
+            <View style={styles.statGrid}>
+              <StatTile icon="gamepad-variant" label="Battles" value={formatNumber(data.battleCount)} theme={theme} />
+              <StatTile icon="trophy" label="Wins" value={formatNumber(data.wins)} theme={theme} />
+              <StatTile icon="close-circle-outline" label="Losses" value={formatNumber(data.losses)} theme={theme} />
+              <StatTile icon="crown" label="3-crown wins" value={formatNumber(data.threeCrownWins)} theme={theme} />
+              <StatTile icon="fire" label="Win streak" value={formatNumber(data.currentWinLoseStreak)} theme={theme} />
+              <StatTile icon="account-star" label="King Tower" value={formatNumber(data.kingTowerLevel)} theme={theme} />
+            </View>
+
+            <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+              <SectionTitle icon="chart-donut" title="Battle performance" theme={theme} />
+              <View style={styles.performanceNumbers}>
+                <View>
+                  <Text style={[styles.bigPercent, { color: theme.colors.onSurface }]}>{winRate.toFixed(1)}%</Text>
+                  <Text style={[styles.smallMuted, { color: theme.colors.onSurfaceVariant }]}>Win rate</Text>
+                </View>
+                <View style={styles.performanceSide}>
+                  <Text style={[styles.performanceLabel, { color: theme.colors.onSurfaceVariant }]}>Wins {formatNumber(wins)}</Text>
+                  <Text style={[styles.performanceLabel, { color: theme.colors.onSurfaceVariant }]}>Losses {formatNumber(losses)}</Text>
+                </View>
+              </View>
+              <View style={[styles.barTrack, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+                <View style={[styles.winBar, { width: \`\${winRate}%\`, backgroundColor: theme.colors.primary }]} />
+                <View style={[styles.lossBar, { width: \`\${lossRate}%\`, backgroundColor: theme.colors.error }]} />
+              </View>
+              <View style={styles.barLegend}>
+                <Text style={[styles.legendText, { color: theme.colors.primary }]}>Wins {winRate.toFixed(1)}%</Text>
+                <Text style={[styles.legendText, { color: theme.colors.error }]}>Losses {lossRate.toFixed(1)}%</Text>
+              </View>
+            </Surface>
+
+            <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+              <SectionTitle icon="sword-cross" title="Player information" theme={theme} />
+              <InfoRow icon="account" label="Tag" value={data.tag || '—'} theme={theme} />
+              <InfoRow icon="shield-account" label="Role" value={data.role || '—'} theme={theme} />
+              <InfoRow icon="castle" label="Arena" value={firstValue(data.arena?.name, '—')} theme={theme} />
+              <InfoRow icon="numeric" label="Arena number" value={arenaNumber(data.arena) || '—'} theme={theme} />
+              <InfoRow icon="star-four-points" label="Experience level" value={formatNumber(data.expLevel)} theme={theme} />
+              <InfoRow icon="star-circle" label="Collection level" value={formatNumber(data.collectionLevel)} theme={theme} />
+              <InfoRow icon="star" label="Star points" value={formatNumber(data.starPoints)} theme={theme} />
+              <InfoRow icon="database" label="Experience points" value={formatNumber(data.expPoints)} theme={theme} />
+              <InfoRow icon="trophy-outline" label="Legacy trophy high score" value={formatNumber(data.legacyTrophyRoadHighScore)} theme={theme} />
+            </Surface>
+
+            <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+              <SectionTitle icon="sword" title="Path of Legends" theme={theme} />
+              <View style={styles.polGrid}>
+                <StatTile icon="podium" label="Current league" value={currentPol?.leagueNumber ? \`League \${currentPol.leagueNumber}\` : '—'} theme={theme} image={leagueIcon} />
+                <StatTile icon="trophy-outline" label="Current trophies" value={formatNumber(currentPol?.trophies)} theme={theme} />
+                <StatTile icon="medal" label="Current rank" value={currentPol?.rank ? \`#\${formatNumber(currentPol.rank)}\` : '—'} theme={theme} />
+                <StatTile icon="history" label="Last league" value={lastPol?.leagueNumber ? \`League \${lastPol.leagueNumber}\` : '—'} theme={theme} />
+                <StatTile icon="trophy-award" label="Last trophies" value={formatNumber(lastPol?.trophies)} theme={theme} />
+                <StatTile icon="medal-outline" label="Last rank" value={lastPol?.rank ? \`#\${formatNumber(lastPol.rank)}\` : '—'} theme={theme} />
+              </View>
+            </Surface>
+
+            <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+              <SectionTitle icon="history" title="League statistics" theme={theme} />
+              <View style={styles.seasonTable}>
+                <View style={styles.seasonHeader}>
+                  <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Season</Text>
+                  <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Trophies</Text>
+                  <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Best</Text>
+                </View>
+                <View style={styles.seasonRow}>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Current</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(currentLeagueStats?.trophies)}</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(currentLeagueStats?.bestTrophies)}</Text>
+                </View>
+                <View style={styles.seasonRow}>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Previous</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(previousLeagueStats?.trophies)}</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(previousLeagueStats?.bestTrophies)}</Text>
+                </View>
+                <View style={styles.seasonRow}>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Best season</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>—</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(bestLeagueStats?.bestTrophies)}</Text>
+                </View>
+              </View>
+            </Surface>
+
+            <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+              <SectionTitle icon="account-group" title="Clan" theme={theme} />
+              <View style={styles.clanHero}>
+                <View style={[styles.clanBadge, { backgroundColor: theme.colors.primaryContainer }]}>
+                  <MaterialCommunityIcons name="shield-account" size={28} color={theme.colors.onPrimaryContainer} />
+                </View>
+                <View style={styles.clanIdentity}>
+                  <Text numberOfLines={1} style={[styles.clanName, { color: theme.colors.onSurface }]}>{data.clan?.name || 'No clan'}</Text>
+                  <Text style={[styles.clanTag, { color: theme.colors.primary }]}>{data.clan?.tag || '—'}</Text>
+                </View>
+              </View>
+              <InfoRow icon="shield-star" label="Badge ID" value={formatNumber(data.clan?.badgeId)} theme={theme} />
+              <InfoRow icon="account-multiple" label="Role" value={data.role || '—'} theme={theme} />
+              <InfoRow icon="gift" label="Donations" value={formatNumber(data.donations)} theme={theme} />
+              <InfoRow icon="gift-outline" label="Donations received" value={formatNumber(data.donationsReceived)} theme={theme} />
+              <InfoRow icon="gift-open" label="Total donations" value={formatNumber(data.totalDonations)} theme={theme} />
+              <InfoRow icon="sword-cross" label="War day wins" value={formatNumber(data.warDayWins)} theme={theme} />
+              <InfoRow icon="cards" label="Clan cards collected" value={formatNumber(data.clanCardsCollected)} theme={theme} />
+            </Surface>
+
+            <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+              <SectionTitle icon="cards" title="Current deck" right={\`\${currentDeck.length} cards\`} theme={theme} />
+              <View style={styles.deckGrid}>
+                {currentDeck.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact />)}
+              </View>
+              {currentDeckSupport.length > 0 ? (
+                <>
+                  <Text style={[styles.subSectionTitle, { color: theme.colors.onSurfaceVariant }]}>Tower / support cards</Text>
+                  <View style={styles.deckGrid}>
+                    {currentDeckSupport.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact />)}
+                  </View>
+                </>
+              ) : null}
+            </Surface>
+
+            <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+              <SectionTitle icon="cards-outline" title="Favourite card" theme={theme} />
+              {favouriteCard ? (
+                <View style={styles.favoriteRow}>
+                  <CardItem card={favouriteCard} theme={theme} compact />
+                  <View style={styles.favoriteDetails}>
+                    <InfoRow icon="cards-heart" label="Name" value={favouriteCard.name || '—'} theme={theme} />
+                    <InfoRow icon="diamond-stone" label="Rarity" value={favouriteCard.rarity || '—'} theme={theme} />
+                    <InfoRow icon="lightning-bolt" label="Elixir" value={formatNumber(favouriteCard.elixirCost)} theme={theme} />
+                    <InfoRow icon="star" label="Star level" value={formatNumber(favouriteCard.starLevel)} theme={theme} />
+                  </View>
+                </View>
+              ) : (
+                <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No favourite card data.</Text>
+              )}
+            </Surface>
+
+            <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+              <SectionTitle icon="archive" title="Card collection" right={\`\${cardCount} cards\`} theme={theme} />
+              <View style={styles.collectionSummary}>
+                <StatTile icon="check-decagram" label="Max level" value={formatNumber(maxLevelCards)} theme={theme} />
+                <StatTile icon="auto-fix" label="Evolved" value={formatNumber(evolvedCards)} theme={theme} />
+              </View>
+              <View style={styles.allCardsGrid}>
+                {allCards.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} />)}
+              </View>
+            </Surface>
+
+            <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+              <SectionTitle icon="medal" title="Badges & achievements" right={\`\${badges.length}\`} theme={theme} />
+              {badges.length === 0 ? (
+                <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No badge data.</Text>
+              ) : (
+                <View style={styles.badgesGrid}>
+                  {badges.map((badge, index) => {
+                    const image = badge?.iconUrls?.large || badge?.iconUrls?.medium;
+                    const progress = number(badge?.progress);
+                    const target = number(badge?.target);
+                    const ratio = target > 0 ? Math.min(1, progress / target) : 0;
+                    return (
+                      <View key={badge?.name || index} style={[styles.badgeItem, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+                        {image ? (
+                          <Image source={{ uri: image }} style={styles.badgeImage} resizeMode="contain" />
+                        ) : (
+                          <MaterialCommunityIcons name="medal-outline" size={34} color={theme.colors.primary} />
+                        )}
+                        <Text numberOfLines={2} style={[styles.badgeName, { color: theme.colors.onSurface }]}>{badge?.name || 'Badge'}</Text>
+                        <Text style={[styles.badgeLevel, { color: theme.colors.primary }]}>Level {badge?.level ?? '—'}{badge?.maxLevel ? \` / \${badge.maxLevel}\` : ''}</Text>
+                        {target > 0 ? (
+                          <>
+                            <View style={[styles.badgeTrack, { backgroundColor: theme.colors.surfaceContainer }]}>
+                              <View style={[styles.badgeFill, { width: \`\${ratio * 100}%\`, backgroundColor: theme.colors.primary }]} />
+                            </View>
+                            <Text style={[styles.badgeProgress, { color: theme.colors.onSurfaceVariant }]}>
+                              {formatNumber(progress)} / {formatNumber(target)}
+                            </Text>
+                          </>
+                        ) : null}
+                      </View>
+                    );
+                  })}
+                </View>
+              )}
+            </Surface>
+
+            <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+              <SectionTitle icon="sword-cross" title="Battle log" right={battlelog.length ? \`\${battlelog.length} battles\` : undefined} theme={theme} />
+              {battleLoading ? (
+                <View style={styles.battleLoading}>
+                  <ActivityIndicator size="small" color={theme.colors.primary} />
+                </View>
+              ) : battlelog.length === 0 ? (
+                <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No battle log available.</Text>
+              ) : (
+                battlelog.map((battle, index) => (
+                  <BattleRow key={battle?.battleTime || index} battle={battle} theme={theme} index={index} />
+                ))
+              )}
+            </Surface>
+
+            <View style={styles.bottomSpace} />
+          </ScrollView>
+        )}
       </Animated.View>
     </SafeAreaView>
   );
@@ -61,9 +570,108 @@ const styles = StyleSheet.create({
   header: { height: 58, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8 },
   back: { margin: 0 },
   headerTitle: { flex: 1, fontSize: 18, fontWeight: '700', marginLeft: 4 },
-  content: { flex: 1, padding: 14 },
-  placeholderCard: { borderRadius: 22, minHeight: 180, alignItems: 'center', justifyContent: 'center', padding: 20 },
-  icon: { width: 54, height: 54, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  placeholderTitle: { marginTop: 12, fontSize: 16, fontWeight: '700' },
-  placeholderText: { marginTop: 5, fontSize: 12, textAlign: 'center' },
+  content: { padding: 14, paddingBottom: 40 },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 28 },
+  loadingText: { marginTop: 10, fontSize: 13 },
+  errorIcon: { width: 56, height: 56, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  errorTitle: { marginTop: 12, fontSize: 17, fontWeight: '700' },
+  errorText: { marginTop: 6, textAlign: 'center', lineHeight: 19 },
+  retryButton: { marginTop: 16, paddingHorizontal: 18, paddingVertical: 10, borderRadius: 20 },
+  retryText: { fontSize: 13, fontWeight: '700' },
+
+  heroCard: { borderRadius: 24, padding: 16, marginBottom: 12 },
+  heroTop: { flexDirection: 'row', alignItems: 'center' },
+  heroIcon: { width: 64, height: 64, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
+  heroLeagueIcon: { width: 42, height: 42 },
+  heroIdentity: { flex: 1, marginLeft: 13 },
+  heroName: { fontSize: 22, fontWeight: '800' },
+  heroTag: { marginTop: 3, fontSize: 13, fontWeight: '700' },
+  heroSub: { marginTop: 5, fontSize: 12 },
+  heroStats: { flexDirection: 'row', marginTop: 18, gap: 10 },
+  heroTrophy: { flex: 1, flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.03)' },
+  heroBest: { flex: 1, flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.03)' },
+  heroPointIcon: { width: 24, height: 24, marginRight: 8 },
+  heroStatLabel: { fontSize: 11 },
+  heroTrophyValue: { marginTop: 2, fontSize: 18, fontWeight: '800' },
+  heroBestValue: { marginTop: 2, fontSize: 18, fontWeight: '800' },
+
+  statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 9, marginBottom: 12 },
+  statTile: { width: '31.8%', minHeight: 88, borderRadius: 18, padding: 10, justifyContent: 'space-between' },
+  statIcon: { width: 32, height: 32, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  statImage: { width: 21, height: 21 },
+  statLabel: { marginTop: 7, fontSize: 10.5 },
+  statValue: { marginTop: 2, fontSize: 14, fontWeight: '800' },
+
+  sectionCard: { borderRadius: 22, padding: 14, marginBottom: 12 },
+  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 13 },
+  sectionTitleLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  sectionIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  sectionTitle: { marginLeft: 9, fontSize: 16, fontWeight: '800' },
+  sectionRight: { marginLeft: 8, fontSize: 11 },
+
+  performanceNumbers: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  bigPercent: { fontSize: 28, fontWeight: '900' },
+  smallMuted: { fontSize: 11, marginTop: 1 },
+  performanceSide: { alignItems: 'flex-end', gap: 4 },
+  performanceLabel: { fontSize: 12 },
+  barTrack: { height: 12, borderRadius: 7, overflow: 'hidden', flexDirection: 'row', marginTop: 14 },
+  winBar: { height: '100%' },
+  lossBar: { height: '100%' },
+  barLegend: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 7 },
+  legendText: { fontSize: 10.5, fontWeight: '700' },
+
+  infoRow: { minHeight: 38, flexDirection: 'row', alignItems: 'center', gap: 9 },
+  infoLabel: { width: 112, fontSize: 11.5 },
+  infoValue: { flex: 1, textAlign: 'right', fontSize: 12.5, fontWeight: '700' },
+
+  polGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 },
+  seasonTable: { borderRadius: 16, overflow: 'hidden' },
+  seasonHeader: { flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 10, backgroundColor: 'rgba(255,255,255,0.035)' },
+  seasonRow: { flexDirection: 'row', paddingVertical: 11, paddingHorizontal: 10 },
+  seasonHeaderText: { flex: 1, fontSize: 10.5, fontWeight: '700' },
+  seasonText: { flex: 1, fontSize: 12.5, fontWeight: '600' },
+
+  clanHero: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  clanBadge: { width: 54, height: 54, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  clanIdentity: { flex: 1, marginLeft: 11 },
+  clanName: { fontSize: 16, fontWeight: '800' },
+  clanTag: { marginTop: 3, fontSize: 12, fontWeight: '700' },
+
+  deckGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  subSectionTitle: { marginTop: 15, marginBottom: 8, fontSize: 12, fontWeight: '700' },
+  cardItem: { width: '31.8%', minHeight: 150, borderRadius: 16, padding: 7 },
+  compactCardItem: { width: '23.6%', minHeight: 132 },
+  cardImage: { width: '100%', height: 92 },
+  compactCardImage: { width: '100%', height: 76 },
+  cardImageFallback: { width: '100%', height: 76, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  cardName: { marginTop: 4, fontSize: 10.5, fontWeight: '700' },
+  cardMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
+  cardLevel: { fontSize: 10, fontWeight: '800' },
+  cardElixir: { fontSize: 9 },
+  evolutionPill: { alignSelf: 'flex-start', marginTop: 4, borderRadius: 8, paddingHorizontal: 5, paddingVertical: 2 },
+  evolutionText: { fontSize: 8, fontWeight: '800' },
+
+  favoriteRow: { flexDirection: 'row', alignItems: 'flex-start' },
+  favoriteDetails: { flex: 1, marginLeft: 8 },
+  collectionSummary: { flexDirection: 'row', gap: 9, marginBottom: 10 },
+  allCardsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  badgeItem: { width: '31.8%', minHeight: 150, borderRadius: 16, padding: 9, alignItems: 'center' },
+  badgeImage: { width: 58, height: 58 },
+  badgeName: { marginTop: 5, fontSize: 10, fontWeight: '700', textAlign: 'center' },
+  badgeLevel: { marginTop: 3, fontSize: 9.5, fontWeight: '800', textAlign: 'center' },
+  badgeTrack: { width: '100%', height: 5, borderRadius: 3, overflow: 'hidden', marginTop: 7 },
+  badgeFill: { height: '100%', borderRadius: 3 },
+  badgeProgress: { marginTop: 3, fontSize: 8.5 },
+
+  battleLoading: { paddingVertical: 20, alignItems: 'center' },
+  battleRow: { minHeight: 58, borderRadius: 16, padding: 9, marginBottom: 7, flexDirection: 'row', alignItems: 'center' },
+  resultIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  battleMain: { flex: 1, marginLeft: 9 },
+  battleMode: { fontSize: 12.5, fontWeight: '700' },
+  battleDate: { marginTop: 3, fontSize: 10 },
+  battleScore: { marginLeft: 8, fontSize: 13, fontWeight: '900' },
+
+  emptyText: { fontSize: 12, lineHeight: 18 },
+  bottomSpace: { height: 50 },
 });
