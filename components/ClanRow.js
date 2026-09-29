@@ -4,7 +4,7 @@ import { Animated, StyleSheet, Text, View, Image, Pressable } from 'react-native
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Surface, useTheme } from 'react-native-paper';
 
-export const CLAN_ROW_HEIGHT = 64;
+export const CLAN_ROW_HEIGHT = 70;
 
 function getClanScore(item) {
   return item.clanScore ?? item.clanWarTrophies ?? item.score ?? item.trophies ?? item.rating ?? item.points ?? '—';
@@ -39,7 +39,7 @@ export default function ClanRow({ item, index, animationKey = 0, onPress }) {
           <Text style={[styles.rankText, { color: rank <= 3 ? '#1A1300' : theme.colors.onSurfaceVariant }]}>{rank}</Text>
         </View>
         <View style={[styles.clanIcon, { backgroundColor: theme.colors.primaryContainer }]}>
-          <MaterialCommunityIcons name="account-group" size={19} color={theme.colors.onPrimaryContainer} />
+          <MaterialCommunityIcons name="account-group" size={21} color={theme.colors.onPrimaryContainer} />
         </View>
         <View style={styles.info}>
           <Text style={[styles.name, { color: theme.colors.onSurface }]} numberOfLines={1}>{clanName}</Text>
@@ -55,14 +55,14 @@ export default function ClanRow({ item, index, animationKey = 0, onPress }) {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', height: 58, borderRadius: 18, marginHorizontal: 14, marginBottom: 6, paddingHorizontal: 9 },
-  rankBadge: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginRight: 8 },
-  rankText: { fontSize: 11.5, fontWeight: '700' },
-  clanIcon: { width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginRight: 9 },
+  row: { flexDirection: 'row', alignItems: 'center', height: 64, borderRadius: 19, marginHorizontal: 14, marginBottom: 6, paddingHorizontal: 9 },
+  rankBadge: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
+  rankText: { fontSize: 13.5, fontWeight: '700' },
+  clanIcon: { width: 35, height: 35, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginRight: 9 },
   info: { flex: 1, justifyContent: 'center' },
-  name: { fontSize: 13.5, fontWeight: '600' },
-  members: { fontSize: 10.5, marginTop: 1 },
-  scoreBox: { width: 70, flexDirection: 'row', alignItems: 'center' },
-  pointIcon: { width: 22, height: 22, marginRight: 4, transform: [{ translateX: -5 }] },
+  name: { fontSize: 14.5, fontWeight: '600' },
+  members: { fontSize: 11.3, marginTop: 1 },
+  scoreBox: { width: 74, flexDirection: 'row', alignItems: 'center' },
+  pointIcon: { width: 24, height: 24, marginRight: 4, transform: [{ translateX: -5 }] },
   score: { width: 44, fontSize: 12.5, fontWeight: '700', textAlign: 'left', transform: [{ translateY: -1.5 }] },
 });
