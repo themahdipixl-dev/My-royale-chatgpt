@@ -71,51 +71,49 @@ function AnimatedTypingText({ children, style, numberOfLines, ellipsizeMode, del
 
 function AnimatedCounterText({ value, style, numberOfLines = 1, ellipsizeMode = 'tail', delay = 0 }) {
   const raw = String(value ?? '');
+  const numericText = raw.replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
+  const target = numericText ? Number(numericText[0]) : null;
+  const prefix = numericText ? raw.slice(0, numericText.index) : '';
+  const suffix = numericText ? raw.slice(numericText.index + numericText[0].length) : '';
+  const decimals = numericText?.[0].includes('.') ? numericText[0].split('.')[1].length : 0;
   const [display, setDisplay] = useState(raw);
 
   useEffect(() => {
-    const match = raw.match(/^([^0-9-]*)(-?[0-9]+(?:\.[0-9]+)?)(.*)$/);
-    const target = match ? Number(match[2]) : null;
-    const prefix = match?.[1] ?? '';
-    const suffix = match?.[3] ?? '';
-    const decimals = match?.[2]?.includes('.') ? match[2].split('.')[1].length : 0;
-
-    if (!match || !Number.isFinite(target)) {
+    if (!Number.isFinite(target)) {
       setDisplay(raw);
       return undefined;
     }
 
-    let interval;
-    let delayTimer;
-    const duration = 620;
-    const startedAt = Date.now();
+    let frame;
+    let timer;
+    const duration = 650;
+    const start = () => {
+      const startedAt = Date.now();
 
-    const animate = () => {
-      const progress = Math.min((Date.now() - startedAt) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const current = target * eased;
-      const formatted = decimals > 0
-        ? current.toFixed(decimals)
-        : Math.round(current).toString();
+      const tick = () => {
+        const progress = Math.min((Date.now() - startedAt) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = target * eased;
+        const formatted = decimals
+          ? current.toFixed(decimals)
+          : Math.round(current).toString();
+        setDisplay(prefix + formatted + suffix);
 
-      setDisplay(prefix + formatted + suffix);
+        if (progress < 1) {
+          frame = requestAnimationFrame(tick);
+        }
+      };
 
-      if (progress >= 1 && interval) {
-        clearInterval(interval);
-        interval = null;
-      }
+      frame = requestAnimationFrame(tick);
     };
 
-    delayTimer = setTimeout(() => {
-      animate();
-      interval = setInterval(animate, 32);
-    }, delay);
+    timer = setTimeout(start, delay);
 
     return () => {
-      clearTimeout(delayTimer);
-      if (interval) clearInterval(interval);
+      clearTimeout(timer);
+      if (frame) cancelAnimationFrame(frame);
     };
-  }, [raw, delay]);
+  }, [raw, target, prefix, suffix, decimals, delay]);
 
   return (
     <Text numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode} style={style}>
