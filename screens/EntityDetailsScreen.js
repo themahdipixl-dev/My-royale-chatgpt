@@ -57,6 +57,45 @@ function arenaNumber(arena) {
   return null;
 }
 
+function findSeasonalTrophyRoad(player) {
+  let best = null;
+  const visit = (value) => {
+    if (!value || typeof value !== 'object') return;
+    for (const [key, child] of Object.entries(value)) {
+      if (/^seasonal-trophy-road-(\d+)$/i.test(key) && child && typeof child === 'object') {
+        const numericBest = Number(child.bestTrophies);
+        if (Number.isFinite(numericBest)) {
+          const seasonId = Number(key.match(/(\d+)$/)?.[1] || 0);
+          if (!best || seasonId > best.seasonId) best = { seasonId, data: child };
+        }
+      }
+      if (child && typeof child === 'object') visit(child);
+    }
+  };
+  visit(player);
+  return best?.data ?? null;
+}
+
+function toRoman(value) {
+  const number = Number(value);
+  if (!Number.isInteger(number) || number < 1 || number > 3999) return null;
+  const values = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+  let result = '';
+  let remaining = number;
+  for (const [unit, symbol] of values) {
+    while (remaining >= unit) { result += symbol; remaining -= unit; }
+  }
+  return result;
+}
+
+function formatSeasonalArena(arena) {
+  const name = String(arena?.name ?? '');
+  const match = name.match(/^Seasonal Arena\s+(\d+)$/i);
+  if (!match) return null;
+  const roman = toRoman(Number(match[1]));
+  return roman ? 'Seasonal Arena ' + roman : name;
+}
+
 function SectionTitle({ icon, title, right, theme }) {
   return (
     <View style={styles.sectionTitleRow}>
@@ -273,6 +312,18 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const currentLeagueStats = data.leagueStatistics?.currentSeason;
   const previousLeagueStats = data.leagueStatistics?.previousSeason;
   const bestLeagueStats = data.leagueStatistics?.bestSeason;
+  const seasonalTrophyRoad = findSeasonalTrophyRoad(data);
+  const seasonalBestTrophies = seasonalTrophyRoad?.bestTrophies;
+  const seasonalArena = seasonalTrophyRoad?.arena;
+  const displayedBestTrophies = Number.isFinite(Number(seasonalBestTrophies))
+    ? seasonalBestTrophies
+    : data.bestTrophies;
+  const displayedArenaName = seasonalArena
+    ? (formatSeasonalArena(seasonalArena) || seasonalArena.name || data.arena?.name || '—')
+    : firstValue(data.arena?.name, '—');
+  const displayedArenaNumber = seasonalArena
+    ? (formatSeasonalArena(seasonalArena)?.match(/Seasonal Arenas+(.+)$/i)?.[1] || null)
+    : arenaNumber(data.arena);
   const favouriteCard = data.currentFavouriteCard;
   const currentDeck = Array.isArray(data.currentDeck) ? data.currentDeck : [];
   const currentDeckSupport = Array.isArray(data.currentDeckSupportCards) ? data.currentDeckSupportCards : [];
@@ -402,7 +453,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                   <Text numberOfLines={1} style={[styles.heroName, { color: theme.colors.onSurface }]}>{title}</Text>
                   <Text numberOfLines={1} style={[styles.heroTag, { color: theme.colors.primary }]}>{shortTag(data.tag || tag)}</Text>
                   <Text numberOfLines={1} style={[styles.heroSub, { color: theme.colors.onSurfaceVariant }]}>
-                    {firstValue(data.role, 'Player')} · {firstValue(data.arena?.name, 'Arena')}
+                    {firstValue(data.role, 'Player')} · {displayedArenaName || 'Arena'}
                   </Text>
                 </View>
               </View>
@@ -419,7 +470,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                   <MaterialCommunityIcons name="trophy-award" size={22} color={theme.colors.primary} />
                   <View>
                     <Text style={[styles.heroStatLabel, { color: theme.colors.onSurfaceVariant }]}>Best</Text>
-                    <Text style={[styles.heroBestValue, { color: theme.colors.onSurface }]}>{formatNumber(data.bestTrophies)}</Text>
+                    <Text style={[styles.heroBestValue, { color: theme.colors.onSurface }]}>{formatNumber(displayedBestTrophies)}</Text>
                   </View>
                 </View>
               </View>
@@ -460,8 +511,8 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               <SectionTitle icon="sword-cross" title="Player information" theme={theme} />
               <InfoRow icon="account" label="Tag" value={data.tag || '—'} theme={theme} />
               <InfoRow icon="shield-account" label="Role" value={data.role || '—'} theme={theme} />
-              <InfoRow icon="castle" label="Arena" value={firstValue(data.arena?.name, '—')} theme={theme} />
-              <InfoRow icon="numeric" label="Arena number" value={arenaNumber(data.arena) || '—'} theme={theme} />
+              <InfoRow icon="castle" label="Arena" value={displayedArenaName} theme={theme} />
+              <InfoRow icon="numeric" label="Arena number" value={displayedArenaNumber || '—'} theme={theme} />
               <InfoRow icon="star-four-points" label="Experience level" value={formatNumber(data.expLevel)} theme={theme} />
               <InfoRow icon="star-circle" label="Collection level" value={formatNumber(data.collectionLevel)} theme={theme} />
               <InfoRow icon="star" label="Star points" value={formatNumber(data.starPoints)} theme={theme} />
