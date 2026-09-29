@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Animated,
   BackHandler,
+  FlatList,
   Image,
   Pressable,
   ScrollView,
@@ -123,6 +124,39 @@ function CardItem({ card, theme, compact = false }) {
   );
 }
 
+function BadgeItem({ badge, theme }) {
+  const image = badge?.iconUrls?.large || badge?.iconUrls?.medium;
+  const progress = number(badge?.progress);
+  const target = number(badge?.target);
+  const ratio = target > 0 ? Math.min(1, progress / target) : 0;
+
+  return (
+    <View style={[styles.badgeItem, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+      {image ? (
+        <Image source={{ uri: image }} style={styles.badgeImage} resizeMode="contain" />
+      ) : (
+        <MaterialCommunityIcons name="medal-outline" size={34} color={theme.colors.primary} />
+      )}
+      <Text numberOfLines={2} style={[styles.badgeName, { color: theme.colors.onSurface }]}>
+        {badge?.name || 'Badge'}
+      </Text>
+      <Text style={[styles.badgeLevel, { color: theme.colors.primary }]}>
+        Level {badge?.level ?? '—'}{badge?.maxLevel ? ` / ${badge.maxLevel}` : ''}
+      </Text>
+      {target > 0 ? (
+        <>
+          <View style={[styles.badgeTrack, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <View style={[styles.badgeFill, { width: `${ratio * 100}%`, backgroundColor: theme.colors.primary }]} />
+          </View>
+          <Text style={[styles.badgeProgress, { color: theme.colors.onSurfaceVariant }]}>
+            {formatNumber(progress)} / {formatNumber(target)}
+          </Text>
+        </>
+      ) : null}
+    </View>
+  );
+}
+
 function BattleRow({ battle, theme, index }) {
   const team = Array.isArray(battle?.team) ? battle.team : [];
   const opponent = Array.isArray(battle?.opponent) ? battle.opponent : [];
@@ -166,6 +200,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const [loading, setLoading] = useState(type === 'player');
   const [battleLoading, setBattleLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showAllBadges, setShowAllBadges] = useState(false);
 
   const isClan = type === 'clan';
   const tag = firstValue(entity?.tag, entity?.playerTag);
@@ -262,6 +297,36 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const title = isClan
     ? firstValue(data.name, data.clan?.name, 'Clan')
     : firstValue(data.name, entity?.name, 'Player');
+
+  if (showAllBadges && !isClan) {
+    return (
+      <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
+        <View style={styles.header}>
+          <IconButton icon="arrow-left" size={24} onPress={() => setShowAllBadges(false)} style={styles.back} />
+          <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>
+            Badges & achievements
+          </Text>
+          <Text style={[styles.sectionRight, { color: theme.colors.onSurfaceVariant, marginRight: 8 }]}>
+            {badges.length}
+          </Text>
+        </View>
+
+        <FlatList
+          data={badges}
+          keyExtractor={(badge, index) => String(badge?.name || badge?.id || index)}
+          numColumns={3}
+          renderItem={({ item }) => <BadgeItem badge={item} theme={theme} />}
+          contentContainerStyle={styles.badgesPageContent}
+          columnWrapperStyle={styles.badgesPageRow}
+          showsVerticalScrollIndicator={false}
+          initialNumToRender={9}
+          maxToRenderPerBatch={9}
+          windowSize={5}
+          removeClippedSubviews
+        />
+      </SafeAreaView>
+    );
+  }
 
   if (isClan) {
     return (
@@ -510,35 +575,28 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               {badges.length === 0 ? (
                 <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No badge data.</Text>
               ) : (
-                <View style={styles.badgesGrid}>
-                  {badges.map((badge, index) => {
-                    const image = badge?.iconUrls?.large || badge?.iconUrls?.medium;
-                    const progress = number(badge?.progress);
-                    const target = number(badge?.target);
-                    const ratio = target > 0 ? Math.min(1, progress / target) : 0;
-                    return (
-                      <View key={badge?.name || index} style={[styles.badgeItem, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-                        {image ? (
-                          <Image source={{ uri: image }} style={styles.badgeImage} resizeMode="contain" />
-                        ) : (
-                          <MaterialCommunityIcons name="medal-outline" size={34} color={theme.colors.primary} />
-                        )}
-                        <Text numberOfLines={2} style={[styles.badgeName, { color: theme.colors.onSurface }]}>{badge?.name || 'Badge'}</Text>
-                        <Text style={[styles.badgeLevel, { color: theme.colors.primary }]}>Level {badge?.level ?? '—'}{badge?.maxLevel ? ` / ${badge.maxLevel}` : ''}</Text>
-                        {target > 0 ? (
-                          <>
-                            <View style={[styles.badgeTrack, { backgroundColor: theme.colors.surfaceContainer }]}>
-                              <View style={[styles.badgeFill, { width: `${ratio * 100}%`, backgroundColor: theme.colors.primary }]} />
-                            </View>
-                            <Text style={[styles.badgeProgress, { color: theme.colors.onSurfaceVariant }]}>
-                              {formatNumber(progress)} / {formatNumber(target)}
-                            </Text>
-                          </>
-                        ) : null}
-                      </View>
-                    );
-                  })}
-                </View>
+                <>
+                  <View style={styles.badgesGrid}>
+                    {badges.slice(0, 6).map((badge, index) => (
+                      <BadgeItem key={badge?.name || badge?.id || index} badge={badge} theme={theme} />
+                    ))}
+                  </View>
+                  {badges.length > 6 ? (
+                    <Pressable
+                      onPress={() => setShowAllBadges(true)}
+                      style={[styles.viewAllButton, { backgroundColor: theme.colors.primaryContainer }]}
+                    >
+                      <Text style={[styles.viewAllText, { color: theme.colors.onPrimaryContainer }]}>
+                        View all badges
+                      </Text>
+                      <MaterialCommunityIcons
+                        name="arrow-right"
+                        size={18}
+                        color={theme.colors.onPrimaryContainer}
+                      />
+                    </Pressable>
+                  ) : null}
+                </>
               )}
             </Surface>
 
@@ -656,6 +714,10 @@ const styles = StyleSheet.create({
   collectionSummary: { flexDirection: 'row', gap: 9, marginBottom: 10 },
   allCardsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  viewAllButton: { marginTop: 12, minHeight: 44, borderRadius: 15, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
+  viewAllText: { fontSize: 12.5, fontWeight: '800' },
+  badgesPageContent: { padding: 14, paddingBottom: 36 },
+  badgesPageRow: { gap: 8, marginBottom: 8 },
   badgeItem: { width: '31.8%', minHeight: 150, borderRadius: 16, padding: 9, alignItems: 'center' },
   badgeImage: { width: 58, height: 58 },
   badgeName: { marginTop: 5, fontSize: 10, fontWeight: '700', textAlign: 'center' },
