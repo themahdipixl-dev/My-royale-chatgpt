@@ -69,8 +69,8 @@ function AnimatedTypingText({ children, style, numberOfLines, ellipsizeMode, del
   );
 }
 
-function AnimatedCounterText({ value, style, numberOfLines = 1, ellipsizeMode = 'tail', delay = 0 }) {
-  const raw = String(value ?? '');
+function AnimatedCounterText({ value, children, style, numberOfLines = 1, ellipsizeMode = 'tail', delay = 0 }) {
+  const raw = String(value ?? children ?? '');
   const numericText = raw.replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
   const target = numericText ? Number(numericText[0]) : null;
   const prefix = numericText ? raw.slice(0, numericText.index) : '';
