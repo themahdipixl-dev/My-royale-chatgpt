@@ -74,7 +74,7 @@ function formatSeasonalArena(arena) {
   const match = name.match(/^Seasonal Arena\s+(\d+)$/i);
   if (!match) return null;
   const roman = toRoman(Number(match[1]));
-  return roman ? 'Seasonal Arena ' + roman : name;
+  return roman || name;
 }
 
 function AnimatedTypingText({ children, style, numberOfLines, ellipsizeMode, delay = 0 }) {
