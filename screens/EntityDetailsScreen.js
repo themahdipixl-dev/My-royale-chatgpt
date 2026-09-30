@@ -35,6 +35,13 @@ function formatNumber(value) {
   return n.toLocaleString();
 }
 
+function formatLeagueNumber(value) {
+  if (value === undefined || value === null || value === '') return '—';
+  const n = Number(value);
+  if (!Number.isFinite(n)) return String(value);
+  return Math.min(7, n).toLocaleString();
+}
+
 function formatDate(value) {
   if (!value) return '—';
   const date = new Date(value);
@@ -707,19 +714,19 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                 </View>
                 <View style={styles.seasonRow}>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Current</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(currentPol?.leagueNumber)}</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatLeagueNumber(currentPol?.leagueNumber)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(currentPol?.trophies)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{currentPol?.rank ? `#${formatNumber(currentPol.rank)}` : '—'}</Text>
                 </View>
                 <View style={styles.seasonRow}>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Last</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(lastPol?.leagueNumber)}</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatLeagueNumber(lastPol?.leagueNumber)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(lastPol?.trophies)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{lastPol?.rank ? `#${formatNumber(lastPol.rank)}` : '—'}</Text>
                 </View>
                 <View style={styles.seasonRow}>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Best</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(bestPol?.leagueNumber)}</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatLeagueNumber(bestPol?.leagueNumber)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(bestPol?.trophies)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{bestPol?.rank ? `#${formatNumber(bestPol.rank)}` : '—'}</Text>
                 </View>
