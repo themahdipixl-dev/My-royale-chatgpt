@@ -323,10 +323,24 @@ function resolveCurrentDeckImage(card, index, deck) {
 }
 
 
+const CARD_LEVEL_OFFSETS = {
+  Common: 0,
+  Rare: 2,
+  Epic: 5,
+  Legendary: 8,
+  Champion: 10,
+};
+
+function getDisplayCardLevel(card) {
+  const level = Number(card?.level);
+  if (!Number.isFinite(level)) return null;
+  return level + (CARD_LEVEL_OFFSETS[card?.rarity] ?? 0);
+}
+
 function getDeckAverages(deck) {
   const cards = Array.isArray(deck) ? deck : [];
   const elixirs = cards.map((card) => Number(card?.elixirCost)).filter(Number.isFinite);
-  const levels = cards.map((card) => Number(card?.level)).filter(Number.isFinite);
+  const levels = cards.map(getDisplayCardLevel).filter(Number.isFinite);
   const avgElixir = elixirs.length ? (elixirs.reduce((sum, value) => sum + value, 0) / elixirs.length).toFixed(1) : '—';
   const avgLevel = levels.length ? Math.round(levels.reduce((sum, value) => sum + value, 0) / levels.length) : '—';
   return { avgElixir, avgLevel };
@@ -413,7 +427,7 @@ function CardItem({ index = 0, card, theme, compact = false, deck, tower = false
           )}
           <View style={styles.cardOverlayMeta}>
             <View style={[styles.cardMetaPill, { backgroundColor: theme.colors.primaryContainer }]}>
-              <Text style={[styles.cardLevel, { color: theme.colors.onPrimaryContainer }]}>L {card?.level ?? '—'}</Text>
+              <Text style={[styles.cardLevel, { color: theme.colors.onPrimaryContainer }]}>L {getDisplayCardLevel(card) ?? '—'}</Text>
             </View>
             {card?.elixirCost !== undefined ? (
               <View style={[styles.cardMetaPill, { backgroundColor: theme.colors.primaryContainer }]}>
