@@ -324,12 +324,12 @@ function CardItem({ index = 0, card, theme, compact = false, deck }) {
             </View>
           )}
           <View style={styles.cardOverlayMeta}>
-            <View style={[styles.cardMetaPill, { backgroundColor: 'rgba(255,255,255,0.38)' }]}>
-              <Text style={[styles.cardLevel, { color: theme.colors.primary }]}>Lv {card?.level ?? '—'}</Text>
+            <View style={[styles.cardMetaPill, { backgroundColor: 'rgba(0,0,0,0.48)' }]}>
+              <Text style={[styles.cardLevel, { color: theme.colors.onSurface }]}>L {card?.level ?? '—'}</Text>
             </View>
             {card?.elixirCost !== undefined ? (
-              <View style={[styles.cardMetaPill, { backgroundColor: 'rgba(255,255,255,0.38)' }]}>
-                <MaterialCommunityIcons name="water" size={11} color={theme.colors.primary} />
+              <View style={[styles.cardMetaPill, { backgroundColor: 'rgba(0,0,0,0.48)' }]}>
+                <MaterialCommunityIcons name="water" size={9} color={theme.colors.onSurface} />
                 <Text style={[styles.cardElixir, { color: theme.colors.onSurface }]}>{card.elixirCost}</Text>
               </View>
             ) : null}
@@ -974,10 +974,10 @@ const styles = StyleSheet.create({
   cardImageFallback: { width: '100%', height: 76, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   cardVisual: { position: 'relative' },
   cardOverlayMeta: { position: 'absolute', left: -1, right: -1, bottom: 0, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardMetaPill: { width: 30, height: 20, borderRadius: 10, paddingHorizontal: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 2, backgroundColor: 'rgba(255,255,255,0.38)' },
+  cardMetaPill: { width: 27, height: 15, borderRadius: 7.5, paddingHorizontal: 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 1, backgroundColor: 'rgba(0,0,0,0.48)' },
   cardName: { marginTop: 4, fontSize: 10.5, fontWeight: '700', textAlign: 'center' },
-  cardLevel: { fontSize: 9, fontWeight: '800' },
-  cardElixir: { fontSize: 9, fontWeight: '800' },
+  cardLevel: { fontSize: 8, fontWeight: '800' },
+  cardElixir: { fontSize: 8, fontWeight: '800' },
 
   favoriteRow: { flexDirection: 'row', alignItems: 'flex-start' },
   favoriteDetails: { flex: 1, marginLeft: 8 },
