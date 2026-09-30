@@ -22,10 +22,19 @@ function Stat({ icon, label, value: statValue, theme }) {
 export default function TournamentDetailsScreen({ entity, onBack }) {
   const theme = useTheme();
   const entrance = useRef(new Animated.Value(0)).current;
+  const entranceY = useRef(new Animated.Value(18)).current;
+  const entranceScale = useRef(new Animated.Value(0.97)).current;
 
   useEffect(() => {
-    Animated.spring(entrance, { toValue: 1, friction: 8, tension: 55, useNativeDriver: true }).start();
-  }, [entrance]);
+    entrance.setValue(0);
+    entranceY.setValue(18);
+    entranceScale.setValue(0.97);
+    Animated.parallel([
+      Animated.timing(entrance, { toValue: 1, duration: 260, useNativeDriver: true }),
+      Animated.spring(entranceY, { toValue: 0, friction: 8, tension: 55, useNativeDriver: true }),
+      Animated.spring(entranceScale, { toValue: 1, friction: 9, tension: 55, useNativeDriver: true }),
+    ]).start();
+  }, [entrance, entranceY, entranceScale]);
 
   const name = value(entity?.name, entity?.title, 'Tournament');
 
@@ -38,7 +47,10 @@ export default function TournamentDetailsScreen({ entity, onBack }) {
 
       <Animated.View style={[styles.flex, {
         opacity: entrance,
-        transform: [{ translateY: entrance.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }],
+        transform: [
+          { translateY: entranceY },
+          { scale: entranceScale },
+        ],
       }]}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <Surface elevation={0} style={[styles.hero, { backgroundColor: theme.colors.surfaceContainer }]}>
