@@ -1,5 +1,5 @@
 // * screens/EntityDetailsScreen.js — full player details page (v83)
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -101,6 +101,76 @@ function formatSeasonalArena(arena) {
 }
 
 
+const DetailAnimationContext = createContext(null);
+
+function AnimatedDetailItem({ children, index = 0 }) {
+  const animation = useContext(DetailAnimationContext);
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(14)).current;
+  const scale = useRef(new Animated.Value(0.98)).current;
+  const nodeRef = useRef(null);
+  const layout = useRef({ y: 0, h: 1, measured: false }).current;
+  const visible = useRef(false);
+  const checkRef = useRef(null);
+  const idRef = useRef({}).current;
+
+  const animateIn = useCallback(() => {
+    opacity.stopAnimation();
+    translateY.stopAnimation();
+    scale.stopAnimation();
+    opacity.setValue(0);
+    translateY.setValue(14);
+    scale.setValue(0.98);
+    const delay = Math.min(index, 8) * 24;
+    Animated.parallel([
+      Animated.timing(opacity, { toValue: 1, duration: 220, delay, isInteraction: false, useNativeDriver: true }),
+      Animated.spring(translateY, { toValue: 0, delay, friction: 8, tension: 60, isInteraction: false, useNativeDriver: true }),
+      Animated.spring(scale, { toValue: 1, delay, friction: 9, tension: 60, isInteraction: false, useNativeDriver: true }),
+    ]).start();
+  }, [index, opacity, translateY, scale]);
+
+  checkRef.current = (nextScrollY = 0, nextViewportH = 700) => {
+    if (!layout.measured) return;
+    const y = layout.y;
+    const h = layout.h;
+    const isVisible = y < nextScrollY + nextViewportH - 12 && y + h > nextScrollY + 12;
+    if (isVisible && !visible.current) {
+      visible.current = true;
+      animateIn();
+    } else if (!isVisible && visible.current) {
+      visible.current = false;
+    }
+  };
+
+  useEffect(() => {
+    if (!animation) return undefined;
+    animation.registerItem(idRef, (scrollY, viewportH) => checkRef.current?.(scrollY, viewportH));
+    return () => animation.unregisterItem(idRef);
+  }, [animation, idRef]);
+
+  const measureItem = useCallback(() => {
+    if (!animation?.scrollRef?.current || !nodeRef.current) return;
+    nodeRef.current.measureInWindow((_, pageY, __, height) => {
+      animation.scrollRef.current?.measureInWindow((__, scrollPageY) => {
+        layout.y = pageY - scrollPageY + animation.scrollYRef.current;
+        layout.h = height || layout.h;
+        layout.measured = true;
+        checkRef.current?.();
+      });
+    });
+  }, [animation, layout]);
+
+  return (
+    <Animated.View
+      ref={nodeRef}
+      onLayout={measureItem}
+      style={{ opacity, transform: [{ translateY }, { scale }] }}
+    >
+      {children}
+    </Animated.View>
+  );
+}
+
 function AnimatedSection({ children, index = 0, register }) {
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(18)).current;
@@ -114,13 +184,9 @@ function AnimatedSection({ children, index = 0, register }) {
 
   const animateIn = useCallback(() => {
     opacity.setValue(0);
-    translateY.setValue(18);
-    scale.setValue(0.97);
     const delay = Math.min(index, 10) * 28;
     Animated.parallel([
       Animated.timing(opacity, { toValue: 1, duration: 260, delay, useNativeDriver: true }),
-      Animated.spring(translateY, { toValue: 0, delay, friction: 8, tension: 55, useNativeDriver: true }),
-      Animated.spring(scale, { toValue: 1, delay, friction: 9, tension: 55, useNativeDriver: true }),
     ]).start();
   }, [index, opacity, translateY, scale]);
 
@@ -152,7 +218,7 @@ function AnimatedSection({ children, index = 0, register }) {
         layoutH.current = event.nativeEvent.layout.height;
         requestAnimationFrame(() => checkRef.current?.());
       }}
-      style={{ opacity, transform: [{ translateY }, { scale }] }}
+      style={{ opacity }}
     >
       {children}
     </Animated.View>
@@ -172,9 +238,10 @@ function SectionTitle({ icon, title, right, theme }) {
   );
 }
 
-function StatTile({ icon, label, value, theme, image }) {
+function StatTile({ index = 0, icon, label, value, theme, image }) {
   return (
-    <View style={[styles.statTile, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+    <AnimatedDetailItem index={index}>
+      <View style={[styles.statTile, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
       <View style={[styles.statIcon, { backgroundColor: theme.colors.surfaceContainer }]}>
         {image ? (
           <Image source={image} style={styles.statImage} resizeMode="contain" />
@@ -184,24 +251,28 @@ function StatTile({ icon, label, value, theme, image }) {
       </View>
       <Text numberOfLines={1} style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
       <Text numberOfLines={1} style={[styles.statValue, { color: theme.colors.onSurface }]}>{value}</Text>
-    </View>
+      </View>
+    </AnimatedDetailItem>
   );
 }
 
-function InfoRow({ icon, label, value, theme }) {
+function InfoRow({ index = 0, icon, label, value, theme }) {
   return (
-    <View style={styles.infoRow}>
+    <AnimatedDetailItem index={index}>
+      <View style={styles.infoRow}>
       <MaterialCommunityIcons name={icon} size={19} color={theme.colors.primary} />
       <Text style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
       <Text numberOfLines={1} style={[styles.infoValue, { color: theme.colors.onSurface }]}>{value}</Text>
-    </View>
+      </View>
+    </AnimatedDetailItem>
   );
 }
 
-function CardItem({ card, theme, compact = false }) {
+function CardItem({ index = 0, card, theme, compact = false }) {
   const image = card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium;
   return (
-    <View style={[styles.cardItem, compact && styles.compactCardItem, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+    <AnimatedDetailItem index={index}>
+      <View style={[styles.cardItem, compact && styles.compactCardItem, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
       {image ? (
         <Image source={{ uri: image }} style={compact ? styles.compactCardImage : styles.cardImage} resizeMode="contain" />
       ) : (
@@ -221,18 +292,20 @@ function CardItem({ card, theme, compact = false }) {
           <Text style={[styles.evolutionText, { color: theme.colors.onPrimaryContainer }]}>Evolution</Text>
         </View>
       ) : null}
-    </View>
+      </View>
+    </AnimatedDetailItem>
   );
 }
 
-function BadgeItem({ badge, theme }) {
+function BadgeItem({ index = 0, badge, theme }) {
   const image = badge?.iconUrls?.large || badge?.iconUrls?.medium;
   const progress = number(badge?.progress);
   const target = number(badge?.target);
   const ratio = target > 0 ? Math.min(1, progress / target) : 0;
 
   return (
-    <View style={[styles.badgeItem, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+    <AnimatedDetailItem index={index}>
+      <View style={[styles.badgeItem, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
       {image ? (
         <Image source={{ uri: image }} style={styles.badgeImage} resizeMode="contain" />
       ) : (
@@ -254,7 +327,8 @@ function BadgeItem({ badge, theme }) {
           </Text>
         </>
       ) : null}
-    </View>
+      </View>
+    </AnimatedDetailItem>
   );
 }
 
@@ -269,7 +343,8 @@ function BattleRow({ battle, theme, index }) {
   const date = firstValue(battle?.battleTime, battle?.createdDate, battle?.date);
 
   return (
-    <View style={[styles.battleRow, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+    <AnimatedDetailItem index={index}>
+      <View style={[styles.battleRow, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
       <View style={[styles.resultIcon, {
         backgroundColor: draw ? theme.colors.surfaceContainer : won ? theme.colors.primaryContainer : theme.colors.errorContainer,
       }]}>
@@ -288,7 +363,8 @@ function BattleRow({ battle, theme, index }) {
       <Text style={[styles.battleScore, { color: theme.colors.onSurface }]}>
         {teamCrowns} — {opponentCrowns}
       </Text>
-    </View>
+      </View>
+    </AnimatedDetailItem>
   );
 }
 
@@ -308,6 +384,22 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const isClan = type === 'clan';
   const tag = firstValue(entity?.tag, entity?.playerTag);
 
+  const animatedItems = useRef(new Map()).current;
+  const scrollYRef = useRef(0);
+  const registerAnimatedItem = useCallback((id, checker) => {
+    if (checker) animatedItems.set(id, checker);
+    else animatedItems.delete(id);
+  }, [animatedItems]);
+  const unregisterAnimatedItem = useCallback((id) => {
+    animatedItems.delete(id);
+  }, [animatedItems]);
+  const detailAnimation = useMemo(() => ({
+    scrollRef,
+    scrollYRef,
+    registerItem: registerAnimatedItem,
+    unregisterItem: unregisterAnimatedItem,
+  }), [registerAnimatedItem, unregisterAnimatedItem, scrollRef, scrollYRef]);
+
   const animatedSections = useRef(new Map()).current;
   const registerAnimatedSection = useCallback((index, checker) => {
     if (checker) animatedSections.set(index, checker);
@@ -316,8 +408,10 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
 
   const handleDetailsScroll = useCallback((event) => {
     const { contentOffset, layoutMeasurement } = event.nativeEvent;
+    scrollYRef.current = contentOffset.y;
     animatedSections.forEach((checker) => checker(contentOffset.y, layoutMeasurement.height));
-  }, [animatedSections]);
+    animatedItems.forEach((checker) => checker(contentOffset.y, layoutMeasurement.height));
+  }, [animatedSections, animatedItems]);
 
   useEffect(() => {
     entrance.setValue(0);
@@ -516,14 +610,15 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             </Pressable>
           </View>
         ) : (
-          <Animated.ScrollView
-            ref={scrollRef}
-            onScroll={handleDetailsScroll}
-            scrollEventThrottle={16}
-            contentContainerStyle={styles.content}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
+          <DetailAnimationContext.Provider value={detailAnimation}>
+            <Animated.ScrollView
+              ref={scrollRef}
+              onScroll={handleDetailsScroll}
+              scrollEventThrottle={16}
+              contentContainerStyle={styles.content}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
             <AnimatedSection index={1} register={registerAnimatedSection}><Surface elevation={0} style={[styles.heroCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <View style={styles.heroTop}>
                 <View style={[styles.heroIcon, { backgroundColor: theme.colors.primaryContainer }]}>
@@ -557,12 +652,12 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             </Surface></AnimatedSection>
 
             <View style={styles.statGrid}>
-              <StatTile icon="gamepad-variant" label="Battles" value={formatNumber(data.battleCount)} theme={theme} />
-              <StatTile icon="trophy" label="Wins" value={formatNumber(data.wins)} theme={theme} />
-              <StatTile icon="close-circle-outline" label="Losses" value={formatNumber(data.losses)} theme={theme} />
-              <StatTile icon="crown" label="3-crown wins" value={formatNumber(data.threeCrownWins)} theme={theme} />
-              <StatTile icon="fire" label="Win streak" value={formatNumber(data.currentWinLoseStreak)} theme={theme} />
-              <StatTile icon="account-star" label="King Tower" value={formatNumber(data.kingTowerLevel)} theme={theme} />
+              <StatTile index={0} icon="gamepad-variant" label="Battles" value={formatNumber(data.battleCount)} theme={theme} />
+              <StatTile index={1} icon="trophy" label="Wins" value={formatNumber(data.wins)} theme={theme} />
+              <StatTile index={2} icon="close-circle-outline" label="Losses" value={formatNumber(data.losses)} theme={theme} />
+              <StatTile index={3} icon="crown" label="3-crown wins" value={formatNumber(data.threeCrownWins)} theme={theme} />
+              <StatTile index={4} icon="fire" label="Win streak" value={formatNumber(data.currentWinLoseStreak)} theme={theme} />
+              <StatTile index={5} icon="account-star" label="King Tower" value={formatNumber(data.kingTowerLevel)} theme={theme} />
             </View>
 
             <AnimatedSection index={2} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
@@ -747,7 +842,8 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             </Surface></AnimatedSection>
 
             <View style={styles.bottomSpace} />
-          </Animated.ScrollView>
+            </Animated.ScrollView>
+          </DetailAnimationContext.Provider>
         )}
       </View>
     </SafeAreaView>
