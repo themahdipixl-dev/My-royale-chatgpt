@@ -17,8 +17,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { fetchPlayer, fetchPlayerBattlelog } from '../api/client';
 import { getClanBadgeImage } from '../utils/clanBadges';
-
-const leagueIcon = require('../assets/league-icon.png');
+import { getPlayerLeagueImage } from '../utils/playerLeagueAssets';
 const pointIcon = require('../assets/Point-icon.png');
 
 function firstValue(...values) {
@@ -691,6 +690,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const currentPol = data.currentPathOfLegendSeasonResult;
   const lastPol = data.lastPathOfLegendSeasonResult;
   const bestPol = data.bestPathOfLegendSeasonResult;
+  const playerLeagueImage = getPlayerLeagueImage(data);
   const seasonalTrophyRoad = findSeasonalTrophyRoad(data);
   const seasonalBestTrophies = seasonalTrophyRoad?.bestTrophies;
   const seasonalArena = seasonalTrophyRoad?.arena;
@@ -855,7 +855,11 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             <AnimatedSection index={1} register={registerAnimatedSection}><Surface elevation={0} style={[styles.heroCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <View style={styles.heroTop}>
                 <View style={[styles.heroIcon, { backgroundColor: theme.colors.primaryContainer }]}>
-                  <Image source={leagueIcon} style={styles.heroLeagueIcon} resizeMode="contain" />
+                  {playerLeagueImage ? (
+                    <Image source={{ uri: playerLeagueImage }} style={styles.heroLeagueIcon} resizeMode="contain" />
+                  ) : (
+                    <MaterialCommunityIcons name="account-circle-outline" size={46} color={theme.colors.primary} />
+                  )}
                 </View>
                 <View style={styles.heroIdentity}>
                   <Text numberOfLines={1} style={[styles.heroName, { color: theme.colors.onSurface }]}>{title}</Text>
