@@ -880,44 +880,46 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                     </View>
                     <View style={[styles.towerDivider, { backgroundColor: theme.colors.outlineVariant }]} />
                     <View style={styles.deckStatsColumn}>
-                      <View style={styles.deckStatRow}>
-                        <MaterialCommunityIcons name="water" size={16} color={theme.colors.primary} />
-                        <Text style={[styles.deckStatLabel, { color: theme.colors.onSurfaceVariant }]}>Avg Elixir:</Text>
-                        <Text style={[styles.deckStatValue, { color: theme.colors.onSurface }]}>{getDeckAverages(currentDeck).avgElixir}</Text>
-                      </View>
-                      <View style={styles.deckStatRow}>
-                        <MaterialCommunityIcons name="star-four-points" size={16} color={theme.colors.primary} />
-                        <Text style={[styles.deckStatLabel, { color: theme.colors.onSurfaceVariant }]}>Avg Level:</Text>
-                        <Text style={[styles.deckStatValue, { color: theme.colors.onSurface }]}>{getDeckAverages(currentDeck).avgLevel}</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <View style={styles.deckBattleStatsGrid}>
-                    {[
-                      ['sword-cross', 'Games', formatNumber(deckBattleStats.games)],
-                      ['trophy', 'Wins', formatNumber(deckBattleStats.wins)],
-                      ['close-circle-outline', 'Losses', formatNumber(deckBattleStats.losses)],
-                      ['minus-circle-outline', 'Draws', formatNumber(deckBattleStats.draws)],
-                      ['percent', 'Win Rate', `${deckBattleStats.winRate.toFixed(1)}%`],
-                      ['crown', 'Crowns', formatNumber(deckBattleStats.crowns)],
-                      ['crown-outline', '3-Crown Wins', formatNumber(deckBattleStats.threeCrownWins)],
-                      ['percent', '3-Crown Rate', `${deckBattleStats.threeCrownRate.toFixed(1)}%`],
-                      ['chart-line', 'Avg Crown', deckBattleStats.avgCrowns],
-                    ].map(([icon, label, value]) => (
-                      <View key={label} style={styles.deckBattleStatItem}>
-                        <MaterialCommunityIcons name={icon} size={13} color={theme.colors.primary} />
-                        <View style={styles.deckBattleStatText}>
-                          <Text style={[styles.deckBattleStatLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
-                          <Text style={[styles.deckBattleStatValue, { color: theme.colors.onSurface }]}>{value}</Text>
+                      <View style={styles.deckAveragesRow}>
+                        <View style={styles.deckStatRow}>
+                          <MaterialCommunityIcons name="water" size={16} color={theme.colors.primary} />
+                          <Text style={[styles.deckStatLabel, { color: theme.colors.onSurfaceVariant }]}>Avg Elixir:</Text>
+                          <Text style={[styles.deckStatValue, { color: theme.colors.onSurface }]}>{getDeckAverages(currentDeck).avgElixir}</Text>
+                        </View>
+                        <View style={styles.deckStatRow}>
+                          <MaterialCommunityIcons name="star-four-points" size={16} color={theme.colors.primary} />
+                          <Text style={[styles.deckStatLabel, { color: theme.colors.onSurfaceVariant }]}>Avg Level:</Text>
+                          <Text style={[styles.deckStatValue, { color: theme.colors.onSurface }]}>{getDeckAverages(currentDeck).avgLevel}</Text>
                         </View>
                       </View>
-                    ))}
-                  </View>
-                  <View style={styles.deckBattleStatsNote}>
-                    <MaterialCommunityIcons name="information-outline" size={11} color={theme.colors.onSurfaceVariant} />
-                    <Text style={[styles.deckBattleStatsNoteText, { color: theme.colors.onSurfaceVariant }]}>
-                      Stats are based on the player's last 30 battles.
-                    </Text>
+                      <View style={styles.deckBattleStatsGrid}>
+                        {[
+                          ['sword-cross', 'Games:', formatNumber(deckBattleStats.games)],
+                          ['trophy', 'Wins:', formatNumber(deckBattleStats.wins)],
+                          ['close-circle-outline', 'Losses:', formatNumber(deckBattleStats.losses)],
+                          ['minus-circle-outline', 'Draws:', formatNumber(deckBattleStats.draws)],
+                          ['percent', 'Win Rate:', `${deckBattleStats.winRate.toFixed(1)}%`],
+                          ['crown', 'Crowns:', formatNumber(deckBattleStats.crowns)],
+                          ['crown-outline', '3-Crown Wins:', formatNumber(deckBattleStats.threeCrownWins)],
+                          ['percent', '3-Crown Rate:', `${deckBattleStats.threeCrownRate.toFixed(1)}%`],
+                          ['chart-line', 'Avg Crown:', deckBattleStats.avgCrowns],
+                        ].map(([icon, label, value]) => (
+                          <View key={label} style={styles.deckBattleStatItem}>
+                            <MaterialCommunityIcons name={icon} size={13} color={theme.colors.primary} />
+                            <View style={styles.deckBattleStatText}>
+                              <Text style={[styles.deckBattleStatLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
+                              <Text style={[styles.deckBattleStatValue, { color: theme.colors.onSurface }]}>{value}</Text>
+                            </View>
+                          </View>
+                        ))}
+                      </View>
+                      <View style={styles.deckBattleStatsNote}>
+                        <MaterialCommunityIcons name="information-outline" size={11} color={theme.colors.onSurfaceVariant} />
+                        <Text style={[styles.deckBattleStatsNoteText, { color: theme.colors.onSurfaceVariant }]}>
+                          Stats are based on the player's last 30 battles.
+                        </Text>
+                      </View>
+                    </View>
                   </View>
                 </>
               ) : null}
@@ -1085,16 +1087,17 @@ const styles = StyleSheet.create({
 
   deckGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 11, rowGap: 9, alignItems: 'flex-start' },
   subSectionTitle: { marginTop: 15, marginBottom: 8, fontSize: 12, fontWeight: '700' },
-  towerInfoRow: { flexDirection: 'row', alignItems: 'center' },
+  towerInfoRow: { flexDirection: 'row', alignItems: 'stretch' },
   towerCardSlot: { flex: 1, minWidth: 0 },
-  towerDivider: { width: 1, height: 56, marginHorizontal: 10 },
-  deckStatsColumn: { flex: 1, minWidth: 0, gap: 12 },
-  deckBattleStatsGrid: { marginTop: 14, flexDirection: 'row', flexWrap: 'wrap', rowGap: 10, columnGap: 8 },
+  towerDivider: { width: 1, marginHorizontal: 10 },
+  deckStatsColumn: { flex: 1, minWidth: 0 },
+  deckAveragesRow: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 8, columnGap: 8 },
+  deckBattleStatsGrid: { marginTop: 12, flexDirection: 'row', flexWrap: 'wrap', rowGap: 8, columnGap: 8 },
   deckBattleStatItem: { width: '47%', flexDirection: 'row', alignItems: 'center', minHeight: 30 },
   deckBattleStatText: { flex: 1, marginLeft: 6, minWidth: 0 },
   deckBattleStatLabel: { fontSize: 9.5, fontWeight: '600' },
   deckBattleStatValue: { marginTop: 1, fontSize: 12, fontWeight: '800' },
-  deckBattleStatsNote: { marginTop: 9, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 },
+  deckBattleStatsNote: { marginTop: 9, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 4 },
   deckBattleStatsNoteText: { fontSize: 8, textAlign: 'center' },
   deckStatRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   deckStatLabel: { fontSize: 10.5, fontWeight: '600' },
