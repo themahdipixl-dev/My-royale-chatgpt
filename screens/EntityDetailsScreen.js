@@ -1089,7 +1089,7 @@ const styles = StyleSheet.create({
   deckGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 11, rowGap: 9, alignItems: 'flex-start' },
   subSectionTitleRow: { position: 'relative', flexDirection: 'row', alignItems: 'center', marginTop: 15, marginBottom: 8 },
   subSectionTitle: { fontSize: 12, fontWeight: '700' },
-  towerCardNoteInline: { marginTop: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', alignSelf: 'center', gap: 4 },
+  towerCardNoteInline: { marginTop: -4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', alignSelf: 'center', gap: 4 },
   towerCardNoteText: { fontSize: 8.5, lineHeight: 12, textAlign: 'center' },
   towerInfoRow: { position: 'relative', flexDirection: 'row', alignItems: 'stretch' },
   towerCardSlot: { width: '25%', minWidth: 0, flexGrow: 0, flexShrink: 0, flexBasis: '25%' },
