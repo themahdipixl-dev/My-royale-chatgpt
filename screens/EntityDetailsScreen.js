@@ -1081,7 +1081,7 @@ const styles = StyleSheet.create({
   header: { height: 58, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8 },
   back: { margin: 0 },
   headerTitleContainer: { flex: 1, height: 42, justifyContent: 'center', overflow: 'hidden', marginLeft: 4 },
-  headerTitleLayer: { left: 0, right: 0 },
+  headerTitleLayer: { position: 'absolute', left: 0, right: 0 },
   headerTitle: { fontSize: 18, fontWeight: '700' },
   content: { padding: 14, paddingBottom: 40 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 28 },
