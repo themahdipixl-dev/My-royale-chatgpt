@@ -324,18 +324,17 @@ function CardItem({ index = 0, card, theme, compact = false, deck }) {
             </View>
           )}
           <View style={styles.cardOverlayMeta}>
-            <View style={[styles.cardMetaPill, { backgroundColor: 'rgba(0,0,0,0.48)' }]}>
-              <Text style={[styles.cardLevel, { color: theme.colors.onSurface }]}>L {card?.level ?? '—'}</Text>
+            <View style={[styles.cardMetaPill, { backgroundColor: theme.colors.primaryContainer }]}>
+              <Text style={[styles.cardLevel, { color: theme.colors.onPrimaryContainer }]}>L {card?.level ?? '—'}</Text>
             </View>
             {card?.elixirCost !== undefined ? (
               <View style={[styles.cardMetaPill, { backgroundColor: 'rgba(0,0,0,0.48)' }]}>
-                <MaterialCommunityIcons name="water" size={9} color={theme.colors.onSurface} />
-                <Text style={[styles.cardElixir, { color: theme.colors.onSurface }]}>{card.elixirCost}</Text>
+                <MaterialCommunityIcons name="water" size={9} color={theme.colors.onPrimaryContainer} />
+                <Text style={[styles.cardElixir, { color: theme.colors.onPrimaryContainer }]}>{card.elixirCost}</Text>
               </View>
             ) : null}
           </View>
         </View>
-        <Text numberOfLines={1} style={[styles.cardName, { color: theme.colors.onSurface }]}>{card?.name || 'Unknown'}</Text>
       </View>
     </AnimatedDetailItem>
   );
@@ -965,17 +964,16 @@ const styles = StyleSheet.create({
 
   deckGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   subSectionTitle: { marginTop: 15, marginBottom: 8, fontSize: 12, fontWeight: '700' },
-  cardItem: { width: '31.8%', minHeight: 128 },
-  cardItemInner: { flex: 1, minHeight: 128, borderRadius: 16, padding: 7 },
-  compactCardItem: { width: '23.6%', minHeight: 112 },
-  compactCardItemInner: { flex: 1, minHeight: 112, borderRadius: 16, padding: 7 },
-  cardImage: { width: '100%', height: 100 },
+  cardItem: { width: '23.5%', minHeight: 96 },
+  cardItemInner: { flex: 1, minHeight: 96, borderRadius: 16, padding: 6 },
+  compactCardItem: { width: '23.5%', minHeight: 96 },
+  compactCardItemInner: { flex: 1, minHeight: 96, borderRadius: 16, padding: 6 },
+  cardImage: { width: '100%', height: 82 },
   compactCardImage: { width: '100%', height: 84 },
   cardImageFallback: { width: '100%', height: 76, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   cardVisual: { position: 'relative' },
   cardOverlayMeta: { position: 'absolute', left: -1, right: -1, bottom: 0, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardMetaPill: { width: 27, height: 15, borderRadius: 7.5, paddingHorizontal: 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 1, backgroundColor: 'rgba(0,0,0,0.48)' },
-  cardName: { marginTop: 4, fontSize: 10.5, fontWeight: '700', textAlign: 'center' },
+  cardMetaPill: { width: 27, height: 15, borderRadius: 7.5, paddingHorizontal: 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 1 },
   cardLevel: { fontSize: 8, fontWeight: '800' },
   cardElixir: { fontSize: 8, fontWeight: '800' },
 
