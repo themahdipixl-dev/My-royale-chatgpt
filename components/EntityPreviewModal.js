@@ -5,6 +5,7 @@ import * as Clipboard from 'expo-clipboard';
 import { IconButton, Text, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchPlayer } from '../api/client';
+import { getClanBadgeImage } from '../utils/clanBadges';
 
 const leagueIcon = require('../assets/league-icon.png');
 const pointIcon = require('../assets/Point-icon.png');
@@ -352,6 +353,8 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
 
   const clanName = firstValue(playerData?.clan?.name, entity.clan?.name);
   const clanTag = firstValue(playerData?.clan?.tag, entity.clan?.tag);
+  const clanBadgeImage = getClanBadgeImage(firstValue(playerData?.clan?.badgeId, entity.clan?.badgeId));
+  const entityBadgeImage = getClanBadgeImage(entity.badgeId ?? entity.clan?.badgeId);
   const members = firstValue(entity.members, entity.memberCount, entity.membersCount);
 
   const score = isClan
@@ -426,7 +429,11 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
             >
             <View style={styles.header}>
               <View style={[styles.entityIcon, { backgroundColor: theme.colors.primaryContainer }]}>
-                <Image source={leagueIcon} style={styles.playerIcon} resizeMode="contain" />
+                {isClan ? (
+                  entityBadgeImage ? <Image source={{ uri: entityBadgeImage }} style={styles.clanHeaderBadge} resizeMode="contain" /> : null
+                ) : (
+                  <Image source={leagueIcon} style={styles.playerIcon} resizeMode="contain" />
+                )}
               </View>
 
               <View style={styles.titleBlock}>
@@ -569,7 +576,9 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                         style={[styles.clanCard, { backgroundColor: theme.colors.surfaceContainerHighest }]}
                       >
                         <AnimatedIcon delay={540} style={[styles.clanIconWrap, { backgroundColor: theme.colors.primaryContainer }]}>
-                          <MaterialCommunityIcons name="account-group" size={20} color={theme.colors.primary} />
+                          {clanBadgeImage ? (
+                            <Image source={{ uri: clanBadgeImage }} style={styles.clanCardBadgeImage} resizeMode="contain" />
+                          ) : null}
                         </AnimatedIcon>
                         <View style={styles.clanCardText}>
                           <Text style={[styles.clanCardLabel, { color: theme.colors.onSurfaceVariant }]}>Clan</Text>
@@ -656,6 +665,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', height: 62, marginBottom: 8 },
   entityIcon: { width: 54, height: 54, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
   playerIcon: { width: 38, height: 38 },
+  clanHeaderBadge: { width: 43, height: 43 },
   titleBlock: { flex: 1, marginLeft: 11, minWidth: 0 },
   title: { fontSize: 20.5, fontWeight: '800', letterSpacing: -0.3, transform: [{ translateY: -5 }] },
   tag: { fontSize: 10, marginTop: 2, fontWeight: '700', transform: [{ translateY: -3 }] },
@@ -699,6 +709,7 @@ const styles = StyleSheet.create({
   arenaLabel: { fontSize: 8, fontWeight: '600' },
   arenaValue: { fontSize: 11.5, fontWeight: '800', marginTop: 1 },
   clanIconWrap: { width: 28, height: 28, borderRadius: 9, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  clanCardBadgeImage: { width: 24, height: 24 },
   clanCardText: { flex: 1, minWidth: 0, marginLeft: 7 },
   clanCardLabel: { fontSize: 8, fontWeight: '600' },
   clanCardValue: { fontSize: 11.5, fontWeight: '800', marginTop: 1 },
