@@ -13,6 +13,8 @@ import ClanRow, { CLAN_ROW_HEIGHT } from '../components/ClanRow';
 import EntityPreviewModal from '../components/EntityPreviewModal';
 import EntityDetailsScreen from './EntityDetailsScreen';
 
+const POL_PLAYER_ICON = 'https://royaleapi.github.io/cr-api-assets/arenas/arena24.png';
+
 const TAB_VALUES = ['players', 'clans', 'merge'];
 
 export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
@@ -303,7 +305,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
                     keyExtractor={(item, idx) => item.tag || item.id || (item.name || 'item') + '-' + (item.rank ?? idx)}
                     renderItem={({ item, index }) => tabKey === 'clans' && clanRankingMode === 'war'
                       ? <ClanRow item={item} index={index} animationKey={animationKey} onPress={(entity) => openPreview(entity, 'clan')} />
-                      : <RankRow item={item} index={index} animationKey={animationKey} trophyIcon={tabKey === 'merge' ? 'trophy-award' : 'trophy'} onPress={(entity) => openPreview(entity, 'player')} />}
+                      : <RankRow item={item} index={index} animationKey={animationKey} trophyIcon={tabKey === 'merge' ? 'trophy-award' : 'trophy'} playerIconUri={tabKey === 'players' ? POL_PLAYER_ICON : undefined} onPress={(entity) => openPreview(entity, 'player')} />}
                     contentContainerStyle={styles.listContent}
                     style={styles.list}
                     getItemLayout={(_, index) => ({ length: tabRowHeight, offset: tabRowHeight * index, index })}
