@@ -236,15 +236,17 @@ function StatTile({ index = 0, icon, label, value, theme, image }) {
   return (
     <AnimatedDetailItem index={index} layoutStyle={styles.statTile}>
       <View style={[styles.statTileInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-      <View style={[styles.statIcon, { backgroundColor: theme.colors.surfaceContainer }]}>
-        {image ? (
-          <Image source={image} style={styles.statImage} resizeMode="contain" />
-        ) : (
-          <MaterialCommunityIcons name={icon} size={20} color={theme.colors.primary} />
-        )}
-      </View>
-      <Text numberOfLines={1} style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
-      <Text numberOfLines={1} style={[styles.statValue, { color: theme.colors.onSurface }]}>{value}</Text>
+        <View style={[styles.statIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+          {image ? (
+            <Image source={image} style={styles.statImage} resizeMode="contain" />
+          ) : (
+            <MaterialCommunityIcons name={icon} size={21} color={theme.colors.onPrimaryContainer} />
+          )}
+        </View>
+        <View style={styles.statContent}>
+          <Text numberOfLines={1} style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.78} style={[styles.statValue, { color: theme.colors.onSurface }]}>{value}</Text>
+        </View>
       </View>
     </AnimatedDetailItem>
   );
@@ -874,13 +876,14 @@ const styles = StyleSheet.create({
   heroTrophyValue: { marginTop: 2, fontSize: 18, fontWeight: '800' },
   heroBestValue: { marginTop: 2, fontSize: 18, fontWeight: '800' },
 
-  statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 9, marginBottom: 12 },
-  statTile: { width: '31.8%', minHeight: 88 },
-  statTileInner: { flex: 1, minHeight: 88, borderRadius: 18, padding: 10, justifyContent: 'space-between' },
-  statIcon: { width: 32, height: 32, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
-  statImage: { width: 21, height: 21 },
-  statLabel: { marginTop: 7, fontSize: 10.5 },
-  statValue: { marginTop: 2, fontSize: 14, fontWeight: '800' },
+  statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 12 },
+  statTile: { width: '48.2%', minHeight: 84 },
+  statTileInner: { flex: 1, minHeight: 84, borderRadius: 20, padding: 11, flexDirection: 'row', alignItems: 'center' },
+  statIcon: { width: 42, height: 42, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+  statImage: { width: 24, height: 24 },
+  statContent: { flex: 1, marginLeft: 10, minWidth: 0 },
+  statLabel: { fontSize: 10.5, fontWeight: '600' },
+  statValue: { marginTop: 3, fontSize: 19, fontWeight: '900', letterSpacing: -0.3 },
 
   sectionCard: { borderRadius: 22, padding: 14, marginBottom: 12 },
   sectionTitleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 13 },
