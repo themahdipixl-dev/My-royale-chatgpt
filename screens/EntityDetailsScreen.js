@@ -103,7 +103,7 @@ function formatSeasonalArena(arena) {
 
 const DetailAnimationContext = createContext(null);
 
-function AnimatedDetailItem({ children, index = 0 }) {
+function AnimatedDetailItem({ children, index = 0, layoutStyle }) {
   const animation = useContext(DetailAnimationContext);
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(14)).current;
@@ -164,7 +164,7 @@ function AnimatedDetailItem({ children, index = 0 }) {
     <Animated.View
       ref={nodeRef}
       onLayout={measureItem}
-      style={{ opacity, transform: [{ translateY }, { scale }] }}
+      style={[layoutStyle, { opacity, transform: [{ translateY }, { scale }] }]}
     >
       {children}
     </Animated.View>
@@ -183,11 +183,10 @@ function AnimatedSection({ children, index = 0, register }) {
   const checkRef = useRef(null);
 
   const animateIn = useCallback(() => {
+    if (visible.current) return;
     opacity.setValue(0);
     const delay = Math.min(index, 10) * 28;
-    Animated.parallel([
-      Animated.timing(opacity, { toValue: 1, duration: 260, delay, useNativeDriver: true }),
-    ]).start();
+    Animated.timing(opacity, { toValue: 1, duration: 220, delay, isInteraction: false, useNativeDriver: true }).start();
   }, [index, opacity]);
 
   checkRef.current = (nextScrollY = scrollY.current, nextViewportH = viewportH.current) => {
@@ -199,8 +198,6 @@ function AnimatedSection({ children, index = 0, register }) {
     if (isVisible && !visible.current) {
       visible.current = true;
       animateIn();
-    } else if (!isVisible) {
-      visible.current = false;
     }
   };
 
@@ -240,7 +237,7 @@ function SectionTitle({ icon, title, right, theme }) {
 
 function StatTile({ index = 0, icon, label, value, theme, image }) {
   return (
-    <AnimatedDetailItem index={index}>
+    <AnimatedDetailItem index={index} layoutStyle={styles.statTile}>
       <View style={[styles.statTile, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
       <View style={[styles.statIcon, { backgroundColor: theme.colors.surfaceContainer }]}>
         {image ? (
@@ -271,7 +268,7 @@ function InfoRow({ index = 0, icon, label, value, theme }) {
 function CardItem({ index = 0, card, theme, compact = false }) {
   const image = card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium;
   return (
-    <AnimatedDetailItem index={index}>
+    <AnimatedDetailItem index={index} layoutStyle={[styles.cardItem, compact && styles.compactCardItem]}>
       <View style={[styles.cardItem, compact && styles.compactCardItem, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
       {image ? (
         <Image source={{ uri: image }} style={compact ? styles.compactCardImage : styles.cardImage} resizeMode="contain" />
@@ -304,7 +301,7 @@ function BadgeItem({ index = 0, badge, theme }) {
   const ratio = target > 0 ? Math.min(1, progress / target) : 0;
 
   return (
-    <AnimatedDetailItem index={index}>
+    <AnimatedDetailItem index={index} layoutStyle={styles.badgeItem}>
       <View style={[styles.badgeItem, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
       {image ? (
         <Image source={{ uri: image }} style={styles.badgeImage} resizeMode="contain" />
