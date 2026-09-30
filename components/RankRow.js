@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, View, Text, Image, StyleSheet, Pressable } from 'react-native';
 import { Surface, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { getPlayerLeagueImage } from '../utils/playerLeagueAssets';
+import { getPlayerLeagueImage } from '../utils/playerLeagueassets';
 
 const RANK_COLORS = { 1: '#F5B942', 2: '#B8C2D1', 3: '#CD8B4F' };
 export const ROW_HEIGHT = 70;
