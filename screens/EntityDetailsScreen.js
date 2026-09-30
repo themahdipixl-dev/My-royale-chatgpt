@@ -884,6 +884,15 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                         {[
                           ['water', 'Avg Elixir:', getDeckAverages(currentDeck).avgElixir],
                           ['star-four-points', 'Avg Level:', getDeckAverages(currentDeck).avgLevel],
+                          ['sword-cross', 'Games:', formatNumber(deckBattleStats.games)],
+                          ['trophy', 'Wins:', formatNumber(deckBattleStats.wins)],
+                          ['close-circle-outline', 'Losses:', formatNumber(deckBattleStats.losses)],
+                          ['minus-circle-outline', 'Draws:', formatNumber(deckBattleStats.draws)],
+                          ['percent', 'Win Rate:', `${deckBattleStats.winRate.toFixed(1)}%`],
+                          ['crown', 'Crowns:', formatNumber(deckBattleStats.crowns)],
+                          ['crown-outline', '3-CRN wins:', formatNumber(deckBattleStats.threeCrownWins)],
+                          ['percent', '3-CRN rate:', `${deckBattleStats.threeCrownRate.toFixed(1)}%`],
+                          ['chart-line', 'Avg Crown:', deckBattleStats.avgCrowns],
                         ].map(([icon, label, value]) => (
                           <View key={label} style={styles.deckBattleStatItem}>
                             <MaterialCommunityIcons name={icon} size={13} color={theme.colors.primary} />
@@ -894,7 +903,6 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                           </View>
                         ))}
                       </View>
-                      <View style={styles.deckBattleStatsGrid}>
                         {[
                           ['sword-cross', 'Games:', formatNumber(deckBattleStats.games)],
                           ['trophy', 'Wins:', formatNumber(deckBattleStats.wins)],
