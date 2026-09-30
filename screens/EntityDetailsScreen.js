@@ -158,7 +158,6 @@ function AnimatedSection({ children, index = 0, register }) {
     </Animated.View>
   );
 }
-
 function SectionTitle({ icon, title, right, theme }) {
   return (
     <View style={styles.sectionTitleRow}>
@@ -295,6 +294,9 @@ function BattleRow({ battle, theme, index }) {
 
 export default function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const theme = useTheme();
+  const entrance = useRef(new Animated.Value(0)).current;
+  const entranceY = useRef(new Animated.Value(18)).current;
+  const entranceScale = useRef(new Animated.Value(0.97)).current;
   const scrollRef = useRef(null);
   const [player, setPlayer] = useState(null);
   const [battlelog, setBattlelog] = useState([]);
@@ -306,7 +308,276 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const isClan = type === 'clan';
   const tag = firstValue(entity?.tag, entity?.playerTag);
 
-backgroundColor: theme.colors.surfaceContainerHighest }]}>
+  const animatedSections = useRef(new Map()).current;
+  const registerAnimatedSection = useCallback((index, checker) => {
+    if (checker) animatedSections.set(index, checker);
+    else animatedSections.delete(index);
+  }, [animatedSections]);
+
+  const handleDetailsScroll = useCallback((event) => {
+    const { contentOffset, layoutMeasurement } = event.nativeEvent;
+    animatedSections.forEach((checker) => checker(contentOffset.y, layoutMeasurement.height));
+  }, [animatedSections]);
+
+  useEffect(() => {
+    entrance.setValue(0);
+    entranceY.setValue(18);
+    entranceScale.setValue(0.97);
+    Animated.parallel([
+      Animated.timing(entrance, { toValue: 1, duration: 260, useNativeDriver: true }),
+      Animated.spring(entranceY, { toValue: 0, friction: 8, tension: 55, useNativeDriver: true }),
+      Animated.spring(entranceScale, { toValue: 1, friction: 9, tension: 55, useNativeDriver: true }),
+    ]).start();
+  }, [entrance, entranceY, entranceScale]);
+
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      onBack?.();
+      return true;
+    });
+    return () => subscription.remove();
+  }, [onBack]);
+
+  useEffect(() => {
+    if (isClan || !tag) {
+      setLoading(false);
+      return undefined;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    fetchPlayer(tag)
+      .then((data) => {
+        if (!cancelled) setPlayer(data);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err?.message || 'Could not load player details.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isClan, tag]);
+
+  const loadBattlelog = useCallback(() => {
+    if (isClan || !tag) return;
+    setBattleLoading(true);
+    fetchPlayerBattlelog(tag)
+      .then((items) => setBattlelog(Array.isArray(items) ? items : []))
+      .catch(() => setBattlelog([]))
+      .finally(() => setBattleLoading(false));
+  }, [isClan, tag]);
+
+  useEffect(() => {
+    loadBattlelog();
+  }, [loadBattlelog]);
+
+  const data = player || entity || {};
+  const wins = number(data.wins);
+  const losses = number(data.losses);
+  const battles = number(data.battleCount) || wins + losses;
+  const winRate = battles > 0 ? (wins / battles) * 100 : 0;
+  const lossRate = battles > 0 ? (losses / battles) * 100 : 0;
+  const threeCrowns = number(data.threeCrownWins);
+  const currentPol = data.currentPathOfLegendSeasonResult;
+  const lastPol = data.lastPathOfLegendSeasonResult;
+  const currentLeagueStats = data.leagueStatistics?.currentSeason;
+  const previousLeagueStats = data.leagueStatistics?.previousSeason;
+  const bestLeagueStats = data.leagueStatistics?.bestSeason;
+  const seasonalTrophyRoad = findSeasonalTrophyRoad(data);
+  const seasonalBestTrophies = seasonalTrophyRoad?.bestTrophies;
+  const seasonalArena = seasonalTrophyRoad?.arena;
+  const sourceBestTrophies = data?.bestTrophies ?? entity?.bestTrophies;
+  const displayedBestTrophies = Number.isFinite(Number(seasonalBestTrophies)) && Number(seasonalBestTrophies) > 0
+    ? Number(seasonalBestTrophies)
+    : Number.isFinite(Number(sourceBestTrophies))
+      ? Number(sourceBestTrophies)
+      : null;
+  const displayedArenaName = seasonalArena
+    ? (formatSeasonalArena(seasonalArena) || seasonalArena.name || data.arena?.name || '—')
+    : firstValue(data.arena?.name, '—');
+  const displayedArenaNumber = seasonalArena
+    ? (formatSeasonalArena(seasonalArena) || null)
+    : arenaNumber(data.arena);
+  const favouriteCard = data.currentFavouriteCard;
+  const currentDeck = Array.isArray(data.currentDeck) ? data.currentDeck : [];
+  const currentDeckSupport = Array.isArray(data.currentDeckSupportCards) ? data.currentDeckSupportCards : [];
+  const badges = Array.isArray(data.badges) ? data.badges : [];
+
+  const allCards = useMemo(() => {
+    const cards = Array.isArray(data.cards) ? data.cards : [];
+    const supportCards = Array.isArray(data.supportCards) ? data.supportCards : [];
+    const seen = new Set();
+    return [...cards, ...supportCards].filter((card) => {
+      const key = card?.id ?? card?.name;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [data.cards, data.supportCards]);
+
+  const cardCount = allCards.length;
+  const maxLevelCards = allCards.filter((card) => number(card?.level) >= number(card?.maxLevel) && card?.maxLevel).length;
+  const evolvedCards = allCards.filter((card) => number(card?.evolutionLevel) > 0).length;
+
+  const title = isClan
+    ? firstValue(data.name, data.clan?.name, 'Clan')
+    : firstValue(data.name, entity?.name, 'Player');
+  const headerTitle = isClan ? 'Clan Details' : 'Player Details';
+
+  if (showAllBadges && !isClan) {
+    return (
+      <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
+        <View style={styles.header}>
+          <IconButton icon="arrow-left" size={24} onPress={() => setShowAllBadges(false)} style={styles.back} />
+          <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>
+            Badges & achievements
+          </Text>
+          <Text style={[styles.sectionRight, { color: theme.colors.onSurfaceVariant, marginRight: 8 }]}>
+            {badges.length}
+          </Text>
+        </View>
+
+        <FlatList
+          data={badges}
+          keyExtractor={(badge, index) => String(badge?.name || badge?.id || index)}
+          numColumns={3}
+          renderItem={({ item }) => <BadgeItem badge={item} theme={theme} />}
+          contentContainerStyle={styles.badgesPageContent}
+          columnWrapperStyle={styles.badgesPageRow}
+          showsVerticalScrollIndicator={false}
+          initialNumToRender={9}
+          maxToRenderPerBatch={9}
+          windowSize={5}
+          removeClippedSubviews
+        />
+      </SafeAreaView>
+    );
+  }
+
+  if (isClan) {
+    return (
+      <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
+        <View style={styles.header}>
+          <IconButton icon="arrow-left" size={24} onPress={onBack} style={styles.back} />
+          <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>{headerTitle}</Text>
+        </View>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <AnimatedSection index={0} register={registerAnimatedSection}><Surface elevation={0} style={[styles.heroCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <View style={[styles.heroIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+              <MaterialCommunityIcons name="account-group" size={30} color={theme.colors.onPrimaryContainer} />
+            </View>
+            <Text style={[styles.heroName, { color: theme.colors.onSurface }]}>{title}</Text>
+            <Text style={[styles.heroTag, { color: theme.colors.primary }]}>{firstValue(data.tag, data.clan?.tag, '—')}</Text>
+            <View style={styles.statGrid}>
+              <StatTile icon="trophy-outline" label="Clan score" value={formatNumber(firstValue(data.clanScore, data.clanWarTrophies, data.score, data.trophies))} theme={theme} image={pointIcon} />
+              <StatTile icon="account-group" label="Members" value={formatNumber(firstValue(data.members, data.memberCount, data.membersCount))} theme={theme} />
+            </View>
+          </Surface></AnimatedSection>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
+      <View style={styles.flex}>
+        <View style={styles.header}>
+          <IconButton icon="arrow-left" size={24} onPress={onBack} style={styles.back} />
+          <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>{headerTitle}</Text>
+        </View>
+
+        {loading && !player ? (
+          <View style={styles.center}>
+            <ActivityIndicator size="small" color={theme.colors.primary} />
+            <Text style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}>Loading player...</Text>
+          </View>
+        ) : error && !player ? (
+          <View style={styles.center}>
+            <View style={[styles.errorIcon, { backgroundColor: theme.colors.errorContainer }]}>
+              <MaterialCommunityIcons name="alert-outline" size={28} color={theme.colors.onErrorContainer} />
+            </View>
+            <Text style={[styles.errorTitle, { color: theme.colors.onSurface }]}>Couldn't load player</Text>
+            <Text style={[styles.errorText, { color: theme.colors.onSurfaceVariant }]}>{error}</Text>
+            <Pressable onPress={() => {
+              setError(null);
+              setLoading(true);
+              fetchPlayer(tag)
+                .then(setPlayer)
+                .catch((err) => setError(err?.message || 'Could not load player details.'))
+                .finally(() => setLoading(false));
+            }} style={[styles.retryButton, { backgroundColor: theme.colors.primaryContainer }]}>
+              <Text style={[styles.retryText, { color: theme.colors.onPrimaryContainer }]}>Retry</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <Animated.ScrollView
+            ref={scrollRef}
+            onScroll={handleDetailsScroll}
+            scrollEventThrottle={16}
+            contentContainerStyle={styles.content}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            <AnimatedSection index={1} register={registerAnimatedSection}><Surface elevation={0} style={[styles.heroCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+              <View style={styles.heroTop}>
+                <View style={[styles.heroIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+                  <Image source={leagueIcon} style={styles.heroLeagueIcon} resizeMode="contain" />
+                </View>
+                <View style={styles.heroIdentity}>
+                  <Text numberOfLines={1} style={[styles.heroName, { color: theme.colors.onSurface }]}>{title}</Text>
+                  <Text numberOfLines={1} style={[styles.heroTag, { color: theme.colors.primary }]}>{shortTag(data.tag || tag)}</Text>
+                  <Text numberOfLines={1} style={[styles.heroSub, { color: theme.colors.onSurfaceVariant }]}>
+                    {firstValue(data.role, 'Player')} · {displayedArenaName || 'Arena'}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.heroStats}>
+                <View style={styles.heroTrophy}>
+                  <Image source={pointIcon} style={styles.heroPointIcon} resizeMode="contain" />
+                  <View>
+                    <Text style={[styles.heroStatLabel, { color: theme.colors.onSurfaceVariant }]}>Trophies</Text>
+                    <Text style={[styles.heroTrophyValue, { color: theme.colors.onSurface }]}>{formatNumber(data.trophies)}</Text>
+                  </View>
+                </View>
+                <View style={styles.heroBest}>
+                  <MaterialCommunityIcons name="trophy-award" size={22} color={theme.colors.primary} />
+                  <View>
+                    <Text style={[styles.heroStatLabel, { color: theme.colors.onSurfaceVariant }]}>Best</Text>
+                    <Text style={[styles.heroBestValue, { color: theme.colors.onSurface }]}>{formatNumber(displayedBestTrophies)}</Text>
+                  </View>
+                </View>
+              </View>
+            </Surface></AnimatedSection>
+
+            <View style={styles.statGrid}>
+              <StatTile icon="gamepad-variant" label="Battles" value={formatNumber(data.battleCount)} theme={theme} />
+              <StatTile icon="trophy" label="Wins" value={formatNumber(data.wins)} theme={theme} />
+              <StatTile icon="close-circle-outline" label="Losses" value={formatNumber(data.losses)} theme={theme} />
+              <StatTile icon="crown" label="3-crown wins" value={formatNumber(data.threeCrownWins)} theme={theme} />
+              <StatTile icon="fire" label="Win streak" value={formatNumber(data.currentWinLoseStreak)} theme={theme} />
+              <StatTile icon="account-star" label="King Tower" value={formatNumber(data.kingTowerLevel)} theme={theme} />
+            </View>
+
+            <AnimatedSection index={2} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+              <SectionTitle icon="chart-donut" title="Battle performance" theme={theme} />
+              <View style={styles.performanceNumbers}>
+                <View>
+                  <Text style={[styles.bigPercent, { color: theme.colors.onSurface }]}>{winRate.toFixed(1)}%</Text>
+                  <Text style={[styles.smallMuted, { color: theme.colors.onSurfaceVariant }]}>Win rate</Text>
+                </View>
+                <View style={styles.performanceSide}>
+                  <Text style={[styles.performanceLabel, { color: theme.colors.onSurfaceVariant }]}>Wins {formatNumber(wins)}</Text>
+                  <Text style={[styles.performanceLabel, { color: theme.colors.onSurfaceVariant }]}>Losses {formatNumber(losses)}</Text>
+                </View>
+              </View>
+              <View style={[styles.barTrack, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
                 <View style={[styles.winBar, { width: `${winRate}%`, backgroundColor: theme.colors.primary }]} />
                 <View style={[styles.lossBar, { width: `${lossRate}%`, backgroundColor: theme.colors.error }]} />
               </View>
