@@ -127,7 +127,7 @@ function AnimatedDetailItem({ children, index = 0 }) {
       Animated.spring(translateY, { toValue: 0, delay, friction: 8, tension: 60, isInteraction: false, useNativeDriver: true }),
       Animated.spring(scale, { toValue: 1, delay, friction: 9, tension: 60, isInteraction: false, useNativeDriver: true }),
     ]).start();
-  }, [index, opacity, translateY, scale]);
+  }, [index, opacity]);
 
   checkRef.current = (nextScrollY = 0, nextViewportH = 700) => {
     if (!layout.measured) return;
