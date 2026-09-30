@@ -1,6 +1,7 @@
 // * App.js — home as default tab and swipe navigation handoff (v78)
 import React, { useEffect, useRef, useState } from 'react';
 import { BackHandler, Animated, StyleSheet, PanResponder, useWindowDimensions } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Text, useTheme } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppThemeProvider } from './theme/theme';
@@ -98,6 +99,7 @@ export default function App() {
 
   return (
     <AppThemeProvider>
+      <StatusBar style="light" />
       <SafeAreaProvider>
         <Animated.View
           {...(activeTab === 'rankings' ? {} : bottomTabSwipeResponder.panHandlers)}
