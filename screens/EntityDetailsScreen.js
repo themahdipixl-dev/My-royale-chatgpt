@@ -237,6 +237,8 @@ function BattleRow({ battle, theme, index }) {
 export default function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const theme = useTheme();
   const entrance = useRef(new Animated.Value(0)).current;
+  const entranceY = useRef(new Animated.Value(18)).current;
+  const entranceScale = useRef(new Animated.Value(0.97)).current;
   const scrollRef = useRef(null);
   const [player, setPlayer] = useState(null);
   const [battlelog, setBattlelog] = useState([]);
@@ -249,13 +251,15 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const tag = firstValue(entity?.tag, entity?.playerTag);
 
   useEffect(() => {
-    Animated.spring(entrance, {
-      toValue: 1,
-      friction: 8,
-      tension: 55,
-      useNativeDriver: true,
-    }).start();
-  }, [entrance]);
+    entrance.setValue(0);
+    entranceY.setValue(18);
+    entranceScale.setValue(0.97);
+    Animated.parallel([
+      Animated.timing(entrance, { toValue: 1, duration: 260, useNativeDriver: true }),
+      Animated.spring(entranceY, { toValue: 0, friction: 8, tension: 55, useNativeDriver: true }),
+      Animated.spring(entranceScale, { toValue: 1, friction: 9, tension: 55, useNativeDriver: true }),
+    ]).start();
+  }, [entrance, entranceY, entranceScale]);
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -415,7 +419,10 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
       <Animated.View style={[styles.flex, {
         opacity: entrance,
-        transform: [{ translateY: entrance.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }],
+        transform: [
+          { translateY: entranceY },
+          { scale: entranceScale },
+        ],
       }]}>
         <View style={styles.header}>
           <IconButton icon="arrow-left" size={24} onPress={onBack} style={styles.back} />
