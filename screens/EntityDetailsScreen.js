@@ -891,7 +891,6 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                           ['percent', 'Win Rate:', `${deckBattleStats.winRate.toFixed(1)}%`],
                           ['crown', 'Crowns:', formatNumber(deckBattleStats.crowns)],
                           ['crown-outline', '3-CRN wins:', formatNumber(deckBattleStats.threeCrownWins)],
-                          ['percent', '3-CRN rate:', `${deckBattleStats.threeCrownRate.toFixed(1)}%`],
                           ['chart-line', 'Avg Crown:', deckBattleStats.avgCrowns],
                         ].map(([icon, label, value]) => (
                           <View key={label} style={styles.deckBattleStatItem}>
