@@ -288,8 +288,20 @@ function InfoRow({ index = 0, icon, label, value, theme, onPress }) {
       <MaterialCommunityIcons name={icon} size={19} color={theme.colors.primary} />
       <Text style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
       {onPress ? (
-        <Pressable onPress={onPress} style={styles.infoValuePressable} hitSlop={4}>
-          <Text numberOfLines={1} style={[styles.infoValue, { color: theme.colors.onSurface }]}>{value}</Text>
+        <Pressable
+          onPress={onPress}
+          onLongPress={onPress}
+          delayLongPress={350}
+          style={styles.infoValuePressable}
+          hitSlop={4}
+        >
+          <Text
+            selectable
+            numberOfLines={1}
+            style={[styles.infoValue, { color: theme.colors.onSurface }]}
+          >
+            {value}
+          </Text>
           <MaterialCommunityIcons name="content-copy" size={14} color={theme.colors.onSurfaceVariant} />
         </Pressable>
       ) : (
