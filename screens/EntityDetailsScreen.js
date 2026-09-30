@@ -723,32 +723,6 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             </Surface></AnimatedSection>
 
             <AnimatedSection index={5} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
-              <SectionTitle icon="history" title="League statistics" theme={theme} />
-              <View style={styles.seasonTable}>
-                <View style={styles.seasonHeader}>
-                  <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Season</Text>
-                  <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Trophies</Text>
-                  <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Best</Text>
-                </View>
-                <View style={styles.seasonRow}>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Current</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(currentLeagueStats?.trophies)}</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(currentLeagueStats?.bestTrophies)}</Text>
-                </View>
-                <View style={styles.seasonRow}>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Previous</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(previousLeagueStats?.trophies)}</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(previousLeagueStats?.bestTrophies)}</Text>
-                </View>
-                <View style={styles.seasonRow}>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Best season</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>—</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(bestLeagueStats?.bestTrophies)}</Text>
-                </View>
-              </View>
-            </Surface></AnimatedSection>
-
-            <AnimatedSection index={6} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <SectionTitle icon="account-group" title="Clan" theme={theme} />
               <View style={styles.clanHero}>
                 <View style={[styles.clanBadge, { backgroundColor: theme.colors.primaryContainer }]}>
@@ -768,7 +742,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               <InfoRow icon="cards" label="Clan cards collected" value={formatNumber(data.clanCardsCollected)} theme={theme} />
             </Surface></AnimatedSection>
 
-            <AnimatedSection index={7} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection index={6} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <SectionTitle icon="cards" title="Current deck" right={`${currentDeck.length} cards`} theme={theme} />
               <View style={styles.deckGrid}>
                 {currentDeck.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact />)}
@@ -783,7 +757,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               ) : null}
             </Surface></AnimatedSection>
 
-            <AnimatedSection index={8} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection index={7} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <SectionTitle icon="cards-outline" title="Favourite card" theme={theme} />
               {favouriteCard ? (
                 <View style={styles.favoriteRow}>
@@ -800,7 +774,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               )}
             </Surface></AnimatedSection>
 
-            <AnimatedSection index={9} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection index={8} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <SectionTitle icon="archive" title="Card collection" right={`${cardCount} cards`} theme={theme} />
               <View style={styles.collectionSummary}>
                 <StatTile icon="check-decagram" label="Max level" value={formatNumber(maxLevelCards)} theme={theme} />
@@ -811,7 +785,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               </View>
             </Surface></AnimatedSection>
 
-            <AnimatedSection index={10} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection index={9} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <SectionTitle icon="medal" title="Badges & achievements" right={`${badges.length}`} theme={theme} />
               {badges.length === 0 ? (
                 <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No badge data.</Text>
@@ -841,7 +815,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               )}
             </Surface></AnimatedSection>
 
-            <AnimatedSection index={11} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection index={10} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <SectionTitle icon="sword-cross" title="Battle log" right={battlelog.length ? `${battlelog.length} battles` : undefined} theme={theme} />
               {battleLoading ? (
                 <View style={styles.battleLoading}>
