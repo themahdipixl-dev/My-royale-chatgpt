@@ -965,7 +965,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             <AnimatedSection index={5} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <SectionTitle icon="account-group" title="Clan" theme={theme} />
               <View style={styles.clanHero}>
-                <View style={[styles.clanBadge, { backgroundColor: theme.colors.primaryContainer }]}>
+                <View style={styles.clanBadge}>
                   {getClanBadgeImage(data.clan?.badgeId) ? (
                     <Image source={{ uri: getClanBadgeImage(data.clan?.badgeId) }} style={styles.clanBadgeImage} resizeMode="contain" />
                   ) : null}
