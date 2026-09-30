@@ -17,7 +17,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { fetchPlayer, fetchPlayerBattlelog } from '../api/client';
 import { getClanBadgeImage } from '../utils/clanBadges';
-import { getPlayerLeagueImage } from '../utils/playerLeagueAssets';
+import { getPlayerLeagueImage } from '../utils/playerLeagueassets';
 const pointIcon = require('../assets/Point-icon.png');
 
 function firstValue(...values) {
