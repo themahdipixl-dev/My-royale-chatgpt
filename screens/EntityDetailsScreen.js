@@ -671,9 +671,16 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
 
   const data = player || entity || {};
   const handleCopyTag = useCallback(async () => {
-    if (!data.tag) return;
-    await Clipboard.setStringAsync(String(data.tag));
-  }, [data.tag]);
+    const tagToCopy = firstValue(data.tag, data.clan?.tag);
+    if (!tagToCopy) return;
+    await Clipboard.setStringAsync(String(tagToCopy));
+  }, [data.tag, data.clan?.tag]);
+
+  const handleCopyClanTag = useCallback(async () => {
+    const clanTag = data.clan?.tag;
+    if (!clanTag) return;
+    await Clipboard.setStringAsync(String(clanTag));
+  }, [data.clan?.tag]);
   const wins = number(data.wins);
   const losses = number(data.losses);
   const battles = number(data.battleCount) || wins + losses;
@@ -772,7 +779,18 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               <MaterialCommunityIcons name="account-group" size={30} color={theme.colors.onPrimaryContainer} />
             </View>
             <Text style={[styles.heroName, { color: theme.colors.onSurface }]}>{title}</Text>
-            <Text style={[styles.heroTag, { color: theme.colors.primary }]}>{firstValue(data.tag, data.clan?.tag, '—')}</Text>
+            <Pressable
+              onPress={handleCopyTag}
+              disabled={!firstValue(data.tag, data.clan?.tag)}
+              hitSlop={4}
+            >
+              <Text
+                selectable
+                style={[styles.heroTag, { color: theme.colors.primary }]}
+              >
+                {firstValue(data.tag, data.clan?.tag, '—')}
+              </Text>
+            </Pressable>
             <View style={styles.statGrid}>
               <StatTile icon="trophy-outline" label="Clan score" value={formatNumber(firstValue(data.clanScore, data.clanWarTrophies, data.score, data.trophies))} theme={theme} image={pointIcon} />
               <StatTile icon="account-group" label="Members" value={formatNumber(firstValue(data.members, data.memberCount, data.membersCount))} theme={theme} />
@@ -950,7 +968,18 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                 </View>
                 <View style={styles.clanIdentity}>
                   <Text numberOfLines={1} style={[styles.clanName, { color: theme.colors.onSurface }]}>{data.clan?.name || 'No clan'}</Text>
-                  <Text style={[styles.clanTag, { color: theme.colors.primary }]}>{data.clan?.tag || '—'}</Text>
+                  <Pressable
+                    onPress={handleCopyClanTag}
+                    disabled={!data.clan?.tag}
+                    hitSlop={4}
+                  >
+                    <Text
+                      selectable
+                      style={[styles.clanTag, { color: theme.colors.primary }]}
+                    >
+                      {data.clan?.tag || '—'}
+                    </Text>
+                  </Pressable>
                 </View>
               </View>
               <InfoRow icon="account-multiple" label="Role" value={data.role || '—'} theme={theme} />
