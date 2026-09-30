@@ -355,6 +355,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const title = isClan
     ? firstValue(data.name, data.clan?.name, 'Clan')
     : firstValue(data.name, entity?.name, 'Player');
+  const headerTitle = isClan ? 'Clan Details' : 'Player Details';
 
   if (showAllBadges && !isClan) {
     return (
@@ -391,7 +392,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
       <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
         <View style={styles.header}>
           <IconButton icon="arrow-left" size={24} onPress={onBack} style={styles.back} />
-          <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>{title}</Text>
+          <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>{headerTitle}</Text>
         </View>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <Surface elevation={0} style={[styles.heroCard, { backgroundColor: theme.colors.surfaceContainer }]}>
