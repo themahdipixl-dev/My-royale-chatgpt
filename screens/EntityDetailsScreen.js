@@ -707,10 +707,10 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               <SectionTitle icon="sword" title="POL" subtitle="Path Of Legends" theme={theme} />
               <View style={styles.seasonTable}>
                 <View style={styles.seasonHeader}>
-                  <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Season</Text>
+                  <Text style={[styles.seasonHeaderText, styles.seasonHeaderFirst, { color: theme.colors.onSurfaceVariant }]}>Season</Text>
                   <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>League</Text>
                   <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Ratings</Text>
-                  <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Rank</Text>
+                  <Text style={[styles.seasonHeaderText, styles.seasonHeaderLast, { color: theme.colors.onSurfaceVariant }]}>Rank</Text>
                 </View>
                 <View style={styles.seasonRow}>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Current</Text>
@@ -916,8 +916,10 @@ const styles = StyleSheet.create({
   seasonTable: { borderRadius: 16, overflow: 'hidden' },
   seasonHeader: { flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 10, backgroundColor: 'rgba(255,255,255,0.035)' },
   seasonRow: { flexDirection: 'row', paddingVertical: 11, paddingHorizontal: 10 },
-  seasonHeaderText: { flex: 1, fontSize: 10.5, fontWeight: '700' },
-  seasonText: { flex: 1, fontSize: 12.5, fontWeight: '600' },
+  seasonHeaderText: { flex: 1, fontSize: 10.5, fontWeight: '700', textAlign: 'center' },
+  seasonHeaderFirst: { textAlign: 'left' },
+  seasonHeaderLast: { textAlign: 'right' },
+  seasonText: { flex: 1, fontSize: 12.5, fontWeight: '600', textAlign: 'center' },
 
   clanHero: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   clanBadge: { width: 54, height: 54, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
