@@ -700,22 +700,26 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               <SectionTitle icon="sword" title="POL" subtitle="Path Of Legends" theme={theme} />
               <View style={styles.seasonTable}>
                 <View style={styles.seasonHeader}>
+                  <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Season</Text>
                   <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>League</Text>
                   <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Ratings</Text>
                   <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Rank</Text>
                 </View>
                 <View style={styles.seasonRow}>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Current</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(currentPol?.leagueNumber)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(currentPol?.trophies)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{currentPol?.rank ? `#${formatNumber(currentPol.rank)}` : '—'}</Text>
                 </View>
                 <View style={styles.seasonRow}>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Last</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(lastPol?.leagueNumber)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(lastPol?.trophies)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{lastPol?.rank ? `#${formatNumber(lastPol.rank)}` : '—'}</Text>
                 </View>
                 <View style={styles.seasonRow}>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Best</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(bestPol?.leagueNumber)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(bestPol?.trophies)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{bestPol?.rank ? `#${formatNumber(bestPol.rank)}` : '—'}</Text>
                 </View>
