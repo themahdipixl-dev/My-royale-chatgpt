@@ -334,7 +334,7 @@ const CARD_LEVEL_OFFSETS = {
 function getDisplayCardLevel(card) {
   const level = Number(card?.level);
   if (!Number.isFinite(level)) return null;
-  return level + (CARD_LEVEL_OFFSETS[card?.rarity] ?? 0);
+  const rarity = String(card?.rarity ?? '').trim().toLowerCase();\n  return level + (CARD_LEVEL_OFFSETS[rarity] ?? 0);
 }
 
 function getDeckAverages(deck) {
