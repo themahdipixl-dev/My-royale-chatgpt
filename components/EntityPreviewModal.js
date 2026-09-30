@@ -6,8 +6,7 @@ import { IconButton, Text, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchPlayer } from '../api/client';
 import { getClanBadgeImage } from '../utils/clanBadges';
-
-const leagueIcon = require('../assets/league-icon.png');
+import { getPlayerLeagueImage } from '../utils/playerLeagueAssets';
 const pointIcon = require('../assets/Point-icon.png');
 
 function firstValue(...values) {
@@ -379,6 +378,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
 
   const playerCurrentPol = playerData?.currentPathOfLegendSeasonResult;
   const playerBestPol = playerData?.bestPathOfLegendSeasonResult;
+  const playerLeagueImage = getPlayerLeagueImage(playerData || entity);
   const currentRank = firstValue(playerCurrentPol?.rank, entity.rank);
   const bestRank = firstValue(playerBestPol?.rank, entity.bestRank);
   const progressTrophies = firstValue(playerCurrentPol?.trophies, playerData?.trophies);
@@ -432,7 +432,11 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                 {isClan ? (
                   entityBadgeImage ? <Image source={{ uri: entityBadgeImage }} style={styles.clanHeaderBadge} resizeMode="contain" /> : null
                 ) : (
-                  <Image source={leagueIcon} style={styles.playerIcon} resizeMode="contain" />
+                  playerLeagueImage ? (
+                    <Image source={{ uri: playerLeagueImage }} style={styles.playerIcon} resizeMode="contain" />
+                  ) : (
+                    <MaterialCommunityIcons name="account-circle-outline" size={40} color={theme.colors.primary} />
+                  )
                 )}
               </View>
 
@@ -488,7 +492,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                   </View>
                 </View>
                 <View style={styles.secondaryRow}>
-                  <InfoTile image={leagueIcon} label="War league" value={league || '—'} theme={theme} />
+                  <InfoTile icon="shield-star-outline" label="War league" value={league || '—'} theme={theme} />
                   <InfoTile icon="earth" label="Country" value={country || '—'} theme={theme} />
                 </View>
                 <View style={styles.detailLine}>
