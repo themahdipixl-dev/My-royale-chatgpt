@@ -789,7 +789,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             <AnimatedSection index={6} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <SectionTitle icon="cards" title="Current deck" right={`${currentDeck.length} cards`} theme={theme} />
               <View style={styles.deckGrid}>
-                {currentDeck.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact deck={currentDeck} />)}
+                {currentDeck.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact deck={currentDeck} index={index} />)}
               </View>
               {currentDeckSupport.length > 0 ? (
                 <>
