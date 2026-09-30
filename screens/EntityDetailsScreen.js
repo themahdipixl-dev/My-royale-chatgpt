@@ -246,68 +246,19 @@ function SectionTitle({ icon, title, subtitle, right, theme }) {
 }
 
 function TowerCardInfoHint({ theme }) {
-  const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(-4)).current;
-  const [visible, setVisible] = useState(false);
-  const timeoutRef = useRef(null);
-
-  const hideNote = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    opacity.stopAnimation();
-    translateY.stopAnimation();
-    Animated.parallel([
-      Animated.timing(opacity, { toValue: 0, duration: 130, useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: -4, duration: 130, useNativeDriver: true }),
-    ]).start(({ finished }) => {
-      if (finished) setVisible(false);
-    });
-  }, [opacity, translateY]);
-
-  const showNote = useCallback(() => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setVisible(true);
-    opacity.stopAnimation();
-    translateY.stopAnimation();
-    opacity.setValue(0);
-    translateY.setValue(-4);
-    Animated.parallel([
-      Animated.timing(opacity, { toValue: 1, duration: 160, useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: 0, duration: 160, useNativeDriver: true }),
-    ]).start();
-    timeoutRef.current = setTimeout(hideNote, 3000);
-  }, [hideNote, opacity, translateY]);
-
-  useEffect(() => () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-  }, []);
-
   return (
-    <View style={styles.towerCardTitleWrap}>
-      <Pressable
-        onPress={showNote}
-        hitSlop={8}
-        accessibilityRole="button"
-        accessibilityLabel="Tower Card information"
-      >
-        <MaterialCommunityIcons name="information-outline" size={13} color={theme.colors.onSurfaceVariant} />
-      </Pressable>
-      {visible ? (
-        <Animated.View
-          pointerEvents="none"
-          style={[styles.towerCardNote, { opacity, transform: [{ translateY }] }]}
-        >
-          <Text style={[styles.towerCardNoteText, { color: theme.colors.onSurfaceVariant }]}>
-            Stats are based on the player's last 30 battles.
-          </Text>
-        </Animated.View>
-      ) : null}
+    <View style={styles.towerCardNoteInline}>
+      <MaterialCommunityIcons
+        name="information-outline"
+        size={13}
+        color={theme.colors.onSurfaceVariant}
+      />
+      <Text style={[styles.towerCardNoteText, { color: theme.colors.onSurfaceVariant }]}>
+        Stats are based on the player's last 30 battles.
+      </Text>
     </View>
   );
 }
-
 function StatTile({ index = 0, icon, label, value, theme, image }) {
   return (
     <AnimatedDetailItem index={index} layoutStyle={styles.statTile}>
@@ -938,7 +889,6 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                 <>
                   <View style={styles.subSectionTitleRow}>
                     <Text style={[styles.subSectionTitle, { color: theme.colors.onSurfaceVariant }]}>Tower Card</Text>
-                    <TowerCardInfoHint theme={theme} />
                   </View>
                   <View style={styles.towerInfoRow}>
                     <View style={styles.towerCardSlot}>
@@ -971,6 +921,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
 
                     </View>
                   </View>
+                  <TowerCardInfoHint theme={theme} />
                 </>
               ) : null}
             </Surface></AnimatedSection>
@@ -1138,9 +1089,8 @@ const styles = StyleSheet.create({
   deckGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 11, rowGap: 9, alignItems: 'flex-start' },
   subSectionTitleRow: { position: 'relative', flexDirection: 'row', alignItems: 'center', marginTop: 15, marginBottom: 8 },
   subSectionTitle: { fontSize: 12, fontWeight: '700' },
-  towerCardTitleWrap: { marginLeft: 6, position: 'relative', alignItems: 'center', justifyContent: 'center' },
-  towerCardNote: { position: 'absolute', left: -6, top: 18, width: 210, paddingHorizontal: 9, paddingVertical: 6, borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.82)', zIndex: 20, elevation: 6 },
-  towerCardNoteText: { fontSize: 8.5, lineHeight: 12 },
+  towerCardNoteInline: { marginTop: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', alignSelf: 'center', gap: 4 },
+  towerCardNoteText: { fontSize: 8.5, lineHeight: 12, textAlign: 'center' },
   towerInfoRow: { position: 'relative', flexDirection: 'row', alignItems: 'stretch' },
   towerCardSlot: { width: '25%', minWidth: 0, flexGrow: 0, flexShrink: 0, flexBasis: '25%' },
   towerCardItem: { width: '100%', height: 120 },
