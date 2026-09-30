@@ -928,7 +928,6 @@ const styles = StyleSheet.create({
   infoLabel: { width: 112, fontSize: 11.5 },
   infoValue: { flex: 1, textAlign: 'right', fontSize: 12.5, fontWeight: '700' },
 
-  polGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 },
   seasonTable: { borderRadius: 16, overflow: 'hidden' },
   seasonHeader: { flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 10, backgroundColor: 'rgba(255,255,255,0.035)' },
   seasonRow: { flexDirection: 'row', paddingVertical: 11, paddingHorizontal: 10 },
