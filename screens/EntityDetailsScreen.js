@@ -419,7 +419,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
       }]}>
         <View style={styles.header}>
           <IconButton icon="arrow-left" size={24} onPress={onBack} style={styles.back} />
-          <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>{title}</Text>
+          <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>{headerTitle}</Text>
         </View>
 
         {loading && !player ? (
