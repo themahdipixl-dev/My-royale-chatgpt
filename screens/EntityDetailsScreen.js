@@ -315,25 +315,27 @@ function CardItem({ index = 0, card, theme, compact = false, deck }) {
   return (
     <AnimatedDetailItem index={index} layoutStyle={[styles.cardItem, compact && styles.compactCardItem]}>
       <View style={[styles.cardItemInner, compact && styles.compactCardItemInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-      {image ? (
-        <Image source={{ uri: image }} style={compact ? styles.compactCardImage : styles.cardImage} resizeMode="contain" />
-      ) : (
-        <View style={[styles.cardImageFallback, { backgroundColor: theme.colors.primaryContainer }]}>
-          <MaterialCommunityIcons name="cards-outline" size={28} color={theme.colors.onPrimaryContainer} />
+        <View style={styles.cardVisual}>
+          {image ? (
+            <Image source={{ uri: image }} style={compact ? styles.compactCardImage : styles.cardImage} resizeMode="contain" />
+          ) : (
+            <View style={[styles.cardImageFallback, { backgroundColor: theme.colors.primaryContainer }]}>
+              <MaterialCommunityIcons name="cards-outline" size={28} color={theme.colors.onPrimaryContainer} />
+            </View>
+          )}
+          <View style={styles.cardOverlayMeta}>
+            <View style={[styles.cardMetaPill, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+              <Text style={[styles.cardLevel, { color: theme.colors.primary }]}>Lv {card?.level ?? '—'}</Text>
+            </View>
+            {card?.elixirCost !== undefined ? (
+              <View style={[styles.cardMetaPill, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+                <MaterialCommunityIcons name="water" size={11} color={theme.colors.primary} />
+                <Text style={[styles.cardElixir, { color: theme.colors.onSurface }]}>{card.elixirCost}</Text>
+              </View>
+            ) : null}
+          </View>
         </View>
-      )}
-      <Text numberOfLines={1} style={[styles.cardName, { color: theme.colors.onSurface }]}>{card?.name || 'Unknown'}</Text>
-      <View style={styles.cardMeta}>
-        <Text style={[styles.cardLevel, { color: theme.colors.primary }]}>Lv {card?.level ?? '—'}</Text>
-        {card?.elixirCost !== undefined ? (
-          <Text style={[styles.cardElixir, { color: theme.colors.onSurfaceVariant }]}>{card.elixirCost} elixir</Text>
-        ) : null}
-      </View>
-      {card?.evolutionLevel > 0 ? (
-        <View style={[styles.evolutionPill, { backgroundColor: theme.colors.primaryContainer }]}>
-          <Text style={[styles.evolutionText, { color: theme.colors.onPrimaryContainer }]}>Evolution</Text>
-        </View>
-      ) : null}
+        <Text numberOfLines={1} style={[styles.cardName, { color: theme.colors.onSurface }]}>{card?.name || 'Unknown'}</Text>
       </View>
     </AnimatedDetailItem>
   );
@@ -970,12 +972,12 @@ const styles = StyleSheet.create({
   cardImage: { width: '100%', height: 92 },
   compactCardImage: { width: '100%', height: 76 },
   cardImageFallback: { width: '100%', height: 76, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  cardName: { marginTop: 4, fontSize: 10.5, fontWeight: '700' },
-  cardMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
-  cardLevel: { fontSize: 10, fontWeight: '800' },
-  cardElixir: { fontSize: 9 },
-  evolutionPill: { alignSelf: 'flex-start', marginTop: 4, borderRadius: 8, paddingHorizontal: 5, paddingVertical: 2 },
-  evolutionText: { fontSize: 8, fontWeight: '800' },
+  cardVisual: { position: 'relative' },
+  cardOverlayMeta: { position: 'absolute', left: 5, right: 5, bottom: 4, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  cardMetaPill: { minHeight: 18, borderRadius: 9, paddingHorizontal: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 2 },
+  cardName: { marginTop: 4, fontSize: 10.5, fontWeight: '700', textAlign: 'center' },
+  cardLevel: { fontSize: 9, fontWeight: '800' },
+  cardElixir: { fontSize: 9, fontWeight: '800' },
 
   favoriteRow: { flexDirection: 'row', alignItems: 'flex-start' },
   favoriteDetails: { flex: 1, marginLeft: 8 },
