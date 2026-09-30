@@ -107,7 +107,10 @@ function AnimatedSection({ children, index = 0, register }) {
   const scale = useRef(new Animated.Value(0.97)).current;
   const layoutY = useRef(0);
   const layoutH = useRef(1);
+  const viewportH = useRef(700);
+  const scrollY = useRef(0);
   const visible = useRef(false);
+  const checkRef = useRef(null);
 
   const animateIn = useCallback(() => {
     opacity.setValue(0);
@@ -121,26 +124,33 @@ function AnimatedSection({ children, index = 0, register }) {
     ]).start();
   }, [index, opacity, translateY, scale]);
 
+  checkRef.current = (nextScrollY = scrollY.current, nextViewportH = viewportH.current) => {
+    scrollY.current = nextScrollY;
+    viewportH.current = nextViewportH;
+    const y = layoutY.current;
+    const h = layoutH.current;
+    const isVisible = y < nextScrollY + nextViewportH && y + h > nextScrollY;
+    if (isVisible && !visible.current) {
+      visible.current = true;
+      animateIn();
+    } else if (!isVisible) {
+      visible.current = false;
+    }
+  };
+
   useEffect(() => {
-    register?.(index, (scrollY, viewportH) => {
-      const y = layoutY.current;
-      const h = layoutH.current;
-      const isVisible = y < scrollY + viewportH && y + h > scrollY;
-      if (isVisible && !visible.current) {
-        visible.current = true;
-        animateIn();
-      } else if (!isVisible) {
-        visible.current = false;
-      }
-    });
+    const checker = (nextScrollY, nextViewportH) => checkRef.current?.(nextScrollY, nextViewportH);
+    register?.(index, checker);
+    requestAnimationFrame(() => checkRef.current?.());
     return () => register?.(index, null);
-  }, [animateIn, index, register]);
+  }, [index, register]);
 
   return (
     <Animated.View
       onLayout={(event) => {
         layoutY.current = event.nativeEvent.layout.y;
         layoutH.current = event.nativeEvent.layout.height;
+        requestAnimationFrame(() => checkRef.current?.());
       }}
       style={{ opacity, transform: [{ translateY }, { scale }] }}
     >
