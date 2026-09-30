@@ -474,6 +474,13 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const winRate = battles > 0 ? (wins / battles) * 100 : 0;
   const lossRate = battles > 0 ? (losses / battles) * 100 : 0;
   const threeCrowns = number(data.threeCrownWins);
+  const bestWinStreak = firstValue(
+    data.bestWinStreak,
+    data.bestWinLossStreak,
+    data.bestWinLoseStreak,
+    data.maxWinStreak,
+    data.bestStreak
+  );
   const currentPol = data.currentPathOfLegendSeasonResult;
   const lastPol = data.lastPathOfLegendSeasonResult;
   const currentLeagueStats = data.leagueStatistics?.currentSeason;
@@ -653,7 +660,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               <StatTile index={2} icon="close-circle-outline" label="Losses" value={formatNumber(data.losses)} theme={theme} />
               <StatTile index={3} icon="crown" label="3-crown wins" value={formatNumber(data.threeCrownWins)} theme={theme} />
               <StatTile index={4} icon="fire" label="Win streak" value={formatNumber(data.currentWinLoseStreak)} theme={theme} />
-              <StatTile index={5} icon="fire" label="Best Streak" value={formatNumber(data.bestWinStreak)} theme={theme} />
+              <StatTile index={5} icon="medal-outline" label="Best Streak" value={formatNumber(bestWinStreak)} theme={theme} />
             </View>
 
             <AnimatedSection index={2} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
