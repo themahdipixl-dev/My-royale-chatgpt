@@ -324,11 +324,11 @@ function resolveCurrentDeckImage(card, index, deck) {
 
 
 const CARD_LEVEL_OFFSETS = {
-  Common: 0,
-  Rare: 2,
-  Epic: 5,
-  Legendary: 8,
-  Champion: 10,
+  common: 0,
+  rare: 2,
+  epic: 5,
+  legendary: 8,
+  champion: 10,
 };
 
 function getDisplayCardLevel(card) {
