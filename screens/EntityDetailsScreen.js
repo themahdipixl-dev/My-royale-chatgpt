@@ -1079,7 +1079,7 @@ const styles = StyleSheet.create({
   towerInfoRow: { position: 'relative', flexDirection: 'row', alignItems: 'stretch' },
   towerCardSlot: { width: '25%', minWidth: 0, flexShrink: 0 },
   towerDivider: { width: 1, marginHorizontal: 10, flexShrink: 0 },
-  deckStatsColumn: { flex: 1, minWidth: 0 },
+  deckStatsColumn: { flex: 1, minWidth: 0, paddingLeft: 0 },
   deckBattleStatsGrid: { marginTop: -8, flexDirection: 'row', flexWrap: 'wrap', rowGap: 8, columnGap: 8 },
   deckBattleStatItem: { width: '47%', flexDirection: 'row', alignItems: 'center', minHeight: 24 },
   deckBattleStatText: { flex: 1, marginLeft: 6, minWidth: 0, flexDirection: 'row', alignItems: 'center' },
