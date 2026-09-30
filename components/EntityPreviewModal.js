@@ -6,7 +6,7 @@ import { IconButton, Text, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchPlayer } from '../api/client';
 import { getClanBadgeImage } from '../utils/clanBadges';
-import { getPlayerLeagueImage } from '../utils/playerLeagueAssets';
+import { getPlayerLeagueImage } from '../utils/playerLeagueassets';
 const pointIcon = require('../assets/Point-icon.png');
 
 function firstValue(...values) {
