@@ -880,17 +880,19 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                     </View>
                     <View style={[styles.towerDivider, { backgroundColor: theme.colors.outlineVariant }]} />
                     <View style={styles.deckStatsColumn}>
-                      <View style={styles.deckAveragesRow}>
-                        <View style={styles.deckStatRow}>
-                          <MaterialCommunityIcons name="water" size={16} color={theme.colors.primary} />
-                          <Text style={[styles.deckStatLabel, { color: theme.colors.onSurfaceVariant }]}>Avg Elixir:</Text>
-                          <Text style={[styles.deckStatValue, { color: theme.colors.onSurface }]}>{getDeckAverages(currentDeck).avgElixir}</Text>
-                        </View>
-                        <View style={styles.deckStatRow}>
-                          <MaterialCommunityIcons name="star-four-points" size={16} color={theme.colors.primary} />
-                          <Text style={[styles.deckStatLabel, { color: theme.colors.onSurfaceVariant }]}>Avg Level:</Text>
-                          <Text style={[styles.deckStatValue, { color: theme.colors.onSurface }]}>{getDeckAverages(currentDeck).avgLevel}</Text>
-                        </View>
+                      <View style={styles.deckBattleStatsGrid}>
+                        {[
+                          ['water', 'Avg Elixir:', getDeckAverages(currentDeck).avgElixir],
+                          ['star-four-points', 'Avg Level:', getDeckAverages(currentDeck).avgLevel],
+                        ].map(([icon, label, value]) => (
+                          <View key={label} style={styles.deckBattleStatItem}>
+                            <MaterialCommunityIcons name={icon} size={13} color={theme.colors.primary} />
+                            <View style={styles.deckBattleStatText}>
+                              <Text style={[styles.deckBattleStatLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
+                              <Text style={[styles.deckBattleStatValue, { color: theme.colors.onSurface }]}>{value}</Text>
+                            </View>
+                          </View>
+                        ))}
                       </View>
                       <View style={styles.deckBattleStatsGrid}>
                         {[
@@ -900,8 +902,8 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                           ['minus-circle-outline', 'Draws:', formatNumber(deckBattleStats.draws)],
                           ['percent', 'Win Rate:', `${deckBattleStats.winRate.toFixed(1)}%`],
                           ['crown', 'Crowns:', formatNumber(deckBattleStats.crowns)],
-                          ['crown-outline', '3-crn wins:', formatNumber(deckBattleStats.threeCrownWins)],
-                          ['percent', '3-crn rate:', `${deckBattleStats.threeCrownRate.toFixed(1)}%`],
+                          ['crown-outline', '3-CRN wins:', formatNumber(deckBattleStats.threeCrownWins)],
+                          ['percent', '3-CRN rate:', `${deckBattleStats.threeCrownRate.toFixed(1)}%`],
                           ['chart-line', 'Avg Crown:', deckBattleStats.avgCrowns],
                         ].map(([icon, label, value]) => (
                           <View key={label} style={styles.deckBattleStatItem}>
@@ -1091,7 +1093,6 @@ const styles = StyleSheet.create({
   towerCardSlot: { width: '34%', minWidth: 0 },
   towerDivider: { width: 1, marginHorizontal: 10 },
   deckStatsColumn: { flex: 1, minWidth: 0 },
-  deckAveragesRow: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 8, columnGap: 8 },
   deckBattleStatsGrid: { marginTop: 12, flexDirection: 'row', flexWrap: 'wrap', rowGap: 8, columnGap: 8 },
   deckBattleStatItem: { width: '47%', flexDirection: 'row', alignItems: 'center', minHeight: 24 },
   deckBattleStatText: { flex: 1, marginLeft: 6, minWidth: 0, flexDirection: 'row', alignItems: 'center' },
@@ -1099,9 +1100,6 @@ const styles = StyleSheet.create({
   deckBattleStatValue: { marginTop: 0, marginLeft: 3, fontSize: 12, fontWeight: '800' },
   deckBattleStatsNote: { marginTop: 9, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 4 },
   deckBattleStatsNoteText: { fontSize: 8, textAlign: 'center' },
-  deckStatRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  deckStatLabel: { fontSize: 10.5, fontWeight: '600' },
-  deckStatValue: { fontSize: 12.5, fontWeight: '800', marginLeft: 1 },
   cardItem: { width: '22.2%', height: 120 },
   cardItemInner: { height: 120, borderRadius: 16, padding: 5 },
   compactCardItem: { width: '22.2%', height: 120 },
