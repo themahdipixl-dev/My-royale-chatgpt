@@ -173,8 +173,6 @@ function AnimatedDetailItem({ children, index = 0, layoutStyle }) {
 
 function AnimatedSection({ children, index = 0, register }) {
   const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(18)).current;
-  const scale = useRef(new Animated.Value(0.97)).current;
   const layoutY = useRef(0);
   const layoutH = useRef(1);
   const viewportH = useRef(700);
@@ -183,7 +181,6 @@ function AnimatedSection({ children, index = 0, register }) {
   const checkRef = useRef(null);
 
   const animateIn = useCallback(() => {
-    if (visible.current) return;
     opacity.setValue(0);
     const delay = Math.min(index, 10) * 28;
     Animated.timing(opacity, { toValue: 1, duration: 220, delay, isInteraction: false, useNativeDriver: true }).start();
