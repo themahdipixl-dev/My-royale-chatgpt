@@ -15,6 +15,7 @@ import { IconButton, Surface, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchPlayer, fetchPlayerBattlelog } from '../api/client';
+import { getClanBadgeImage } from '../utils/clanBadges';
 
 const leagueIcon = require('../assets/league-icon.png');
 const pointIcon = require('../assets/Point-icon.png');
@@ -879,14 +880,15 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               <SectionTitle icon="account-group" title="Clan" theme={theme} />
               <View style={styles.clanHero}>
                 <View style={[styles.clanBadge, { backgroundColor: theme.colors.primaryContainer }]}>
-                  <MaterialCommunityIcons name="shield-account" size={28} color={theme.colors.onPrimaryContainer} />
+                  {getClanBadgeImage(data.clan?.badgeId) ? (
+                    <Image source={{ uri: getClanBadgeImage(data.clan?.badgeId) }} style={styles.clanBadgeImage} resizeMode="contain" />
+                  ) : null}
                 </View>
                 <View style={styles.clanIdentity}>
                   <Text numberOfLines={1} style={[styles.clanName, { color: theme.colors.onSurface }]}>{data.clan?.name || 'No clan'}</Text>
                   <Text style={[styles.clanTag, { color: theme.colors.primary }]}>{data.clan?.tag || '—'}</Text>
                 </View>
               </View>
-              <InfoRow icon="shield-star" label="Badge ID" value={formatNumber(data.clan?.badgeId)} theme={theme} />
               <InfoRow icon="account-multiple" label="Role" value={data.role || '—'} theme={theme} />
               <InfoRow icon="gift" label="Donations" value={formatNumber(data.donations)} theme={theme} />
               <InfoRow icon="gift-outline" label="Donations received" value={formatNumber(data.donationsReceived)} theme={theme} />
@@ -1097,6 +1099,7 @@ const styles = StyleSheet.create({
 
   clanHero: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   clanBadge: { width: 54, height: 54, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  clanBadgeImage: { width: 45, height: 45 },
   clanIdentity: { flex: 1, marginLeft: 11 },
   clanName: { fontSize: 16, fontWeight: '800' },
   clanTag: { marginTop: 3, fontSize: 12, fontWeight: '700' },
