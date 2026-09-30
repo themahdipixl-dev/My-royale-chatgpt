@@ -13,7 +13,7 @@ function getTrophies(item) {
   return value !== undefined && value !== null ? value : '—';
 }
 
-export default function RankRow({ item, index, animationKey = 0, onPress, trophyIcon = 'trophy' }) {
+export default function RankRow({ item, index, animationKey = 0, onPress, trophyIcon = 'trophy', playerIconUri }) {
   const theme = useTheme();
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(18)).current;
@@ -34,7 +34,7 @@ export default function RankRow({ item, index, animationKey = 0, onPress, trophy
   const rank = item.rank ?? index + 1;
   const badgeColor = RANK_COLORS[rank];
   const clanName = item.clan?.name;
-  const playerLeagueImage = getPlayerLeagueImage(item);
+  const playerLeagueImage = playerIconUri || getPlayerLeagueImage(item);
 
   return (
     <Animated.View style={{ height: ROW_HEIGHT, opacity, transform: [{ translateY }, { scale }] }}>
