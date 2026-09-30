@@ -218,7 +218,7 @@ function AnimatedSection({ children, index = 0, register }) {
     </Animated.View>
   );
 }
-function SectionTitle({ icon, title, right, theme }) {
+function SectionTitle({ icon, title, subtitle, right, theme }) {
   return (
     <View style={styles.sectionTitleRow}>
       <View style={styles.sectionTitleLeft}>
@@ -226,6 +226,12 @@ function SectionTitle({ icon, title, right, theme }) {
           <MaterialCommunityIcons name={icon} size={18} color={theme.colors.onPrimaryContainer} />
         </View>
         <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>{title}</Text>
+        {subtitle ? (
+          <View style={styles.sectionSubtitle}>
+            <Text style={[styles.sectionSubtitleLine, { color: theme.colors.onSurfaceVariant }]}>Path Of</Text>
+            <Text style={[styles.sectionSubtitleLine, { color: theme.colors.onSurfaceVariant }]}>Legends</Text>
+          </View>
+        ) : null}
       </View>
       {right ? <Text style={[styles.sectionRight, { color: theme.colors.onSurfaceVariant }]}>{right}</Text> : null}
     </View>
@@ -477,9 +483,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const threeCrownRate = wins > 0 ? Math.round((threeCrowns / wins) * 100) : 0;
   const currentPol = data.currentPathOfLegendSeasonResult;
   const lastPol = data.lastPathOfLegendSeasonResult;
-  const currentLeagueStats = data.leagueStatistics?.currentSeason;
-  const previousLeagueStats = data.leagueStatistics?.previousSeason;
-  const bestLeagueStats = data.leagueStatistics?.bestSeason;
+  const bestPol = data.bestPathOfLegendSeasonResult;
   const seasonalTrophyRoad = findSeasonalTrophyRoad(data);
   const seasonalBestTrophies = seasonalTrophyRoad?.bestTrophies;
   const seasonalArena = seasonalTrophyRoad?.arena;
@@ -693,14 +697,28 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             </Surface></AnimatedSection>
 
             <AnimatedSection index={4} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
-              <SectionTitle icon="sword" title="Path of Legends" theme={theme} />
-              <View style={styles.polGrid}>
-                <StatTile icon="podium" label="Current league" value={currentPol?.leagueNumber ? `League ${currentPol.leagueNumber}` : '—'} theme={theme} image={leagueIcon} />
-                <StatTile icon="trophy-outline" label="Current trophies" value={formatNumber(currentPol?.trophies)} theme={theme} />
-                <StatTile icon="medal" label="Current rank" value={currentPol?.rank ? `#${formatNumber(currentPol.rank)}` : '—'} theme={theme} />
-                <StatTile icon="history" label="Last league" value={lastPol?.leagueNumber ? `League ${lastPol.leagueNumber}` : '—'} theme={theme} />
-                <StatTile icon="trophy-award" label="Last trophies" value={formatNumber(lastPol?.trophies)} theme={theme} />
-                <StatTile icon="medal-outline" label="Last rank" value={lastPol?.rank ? `#${formatNumber(lastPol.rank)}` : '—'} theme={theme} />
+              <SectionTitle icon="sword" title="POL" subtitle="Path Of Legends" theme={theme} />
+              <View style={styles.seasonTable}>
+                <View style={styles.seasonHeader}>
+                  <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>League</Text>
+                  <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Ratings</Text>
+                  <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Rank</Text>
+                </View>
+                <View style={styles.seasonRow}>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Current</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(currentPol?.trophies)}</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{currentPol?.rank ? `#${formatNumber(currentPol.rank)}` : '—'}</Text>
+                </View>
+                <View style={styles.seasonRow}>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Last</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(lastPol?.trophies)}</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{lastPol?.rank ? `#${formatNumber(lastPol.rank)}` : '—'}</Text>
+                </View>
+                <View style={styles.seasonRow}>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Best</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(bestPol?.trophies)}</Text>
+                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{bestPol?.rank ? `#${formatNumber(bestPol.rank)}` : '—'}</Text>
+                </View>
               </View>
             </Surface></AnimatedSection>
 
@@ -891,6 +909,8 @@ const styles = StyleSheet.create({
   sectionTitleLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   sectionIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   sectionTitle: { marginLeft: 9, fontSize: 16, fontWeight: '800' },
+  sectionSubtitle: { marginLeft: 6, justifyContent: 'center' },
+  sectionSubtitleLine: { fontSize: 8.5, lineHeight: 9, fontWeight: '600' },
   sectionRight: { marginLeft: 8, fontSize: 11 },
 
   performanceNumbers: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
