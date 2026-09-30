@@ -248,43 +248,62 @@ function SectionTitle({ icon, title, subtitle, right, theme }) {
 function TowerCardInfoHint({ theme }) {
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(-4)).current;
-
-  const showNote = useCallback(() => {
-    opacity.stopAnimation();
-    translateY.stopAnimation();
-    Animated.parallel([
-      Animated.timing(opacity, { toValue: 1, duration: 160, useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: 0, duration: 160, useNativeDriver: true }),
-    ]).start();
-  }, [opacity, translateY]);
+  const [visible, setVisible] = useState(false);
+  const timeoutRef = useRef(null);
 
   const hideNote = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     opacity.stopAnimation();
     translateY.stopAnimation();
     Animated.parallel([
       Animated.timing(opacity, { toValue: 0, duration: 130, useNativeDriver: true }),
       Animated.timing(translateY, { toValue: -4, duration: 130, useNativeDriver: true }),
-    ]).start();
+    ]).start(({ finished }) => {
+      if (finished) setVisible(false);
+    });
   }, [opacity, translateY]);
+
+  const showNote = useCallback(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setVisible(true);
+    opacity.stopAnimation();
+    translateY.stopAnimation();
+    opacity.setValue(0);
+    translateY.setValue(-4);
+    Animated.parallel([
+      Animated.timing(opacity, { toValue: 1, duration: 160, useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: 0, duration: 160, useNativeDriver: true }),
+    ]).start();
+    timeoutRef.current = setTimeout(hideNote, 3000);
+  }, [hideNote, opacity, translateY]);
+
+  useEffect(() => () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  }, []);
 
   return (
     <View style={styles.towerCardTitleWrap}>
       <Pressable
-        onLongPress={showNote}
-        onPressOut={hideNote}
-        delayLongPress={400}
+        onPress={showNote}
         hitSlop={8}
-        pressRetentionOffset={{ top: 12, bottom: 12, left: 18, right: 18 }}
         accessibilityRole="button"
         accessibilityLabel="Tower Card information"
       >
         <MaterialCommunityIcons name="information-outline" size={13} color={theme.colors.onSurfaceVariant} />
       </Pressable>
-      <Animated.View pointerEvents="none" style={[styles.towerCardNote, { opacity, transform: [{ translateY }] }]}>
-        <Text style={[styles.towerCardNoteText, { color: theme.colors.onSurfaceVariant }]}>
-          Stats are based on the player's last 30 battles.
-        </Text>
-      </Animated.View>
+      {visible ? (
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.towerCardNote, { opacity, transform: [{ translateY }] }]}
+        >
+          <Text style={[styles.towerCardNoteText, { color: theme.colors.onSurfaceVariant }]}>
+            Stats are based on the player's last 30 battles.
+          </Text>
+        </Animated.View>
+      ) : null}
     </View>
   );
 }
