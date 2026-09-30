@@ -277,8 +277,39 @@ function InfoRow({ index = 0, icon, label, value, theme }) {
   );
 }
 
-function CardItem({ index = 0, card, theme, compact = false }) {
-  const image = card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium;
+function resolveCurrentDeckImage(card, index, deck) {
+  const urls = card?.iconUrls || {};
+  const normal = urls.medium;
+  const hero = urls.heroMedium;
+  const evolution = urls.evolutionMedium;
+
+  if (!hero && !evolution) return normal;
+
+  if (index === 0) {
+    return evolution || normal;
+  }
+
+  if (index === 1) {
+    return hero || normal;
+  }
+
+  if (index === 2) {
+    const secondCardIsHero = Boolean(deck?.[1]?.iconUrls?.heroMedium);
+
+    if (secondCardIsHero) {
+      return evolution || normal;
+    }
+
+    return hero || evolution || normal;
+  }
+
+  return normal;
+}
+
+function CardItem({ index = 0, card, theme, compact = false, deck }) {
+  const image = deck ? resolveCurrentDeckImage(card, index, deck) : (
+    card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium
+  );
   return (
     <AnimatedDetailItem index={index} layoutStyle={[styles.cardItem, compact && styles.compactCardItem]}>
       <View style={[styles.cardItemInner, compact && styles.compactCardItemInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
@@ -756,7 +787,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             <AnimatedSection index={6} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <SectionTitle icon="cards" title="Current deck" right={`${currentDeck.length} cards`} theme={theme} />
               <View style={styles.deckGrid}>
-                {currentDeck.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact />)}
+                {currentDeck.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact deck={currentDeck} />)}
               </View>
               {currentDeckSupport.length > 0 ? (
                 <>
