@@ -14,6 +14,7 @@ import {
 import { IconButton, Surface, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
 import { fetchPlayer, fetchPlayerBattlelog } from '../api/client';
 import { getClanBadgeImage } from '../utils/clanBadges';
 
@@ -280,13 +281,20 @@ function StatTile({ index = 0, icon, label, value, theme, image }) {
   );
 }
 
-function InfoRow({ index = 0, icon, label, value, theme }) {
+function InfoRow({ index = 0, icon, label, value, theme, onPress }) {
   return (
     <AnimatedDetailItem index={index}>
       <View style={styles.infoRow}>
       <MaterialCommunityIcons name={icon} size={19} color={theme.colors.primary} />
       <Text style={[styles.infoLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
-      <Text numberOfLines={1} style={[styles.infoValue, { color: theme.colors.onSurface }]}>{value}</Text>
+      {onPress ? (
+        <Pressable onPress={onPress} style={styles.infoValuePressable} hitSlop={4}>
+          <Text numberOfLines={1} style={[styles.infoValue, { color: theme.colors.onSurface }]}>{value}</Text>
+          <MaterialCommunityIcons name="content-copy" size={14} color={theme.colors.onSurfaceVariant} />
+        </Pressable>
+      ) : (
+        <Text numberOfLines={1} style={[styles.infoValue, { color: theme.colors.onSurface }]}>{value}</Text>
+      )}
       </View>
     </AnimatedDetailItem>
   );
@@ -650,6 +658,10 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   }, [loadBattlelog]);
 
   const data = player || entity || {};
+  const handleCopyTag = useCallback(async () => {
+    if (!data.tag) return;
+    await Clipboard.setStringAsync(String(data.tag));
+  }, [data.tag]);
   const wins = number(data.wins);
   const losses = number(data.losses);
   const battles = number(data.battleCount) || wins + losses;
@@ -875,7 +887,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
 
             <AnimatedSection index={3} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <SectionTitle icon="sword-cross" title="Player information" theme={theme} />
-              <InfoRow icon="account" label="Tag" value={data.tag || '—'} theme={theme} />
+              <InfoRow icon="account" label="Tag" value={data.tag || '—'} theme={theme} onPress={handleCopyTag} />
               <InfoRow icon="shield-account" label="Role" value={data.role || '—'} theme={theme} />
               <InfoRow icon="castle" label="Arena" value={displayedArenaName} theme={theme} />
               <InfoRow icon="numeric" label="Arena number" value={displayedArenaNumber || '—'} theme={theme} />
@@ -1128,6 +1140,7 @@ const styles = StyleSheet.create({
   infoRow: { minHeight: 38, flexDirection: 'row', alignItems: 'center', gap: 9 },
   infoLabel: { width: 112, fontSize: 11.5 },
   infoValue: { flex: 1, textAlign: 'right', fontSize: 12.5, fontWeight: '700' },
+  infoValuePressable: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 6 },
 
   seasonTable: { borderRadius: 16, overflow: 'hidden' },
   seasonHeader: { flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 10, backgroundColor: 'rgba(255,255,255,0.035)' },
