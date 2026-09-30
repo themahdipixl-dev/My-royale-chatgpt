@@ -44,6 +44,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const locationBarRef = useRef(null);
   const lastOffset = useRef(0);
   const lastDirectionOffset = useRef(0);
+  const scrollOffsetsRef = useRef({ players: 0, clans: 0, merge: 0 });
   const [previewEntity, setPreviewEntity] = useState(null);
   const [previewType, setPreviewType] = useState('player');
   const [detailEntity, setDetailEntity] = useState(null);
@@ -123,6 +124,15 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
 
   useEffect(() => { loadData(selectedLocation?.id, topTab, clanRankingMode); }, [selectedLocation, topTab, clanRankingMode, loadData]);
 
+  useEffect(() => {
+    if (detailEntity) return;
+    const savedOffset = scrollOffsetsRef.current[topTab] ?? 0;
+    if (savedOffset <= 0) return;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: savedOffset, animated: false }));
+    });
+  }, [detailEntity, topTab]);
+
   const handleClanRankingModeChange = useCallback((mode) => {
     setClanRankingMode(mode); setTopTab('clans'); setSearchOpen(false); setSearchQuery(''); setSelectedLimit(null);
     setSearchBy(mode === 'war' ? 'name' : 'trophies');
@@ -175,7 +185,9 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
     const { contentOffset, layoutMeasurement } = event.nativeEvent;
     const offset = Math.max(0, contentOffset.y);
     const delta = offset - lastOffset.current;
-    lastOffset.current = offset; setViewportHeight(layoutMeasurement.height);
+    lastOffset.current = offset;
+    scrollOffsetsRef.current[topTabRef.current] = offset;
+    setViewportHeight(layoutMeasurement.height);
     if (offset <= 80) {
       setShowJumpButton(false); setJumpToTop(false); lastDirectionOffset.current = offset; return;
     }
