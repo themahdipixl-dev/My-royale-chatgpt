@@ -1080,7 +1080,7 @@ const styles = StyleSheet.create({
   towerCardSlot: { width: '25%', minWidth: 0, flexGrow: 0, flexShrink: 0, flexBasis: '25%' },
   towerCardItem: { width: '100%', height: 120 },
   towerDivider: { position: 'absolute', left: '28%', top: 0, bottom: 0, width: 1 },
-  deckStatsColumn: { flex: 1, minWidth: 0, flexGrow: 1, flexShrink: 1, flexBasis: 0, marginLeft: 21, transform: [{ translateX: 12 }, { translateY: -10 }] },
+  deckStatsColumn: { flex: 1, minWidth: 0, flexGrow: 1, flexShrink: 1, flexBasis: 0, marginLeft: 21, transform: [{ translateX: 12 }, { translateY: -18 }] },
   deckBattleStatsGrid: { marginTop: -8, flexDirection: 'row', flexWrap: 'wrap', rowGap: 8, columnGap: 8 },
   deckBattleStatItem: { width: '47%', flexDirection: 'row', alignItems: 'center', minHeight: 24 },
   deckBattleStatText: { flex: 1, marginLeft: 6, minWidth: 0, flexDirection: 'row', alignItems: 'center' },
