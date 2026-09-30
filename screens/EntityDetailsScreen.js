@@ -283,16 +283,17 @@ function resolveCurrentDeckImage(card, index, deck) {
   const hero = urls.heroMedium;
   const evolution = urls.evolutionMedium;
 
-  if (!hero && !evolution) return normal;
-
+  // Slot 1: Evolution only. Never use the Hero asset here.
   if (index === 0) {
     return evolution || normal;
   }
 
+  // Slot 2: Hero only. Never use the Evolution asset here.
   if (index === 1) {
     return hero || normal;
   }
 
+  // Slot 3 depends on whether Slot 2 is a Hero.
   if (index === 2) {
     const secondCardIsHero = Boolean(deck?.[1]?.iconUrls?.heroMedium);
 
@@ -303,6 +304,7 @@ function resolveCurrentDeckImage(card, index, deck) {
     return hero || evolution || normal;
   }
 
+  // Slots 4-8: always use the normal card asset.
   return normal;
 }
 
