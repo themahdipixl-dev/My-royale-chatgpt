@@ -1193,7 +1193,7 @@ const styles = StyleSheet.create({
   seasonTextFirst: { textAlign: 'left' },
 
   clanHero: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  clanBadge: { width: 54, height: 54, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  clanBadge: { width: 54, height: 54, alignItems: 'center', justifyContent: 'center' },
   clanBadgeImage: { width: 45, height: 45 },
   clanIdentity: { flex: 1, marginLeft: 11 },
   clanName: { fontSize: 16, fontWeight: '800' },
