@@ -33,7 +33,7 @@ export default function TournamentDetailsScreen({ entity, onBack }) {
     <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
       <View style={styles.header}>
         <IconButton icon="arrow-left" size={24} onPress={onBack} style={styles.back} />
-        <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>{name}</Text>
+        <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>Tournament Details</Text>
       </View>
 
       <Animated.View style={[styles.flex, {
