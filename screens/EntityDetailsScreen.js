@@ -649,11 +649,11 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
 
             <View style={styles.statGrid}>
               <StatTile index={0} icon="gamepad-variant" label="Battles" value={formatNumber(data.battleCount)} theme={theme} />
-              <StatTile index={1} icon="trophy" label="Wins" value={formatNumber(data.wins)} theme={theme} />
+              <StatTile index={1} icon="check-circle-outline" label="Wins" value={formatNumber(data.wins)} theme={theme} />
               <StatTile index={2} icon="close-circle-outline" label="Losses" value={formatNumber(data.losses)} theme={theme} />
               <StatTile index={3} icon="crown" label="3-crown wins" value={formatNumber(data.threeCrownWins)} theme={theme} />
               <StatTile index={4} icon="fire" label="Win streak" value={formatNumber(data.currentWinLoseStreak)} theme={theme} />
-              <StatTile index={5} icon="account-star" label="King Tower" value={formatNumber(data.kingTowerLevel)} theme={theme} />
+              <StatTile index={5} icon="fire" label="Best Streak" value={formatNumber(data.bestWinStreak)} theme={theme} />
             </View>
 
             <AnimatedSection index={2} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
