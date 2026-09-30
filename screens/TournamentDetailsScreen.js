@@ -9,6 +9,23 @@ function value(...items) {
   return items.find((item) => item !== undefined && item !== null && item !== '') ?? '—';
 }
 
+
+function AnimatedSection({ children, index = 0 }) {
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(18)).current;
+  const scale = useRef(new Animated.Value(0.97)).current;
+  useEffect(() => {
+    opacity.setValue(0); translateY.setValue(18); scale.setValue(0.97);
+    const delay = Math.min(index, 10) * 28;
+    Animated.parallel([
+      Animated.timing(opacity, { toValue: 1, duration: 260, delay, useNativeDriver: true }),
+      Animated.spring(translateY, { toValue: 0, delay, friction: 8, tension: 55, useNativeDriver: true }),
+      Animated.spring(scale, { toValue: 1, delay, friction: 9, tension: 55, useNativeDriver: true }),
+    ]).start();
+  }, [index, opacity, translateY, scale]);
+  return <Animated.View style={{ opacity, transform: [{ translateY }, { scale }] }}>{children}</Animated.View>;
+}
+
 function Stat({ icon, label, value: statValue, theme }) {
   return (
     <View style={[styles.stat, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
@@ -53,7 +70,7 @@ export default function TournamentDetailsScreen({ entity, onBack }) {
         ],
       }]}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <Surface elevation={0} style={[styles.hero, { backgroundColor: theme.colors.surfaceContainer }]}>
+          <AnimatedSection index={0}><Surface elevation={0} style={[styles.hero, { backgroundColor: theme.colors.surfaceContainer }]}>
             <View style={[styles.icon, { backgroundColor: theme.colors.primaryContainer }]}>
               <MaterialCommunityIcons name="trophy-outline" size={32} color={theme.colors.onPrimaryContainer} />
             </View>
@@ -62,9 +79,9 @@ export default function TournamentDetailsScreen({ entity, onBack }) {
             <Text style={[styles.description, { color: theme.colors.onSurfaceVariant }]}>
               Tournament details
             </Text>
-          </Surface>
+          </Surface></AnimatedSection>
 
-          <Surface elevation={0} style={[styles.section, { backgroundColor: theme.colors.surfaceContainer }]}>
+          <AnimatedSection index={1}><Surface elevation={0} style={[styles.section, { backgroundColor: theme.colors.surfaceContainer }]}>
             <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>Tournament information</Text>
             <View style={styles.grid}>
               <Stat icon="account-group-outline" label="Members" value={value(entity?.members, entity?.memberCount)} theme={theme} />
@@ -72,14 +89,14 @@ export default function TournamentDetailsScreen({ entity, onBack }) {
               <Stat icon="calendar-outline" label="Start" value={value(entity?.startTime, entity?.startDate)} theme={theme} />
               <Stat icon="calendar-end" label="End" value={value(entity?.endTime, entity?.endDate)} theme={theme} />
             </View>
-          </Surface>
+          </Surface></AnimatedSection>
 
-          <Surface elevation={0} style={[styles.section, { backgroundColor: theme.colors.surfaceContainer }]}>
+          <AnimatedSection index={2}><Surface elevation={0} style={[styles.section, { backgroundColor: theme.colors.surfaceContainer }]}>
             <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>Coming next</Text>
             <Text style={[styles.muted, { color: theme.colors.onSurfaceVariant }]}>
               Tournament rankings and participant details will appear here when the tournament data endpoint is connected.
             </Text>
-          </Surface>
+          </Surface></AnimatedSection>
 
           <View style={styles.bottomSpace} />
         </ScrollView>
