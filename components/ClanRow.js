@@ -40,7 +40,7 @@ export default function ClanRow({ item, index, animationKey = 0, onPress }) {
         <View style={[styles.rankBadge, rank <= 3 && { backgroundColor: ['#F5B942', '#B8C2D1', '#CD8B4F'][rank - 1] }]}>
           <Text style={[styles.rankText, { color: rank <= 3 ? '#1A1300' : theme.colors.onSurfaceVariant }]}>{rank}</Text>
         </View>
-        <View style={[styles.clanIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+        <View style={styles.clanIcon}>
           {badgeImage ? <Image source={{ uri: badgeImage }} style={styles.clanBadgeImage} resizeMode="contain" /> : null}
         </View>
         <View style={styles.info}>
@@ -60,8 +60,8 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', height: 64, borderRadius: 19, marginHorizontal: 14, marginBottom: 6, paddingHorizontal: 9 },
   rankBadge: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
   rankText: { fontSize: 13.5, fontWeight: '700' },
-  clanIcon: { width: 35, height: 35, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginRight: 9 },
-  clanBadgeImage: { width: 31, height: 31 },
+  clanIcon: { width: 45, height: 45, alignItems: 'center', justifyContent: 'center', marginRight: 9 },
+  clanBadgeImage: { width: 42, height: 42 },
   info: { flex: 1, justifyContent: 'center' },
   name: { fontSize: 14.5, fontWeight: '600' },
   members: { fontSize: 11.3, marginTop: 1 },
