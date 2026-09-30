@@ -899,15 +899,15 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                       <View style={styles.deckBattleStatsGrid}>
                         {[
                           ['water', 'Avg Elixir:', getDeckAverages(currentDeck).avgElixir],
-                          ['star-four-points', 'Avg Level:', getDeckAverages(currentDeck).avgLevel],
                           ['sword-cross', 'Games:', formatNumber(deckBattleStats.games)],
+                          ['star-four-points', 'Avg Level:', getDeckAverages(currentDeck).avgLevel],
                           ['trophy', 'Wins:', formatNumber(deckBattleStats.wins)],
-                          ['close-circle-outline', 'Losses:', formatNumber(deckBattleStats.losses)],
-                          ['minus-circle-outline', 'Draws:', formatNumber(deckBattleStats.draws)],
-                          ['percent', 'Win Rate:', `${deckBattleStats.winRate.toFixed(1)}%`],
                           ['crown', 'Crowns:', formatNumber(deckBattleStats.crowns)],
-                          ['crown-outline', '3-CRN wins:', formatNumber(deckBattleStats.threeCrownWins)],
+                          ['close-circle-outline', 'Losses:', formatNumber(deckBattleStats.losses)],
                           ['chart-line', 'Avg Crown:', deckBattleStats.avgCrowns],
+                          ['minus-circle-outline', 'Draws:', formatNumber(deckBattleStats.draws)],
+                          ['crown-outline', '3-CRN wins:', formatNumber(deckBattleStats.threeCrownWins)],
+                          ['percent', 'Win Rate:', `${deckBattleStats.winRate.toFixed(1)}%`],
                         ].map(([icon, label, value]) => (
                           <View key={label} style={styles.deckBattleStatItem}>
                             <MaterialCommunityIcons name={icon} size={13} color={theme.colors.primary} />
