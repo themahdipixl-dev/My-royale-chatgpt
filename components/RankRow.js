@@ -3,9 +3,9 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, View, Text, Image, StyleSheet, Pressable } from 'react-native';
 import { Surface, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { getPlayerLeagueImage } from '../utils/playerLeagueAssets';
 
 const RANK_COLORS = { 1: '#F5B942', 2: '#B8C2D1', 3: '#CD8B4F' };
-const leagueIcon = require('../assets/league-icon.png');
 export const ROW_HEIGHT = 70;
 
 function getTrophies(item) {
@@ -34,6 +34,7 @@ export default function RankRow({ item, index, animationKey = 0, onPress, trophy
   const rank = item.rank ?? index + 1;
   const badgeColor = RANK_COLORS[rank];
   const clanName = item.clan?.name;
+  const playerLeagueImage = getPlayerLeagueImage(item);
 
   return (
     <Animated.View style={{ height: ROW_HEIGHT, opacity, transform: [{ translateY }, { scale }] }}>
@@ -41,7 +42,13 @@ export default function RankRow({ item, index, animationKey = 0, onPress, trophy
         <View style={[styles.rankBadge, badgeColor && { backgroundColor: badgeColor }]}>
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72} style={[styles.rankText, { color: badgeColor ? '#1A1300' : theme.colors.onSurfaceVariant }]}>{rank}</Text>
         </View>
-        <Image source={leagueIcon} style={styles.avatar} resizeMode="contain" />
+        <View style={styles.avatar}>
+          {playerLeagueImage ? (
+            <Image source={{ uri: playerLeagueImage }} style={styles.avatarImage} resizeMode="contain" />
+          ) : (
+            <MaterialCommunityIcons name="account-circle-outline" size={34} color={theme.colors.primary} />
+          )}
+        </View>
         <View style={styles.info}>
           <Text style={[styles.name, { color: theme.colors.onSurface }]} numberOfLines={1}>{item.name}</Text>
           <Text style={[styles.clan, { color: theme.colors.primary }, !clanName && { color: theme.colors.onSurfaceVariant }]} numberOfLines={1}>{clanName || 'no clan'}</Text>
@@ -59,7 +66,8 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', height: 64, borderRadius: 19, marginHorizontal: 14, marginTop: 0, marginBottom: 6, paddingHorizontal: 9 },
   rankBadge: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
   rankText: { fontSize: 13.5, fontWeight: '700', includeFontPadding: false, textAlign: 'center', lineHeight: 14 },
-  avatar: { width: 35, height: 35, borderRadius: 7, marginRight: 9 },
+  avatar: { width: 35, height: 35, marginRight: 9, alignItems: 'center', justifyContent: 'center' },
+  avatarImage: { width: 35, height: 35 },
   info: { flex: 1, justifyContent: 'center' },
   name: { fontSize: 14.5, fontWeight: '600' },
   clan: { fontSize: 11.3, marginTop: 1 },
