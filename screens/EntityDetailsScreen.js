@@ -1088,7 +1088,7 @@ const styles = StyleSheet.create({
   deckGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 11, rowGap: 9, alignItems: 'flex-start' },
   subSectionTitle: { marginTop: 15, marginBottom: 8, fontSize: 12, fontWeight: '700' },
   towerInfoRow: { flexDirection: 'row', alignItems: 'stretch' },
-  towerCardSlot: { flex: 1, minWidth: 0 },
+  towerCardSlot: { width: '34%', minWidth: 0 },
   towerDivider: { width: 1, marginHorizontal: 10 },
   deckStatsColumn: { flex: 1, minWidth: 0 },
   deckAveragesRow: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 8, columnGap: 8 },
