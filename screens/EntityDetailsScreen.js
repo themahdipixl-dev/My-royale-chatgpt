@@ -902,26 +902,6 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                           </View>
                         ))}
                       </View>
-                        {[
-                          ['sword-cross', 'Games:', formatNumber(deckBattleStats.games)],
-                          ['trophy', 'Wins:', formatNumber(deckBattleStats.wins)],
-                          ['close-circle-outline', 'Losses:', formatNumber(deckBattleStats.losses)],
-                          ['minus-circle-outline', 'Draws:', formatNumber(deckBattleStats.draws)],
-                          ['percent', 'Win Rate:', `${deckBattleStats.winRate.toFixed(1)}%`],
-                          ['crown', 'Crowns:', formatNumber(deckBattleStats.crowns)],
-                          ['crown-outline', '3-CRN wins:', formatNumber(deckBattleStats.threeCrownWins)],
-                          ['percent', '3-CRN rate:', `${deckBattleStats.threeCrownRate.toFixed(1)}%`],
-                          ['chart-line', 'Avg Crown:', deckBattleStats.avgCrowns],
-                        ].map(([icon, label, value]) => (
-                          <View key={label} style={styles.deckBattleStatItem}>
-                            <MaterialCommunityIcons name={icon} size={13} color={theme.colors.primary} />
-                            <View style={styles.deckBattleStatText}>
-                              <Text style={[styles.deckBattleStatLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
-                              <Text style={[styles.deckBattleStatValue, { color: theme.colors.onSurface }]}>{value}</Text>
-                            </View>
-                          </View>
-                        ))}
-                      </View>
                       <View style={styles.deckBattleStatsNote}>
                         <MaterialCommunityIcons name="information-outline" size={11} color={theme.colors.onSurfaceVariant} />
                         <Text style={[styles.deckBattleStatsNoteText, { color: theme.colors.onSurfaceVariant }]}>
