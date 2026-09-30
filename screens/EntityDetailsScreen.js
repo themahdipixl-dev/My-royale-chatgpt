@@ -245,6 +245,50 @@ function SectionTitle({ icon, title, subtitle, right, theme }) {
   );
 }
 
+function TowerCardInfoHint({ theme }) {
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(-4)).current;
+
+  const showNote = useCallback(() => {
+    opacity.stopAnimation();
+    translateY.stopAnimation();
+    Animated.parallel([
+      Animated.timing(opacity, { toValue: 1, duration: 160, useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: 0, duration: 160, useNativeDriver: true }),
+    ]).start();
+  }, [opacity, translateY]);
+
+  const hideNote = useCallback(() => {
+    opacity.stopAnimation();
+    translateY.stopAnimation();
+    Animated.parallel([
+      Animated.timing(opacity, { toValue: 0, duration: 130, useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: -4, duration: 130, useNativeDriver: true }),
+    ]).start();
+  }, [opacity, translateY]);
+
+  return (
+    <View style={styles.towerCardTitleWrap}>
+      <Pressable
+        onLongPress={showNote}
+        onPressOut={hideNote}
+        delayLongPress={400}
+        hitSlop={8}
+        pressRetentionOffset={{ top: 12, bottom: 12, left: 18, right: 18 }}
+        accessibilityRole="button"
+        accessibilityLabel="Tower Card information"
+      >
+        <MaterialCommunityIcons name="information-outline" size={13} color={theme.colors.onSurfaceVariant} />
+      </Pressable>
+      <Animated.View pointerEvents="none" style={[styles.towerCardNote, { opacity, transform: [{ translateY }] }]}>
+        <Text style={[styles.towerCardNoteText, { color: theme.colors.onSurfaceVariant }]}>
+          Stats are based on the player's last 30 battles.
+        </Text>
+      </Animated.View>
+    </View>
+  );
+}
+
 function StatTile({ index = 0, icon, label, value, theme, image }) {
   return (
     <AnimatedDetailItem index={index} layoutStyle={styles.statTile}>
@@ -873,7 +917,10 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               </View>
               {currentDeckSupport.length > 0 ? (
                 <>
-                  <Text style={[styles.subSectionTitle, { color: theme.colors.onSurfaceVariant }]}>Tower Card</Text>
+                  <View style={styles.subSectionTitleRow}>
+                    <Text style={[styles.subSectionTitle, { color: theme.colors.onSurfaceVariant }]}>Tower Card</Text>
+                    <TowerCardInfoHint theme={theme} />
+                  </View>
                   <View style={styles.towerInfoRow}>
                     <View style={styles.towerCardSlot}>
                       {currentDeckSupport.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact tower />)}
@@ -902,12 +949,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                           </View>
                         ))}
                       </View>
-                      <View style={styles.deckBattleStatsNote}>
-                        <MaterialCommunityIcons name="information-outline" size={11} color={theme.colors.onSurfaceVariant} />
-                        <Text style={[styles.deckBattleStatsNoteText, { color: theme.colors.onSurfaceVariant }]}>
-                          Stats are based on the player's last 30 battles.
-                        </Text>
-                      </View>
+
                     </View>
                   </View>
                 </>
@@ -1075,7 +1117,11 @@ const styles = StyleSheet.create({
   clanTag: { marginTop: 3, fontSize: 12, fontWeight: '700' },
 
   deckGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 11, rowGap: 9, alignItems: 'flex-start' },
-  subSectionTitle: { marginTop: 15, marginBottom: 8, fontSize: 12, fontWeight: '700' },
+  subSectionTitleRow: { position: 'relative', flexDirection: 'row', alignItems: 'center', marginTop: 15, marginBottom: 8 },
+  subSectionTitle: { fontSize: 12, fontWeight: '700' },
+  towerCardTitleWrap: { marginLeft: 6, position: 'relative', alignItems: 'center', justifyContent: 'center' },
+  towerCardNote: { position: 'absolute', left: -6, top: 18, width: 210, paddingHorizontal: 9, paddingVertical: 6, borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.82)', zIndex: 20, elevation: 6 },
+  towerCardNoteText: { fontSize: 8.5, lineHeight: 12 },
   towerInfoRow: { position: 'relative', flexDirection: 'row', alignItems: 'stretch' },
   towerCardSlot: { width: '25%', minWidth: 0, flexGrow: 0, flexShrink: 0, flexBasis: '25%' },
   towerCardItem: { width: '100%', height: 120 },
@@ -1086,8 +1132,6 @@ const styles = StyleSheet.create({
   deckBattleStatText: { flex: 1, marginLeft: 6, minWidth: 0, flexDirection: 'row', alignItems: 'center' },
   deckBattleStatLabel: { fontSize: 9.5, fontWeight: '600' },
   deckBattleStatValue: { marginTop: 0, marginLeft: 3, fontSize: 12, fontWeight: '800' },
-  deckBattleStatsNote: { marginTop: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 4 },
-  deckBattleStatsNoteText: { fontSize: 8, textAlign: 'center' },
   cardItem: { width: '22.2%', height: 120 },
   cardItemInner: { height: 120, borderRadius: 16, padding: 5 },
   compactCardItem: { width: '22.2%', height: 120 },
