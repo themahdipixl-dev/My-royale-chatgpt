@@ -438,8 +438,18 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
 
               <View style={styles.titleBlock}>
                 <Text numberOfLines={1} style={[styles.title, { color: theme.colors.onSurface }]}>{title}</Text>
-                <Pressable onPress={() => tag && Clipboard.setStringAsync(tag)} disabled={!tag}>
-                  <Text numberOfLines={1} style={[styles.tag, { color: theme.colors.primary }]}>{tag || 'Player'}</Text>
+                <Pressable
+                  onPress={() => tag && Clipboard.setStringAsync(String(tag))}
+                  disabled={!tag}
+                  hitSlop={4}
+                >
+                  <Text
+                    selectable
+                    numberOfLines={1}
+                    style={[styles.tag, { color: theme.colors.primary }]}
+                  >
+                    {tag || (isClan ? 'Clan' : 'Player')}
+                  </Text>
                 </Pressable>
               </View>
 
