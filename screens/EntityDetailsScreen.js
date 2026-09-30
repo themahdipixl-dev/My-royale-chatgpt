@@ -616,7 +616,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     ? (formatSeasonalArena(seasonalArena) || null)
     : arenaNumber(data.arena);
   const favouriteCard = data.currentFavouriteCard;
-  const currentDeck = Array.isArray(data.currentDeck) ? data.currentDeck : [];
+  const currentDeck = useMemo(() => (Array.isArray(data.currentDeck) ? data.currentDeck : []), [data.currentDeck]);
   const currentDeckSupport = Array.isArray(data.currentDeckSupportCards) ? data.currentDeckSupportCards : [];
   const deckBattleStats = useMemo(
     () => getCurrentDeckBattleStats(battlelog, currentDeck, tag),
