@@ -235,7 +235,7 @@ function SectionTitle({ icon, title, right, theme }) {
 function StatTile({ index = 0, icon, label, value, theme, image }) {
   return (
     <AnimatedDetailItem index={index} layoutStyle={styles.statTile}>
-      <View style={[styles.statTile, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+      <View style={[styles.statTileInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
       <View style={[styles.statIcon, { backgroundColor: theme.colors.surfaceContainer }]}>
         {image ? (
           <Image source={image} style={styles.statImage} resizeMode="contain" />
@@ -266,7 +266,7 @@ function CardItem({ index = 0, card, theme, compact = false }) {
   const image = card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium;
   return (
     <AnimatedDetailItem index={index} layoutStyle={[styles.cardItem, compact && styles.compactCardItem]}>
-      <View style={[styles.cardItem, compact && styles.compactCardItem, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+      <View style={[styles.cardItemInner, compact && styles.compactCardItemInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
       {image ? (
         <Image source={{ uri: image }} style={compact ? styles.compactCardImage : styles.cardImage} resizeMode="contain" />
       ) : (
@@ -299,7 +299,7 @@ function BadgeItem({ index = 0, badge, theme }) {
 
   return (
     <AnimatedDetailItem index={index} layoutStyle={styles.badgeItem}>
-      <View style={[styles.badgeItem, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+      <View style={[styles.badgeItemInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
       {image ? (
         <Image source={{ uri: image }} style={styles.badgeImage} resizeMode="contain" />
       ) : (
@@ -875,7 +875,8 @@ const styles = StyleSheet.create({
   heroBestValue: { marginTop: 2, fontSize: 18, fontWeight: '800' },
 
   statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 9, marginBottom: 12 },
-  statTile: { width: '31.8%', minHeight: 88, borderRadius: 18, padding: 10, justifyContent: 'space-between' },
+  statTile: { width: '31.8%', minHeight: 88 },
+  statTileInner: { flex: 1, minHeight: 88, borderRadius: 18, padding: 10, justifyContent: 'space-between' },
   statIcon: { width: 32, height: 32, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
   statImage: { width: 21, height: 21 },
   statLabel: { marginTop: 7, fontSize: 10.5 },
@@ -918,8 +919,10 @@ const styles = StyleSheet.create({
 
   deckGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   subSectionTitle: { marginTop: 15, marginBottom: 8, fontSize: 12, fontWeight: '700' },
-  cardItem: { width: '31.8%', minHeight: 150, borderRadius: 16, padding: 7 },
+  cardItem: { width: '31.8%', minHeight: 150 },
+  cardItemInner: { flex: 1, minHeight: 150, borderRadius: 16, padding: 7 },
   compactCardItem: { width: '23.6%', minHeight: 132 },
+  compactCardItemInner: { flex: 1, minHeight: 132, borderRadius: 16, padding: 7 },
   cardImage: { width: '100%', height: 92 },
   compactCardImage: { width: '100%', height: 76 },
   cardImageFallback: { width: '100%', height: 76, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
@@ -939,7 +942,8 @@ const styles = StyleSheet.create({
   viewAllText: { fontSize: 12.5, fontWeight: '800' },
   badgesPageContent: { padding: 14, paddingBottom: 36 },
   badgesPageRow: { gap: 8, marginBottom: 8 },
-  badgeItem: { width: '31.8%', minHeight: 150, borderRadius: 16, padding: 9, alignItems: 'center' },
+  badgeItem: { width: '31.8%', minHeight: 150 },
+  badgeItemInner: { flex: 1, minHeight: 150, borderRadius: 16, padding: 9, alignItems: 'center' },
   badgeImage: { width: 58, height: 58 },
   badgeName: { marginTop: 5, fontSize: 10, fontWeight: '700', textAlign: 'center' },
   badgeLevel: { marginTop: 3, fontSize: 9.5, fontWeight: '800', textAlign: 'center' },
