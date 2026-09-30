@@ -1,8 +1,9 @@
 // * components/ClanRow.js — clan row press handling infrastructure (v65)
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text, View, Pressable } from 'react-native';
+import { Animated, StyleSheet, Text, View, Pressable, Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Surface, useTheme } from 'react-native-paper';
+import { getClanBadgeImage } from '../utils/clanBadges';
 
 export const CLAN_ROW_HEIGHT = 70;
 
@@ -31,6 +32,7 @@ export default function ClanRow({ item, index, animationKey = 0, onPress }) {
 
   const rank = item.rank ?? index + 1;
   const clanName = item.name ?? item.clan?.name ?? 'Unknown clan';
+  const badgeImage = getClanBadgeImage(item.badgeId ?? item.clan?.badgeId);
 
   return (
     <Animated.View style={{ height: CLAN_ROW_HEIGHT, opacity, transform: [{ translateY }, { scale }] }}>
@@ -39,7 +41,7 @@ export default function ClanRow({ item, index, animationKey = 0, onPress }) {
           <Text style={[styles.rankText, { color: rank <= 3 ? '#1A1300' : theme.colors.onSurfaceVariant }]}>{rank}</Text>
         </View>
         <View style={[styles.clanIcon, { backgroundColor: theme.colors.primaryContainer }]}>
-          <MaterialCommunityIcons name="account-group" size={21} color={theme.colors.onPrimaryContainer} />
+          {badgeImage ? <Image source={{ uri: badgeImage }} style={styles.clanBadgeImage} resizeMode="contain" /> : null}
         </View>
         <View style={styles.info}>
           <Text style={[styles.name, { color: theme.colors.onSurface }]} numberOfLines={1}>{clanName}</Text>
@@ -59,6 +61,7 @@ const styles = StyleSheet.create({
   rankBadge: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
   rankText: { fontSize: 13.5, fontWeight: '700' },
   clanIcon: { width: 35, height: 35, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginRight: 9 },
+  clanBadgeImage: { width: 31, height: 31 },
   info: { flex: 1, justifyContent: 'center' },
   name: { fontSize: 14.5, fontWeight: '600' },
   members: { fontSize: 11.3, marginTop: 1 },
