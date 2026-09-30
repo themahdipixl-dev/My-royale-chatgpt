@@ -534,6 +534,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
 
   const animatedItems = useRef(new Map()).current;
   const scrollYRef = useRef(0);
+  const headerScrollY = useRef(new Animated.Value(0)).current;
   const registerAnimatedItem = useCallback((id, checker) => {
     if (checker) animatedItems.set(id, checker);
     else animatedItems.delete(id);
@@ -560,6 +561,35 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     animatedSections.forEach((checker) => checker(contentOffset.y, layoutMeasurement.height));
     animatedItems.forEach((checker) => checker(contentOffset.y, layoutMeasurement.height));
   }, [animatedSections, animatedItems]);
+
+  const detailsScrollHandler = useMemo(
+    () => Animated.event(
+      [{ nativeEvent: { contentOffset: { y: headerScrollY } } }],
+      { useNativeDriver: true, listener: handleDetailsScroll },
+    ),
+    [headerScrollY, handleDetailsScroll],
+  );
+
+  const headerDetailsOpacity = headerScrollY.interpolate({
+    inputRange: [18, 72],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
+  const headerPlayerOpacity = headerScrollY.interpolate({
+    inputRange: [30, 82],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+  const headerPlayerTranslateY = headerScrollY.interpolate({
+    inputRange: [30, 82],
+    outputRange: [7, 0],
+    extrapolate: 'clamp',
+  });
+  const headerPlayerScale = headerScrollY.interpolate({
+    inputRange: [30, 82],
+    outputRange: [0.94, 1],
+    extrapolate: 'clamp',
+  });
 
   useEffect(() => {
     entrance.setValue(0);
@@ -734,7 +764,17 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
       <View style={styles.flex}>
         <View style={styles.header}>
           <IconButton icon="arrow-left" size={24} onPress={onBack} style={styles.back} />
-          <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>{headerTitle}</Text>
+          <View style={styles.headerTitleContainer}>
+            <Animated.Text numberOfLines={1} style={[styles.headerTitle, styles.headerTitleLayer, { color: theme.colors.onSurface, opacity: headerDetailsOpacity }]}>
+              {headerTitle}
+            </Animated.Text>
+            <Animated.Text
+              numberOfLines={1}
+              style={[styles.headerTitle, styles.headerTitleLayer, { color: theme.colors.onSurface, opacity: headerPlayerOpacity, transform: [{ translateY: headerPlayerTranslateY }, { scale: headerPlayerScale }] }]}
+            >
+              {title}
+            </Animated.Text>
+          </View>
         </View>
 
         {loading && !player ? (
@@ -764,7 +804,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
           <DetailAnimationContext.Provider value={detailAnimation}>
             <Animated.ScrollView
               ref={scrollRef}
-              onScroll={handleDetailsScroll}
+              onScroll={detailsScrollHandler}
               scrollEventThrottle={16}
               contentContainerStyle={styles.content}
               showsVerticalScrollIndicator={false}
@@ -918,7 +958,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                           ['water', 'Avg Elixir:', getDeckAverages(currentDeck).avgElixir],
                           ['sword-cross', 'Games:', formatNumber(deckBattleStats.games)],
                           ['star-four-points', 'Avg Level:', getDeckAverages(currentDeck).avgLevel],
-                          ['trophy', 'Wins:', formatNumber(deckBattleStats.wins)],
+                          ['check-circle', 'Wins:', formatNumber(deckBattleStats.wins)],
                           ['crown', 'Crowns:', formatNumber(deckBattleStats.crowns)],
                           ['close-circle-outline', 'Losses:', formatNumber(deckBattleStats.losses)],
                           ['chart-line', 'Avg Crown:', deckBattleStats.avgCrowns],
@@ -952,7 +992,6 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                     <InfoRow icon="cards-heart" label="Name" value={favouriteCard.name || '—'} theme={theme} />
                     <InfoRow icon="diamond-stone" label="Rarity" value={favouriteCard.rarity || '—'} theme={theme} />
                     <InfoRow icon="lightning-bolt" label="Elixir" value={formatNumber(favouriteCard.elixirCost)} theme={theme} />
-                    <InfoRow icon="star" label="Star level" value={formatNumber(favouriteCard.starLevel)} theme={theme} />
                   </View>
                 </View>
               ) : (
@@ -1029,7 +1068,9 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   header: { height: 58, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8 },
   back: { margin: 0 },
-  headerTitle: { flex: 1, fontSize: 18, fontWeight: '700', marginLeft: 4 },
+  headerTitleContainer: { flex: 1, height: 42, justifyContent: 'center', overflow: 'hidden', marginLeft: 4 },
+  headerTitleLayer: { left: 0, right: 0 },
+  headerTitle: { fontSize: 18, fontWeight: '700' },
   content: { padding: 14, paddingBottom: 40 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 28 },
   loadingText: { marginTop: 10, fontSize: 13 },
@@ -1098,66 +1139,3 @@ const styles = StyleSheet.create({
   seasonTextFirst: { textAlign: 'left' },
 
   clanHero: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  clanBadge: { width: 54, height: 54, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  clanBadgeImage: { width: 45, height: 45 },
-  clanIdentity: { flex: 1, marginLeft: 11 },
-  clanName: { fontSize: 16, fontWeight: '800' },
-  clanTag: { marginTop: 3, fontSize: 12, fontWeight: '700' },
-
-  deckGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 11, rowGap: 9, alignItems: 'flex-start' },
-  subSectionTitleRow: { position: 'relative', flexDirection: 'row', alignItems: 'center', marginTop: 15, marginBottom: 8 },
-  subSectionTitle: { fontSize: 12, fontWeight: '700' },
-  towerCardNoteInline: { marginTop: -4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', alignSelf: 'center', gap: 4 },
-  towerCardNoteText: { fontSize: 8.5, lineHeight: 12, textAlign: 'center' },
-  towerInfoRow: { position: 'relative', flexDirection: 'row', alignItems: 'stretch' },
-  towerCardSlot: { width: '25%', minWidth: 0, flexGrow: 0, flexShrink: 0, flexBasis: '25%' },
-  towerCardItem: { width: '100%', height: 120 },
-  towerDivider: { position: 'absolute', left: '30%', top: -21, bottom: 21, width: 1 },
-  deckStatsColumn: { flex: 1, minWidth: 0, flexGrow: 1, flexShrink: 1, flexBasis: 0, marginLeft: 21, transform: [{ translateX: 12 }, { translateY: -18 }] },
-  deckBattleStatsGrid: { marginTop: -8, flexDirection: 'row', flexWrap: 'wrap', rowGap: 8, columnGap: 8 },
-  deckBattleStatItem: { width: '47%', flexDirection: 'row', alignItems: 'center', minHeight: 24 },
-  deckBattleStatText: { flex: 1, marginLeft: 6, minWidth: 0, flexDirection: 'row', alignItems: 'center' },
-  deckBattleStatLabel: { fontSize: 9.5, fontWeight: '600' },
-  deckBattleStatValue: { marginTop: 0, marginLeft: 3, fontSize: 12, fontWeight: '800' },
-  cardItem: { width: '22.2%', height: 120 },
-  cardItemInner: { height: 120, borderRadius: 16, padding: 5 },
-  compactCardItem: { width: '22.2%', height: 120 },
-  compactCardItemInner: { height: 120, borderRadius: 16, padding: 5 },
-  cardImage: { width: '100%', height: 82 },
-  compactCardImage: { width: '100%', height: 84 },
-  cardImageFallback: { width: '100%', height: 76, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  cardVisual: { position: 'relative' },
-  cardOverlayMeta: { marginTop: 4, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 3 },
-  cardMetaPill: { width: 27, height: 15, borderRadius: 7.5, paddingHorizontal: 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 1 },
-  cardLevel: { fontSize: 8, fontWeight: '800' },
-  cardElixir: { fontSize: 8, fontWeight: '800' },
-
-  favoriteRow: { flexDirection: 'row', alignItems: 'flex-start' },
-  favoriteDetails: { flex: 1, marginLeft: 8 },
-  collectionSummary: { flexDirection: 'row', gap: 9, marginBottom: 10 },
-  allCardsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  viewAllButton: { marginTop: 12, minHeight: 44, borderRadius: 15, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
-  viewAllText: { fontSize: 12.5, fontWeight: '800' },
-  badgesPageContent: { padding: 14, paddingBottom: 36 },
-  badgesPageRow: { gap: 8, marginBottom: 8 },
-  badgeItem: { width: '31.8%', minHeight: 150 },
-  badgeItemInner: { flex: 1, minHeight: 150, borderRadius: 16, padding: 9, alignItems: 'center' },
-  badgeImage: { width: 58, height: 58 },
-  badgeName: { marginTop: 5, fontSize: 10, fontWeight: '700', textAlign: 'center' },
-  badgeLevel: { marginTop: 3, fontSize: 9.5, fontWeight: '800', textAlign: 'center' },
-  badgeTrack: { width: '100%', height: 5, borderRadius: 3, overflow: 'hidden', marginTop: 7 },
-  badgeFill: { height: '100%', borderRadius: 3 },
-  badgeProgress: { marginTop: 3, fontSize: 8.5 },
-
-  battleLoading: { paddingVertical: 20, alignItems: 'center' },
-  battleRow: { minHeight: 58, borderRadius: 16, padding: 9, marginBottom: 7, flexDirection: 'row', alignItems: 'center' },
-  resultIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  battleMain: { flex: 1, marginLeft: 9 },
-  battleMode: { fontSize: 12.5, fontWeight: '700' },
-  battleDate: { marginTop: 3, fontSize: 10 },
-  battleScore: { marginLeft: 8, fontSize: 13, fontWeight: '900' },
-
-  emptyText: { fontSize: 12, lineHeight: 18 },
-  bottomSpace: { height: 50 },
-});
