@@ -713,19 +713,19 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                   <Text style={[styles.seasonHeaderText, styles.seasonHeaderLast, { color: theme.colors.onSurfaceVariant }]}>Rank</Text>
                 </View>
                 <View style={styles.seasonRow}>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Current</Text>
+                  <Text style={[styles.seasonText, styles.seasonTextFirst, { color: theme.colors.onSurface }]}>Current</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatLeagueNumber(currentPol?.leagueNumber)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(currentPol?.trophies)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{currentPol?.rank ? `#${formatNumber(currentPol.rank)}` : '—'}</Text>
                 </View>
                 <View style={styles.seasonRow}>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Last</Text>
+                  <Text style={[styles.seasonText, styles.seasonTextFirst, { color: theme.colors.onSurface }]}>Last</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatLeagueNumber(lastPol?.leagueNumber)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(lastPol?.trophies)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{lastPol?.rank ? `#${formatNumber(lastPol.rank)}` : '—'}</Text>
                 </View>
                 <View style={styles.seasonRow}>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>Best</Text>
+                  <Text style={[styles.seasonText, styles.seasonTextFirst, { color: theme.colors.onSurface }]}>Best</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatLeagueNumber(bestPol?.leagueNumber)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(bestPol?.trophies)}</Text>
                   <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{bestPol?.rank ? `#${formatNumber(bestPol.rank)}` : '—'}</Text>
@@ -918,8 +918,9 @@ const styles = StyleSheet.create({
   seasonRow: { flexDirection: 'row', paddingVertical: 11, paddingHorizontal: 10 },
   seasonHeaderText: { flex: 1, fontSize: 10.5, fontWeight: '700', textAlign: 'center' },
   seasonHeaderFirst: { textAlign: 'left' },
-  seasonHeaderLast: { textAlign: 'right' },
+  seasonHeaderLast: { textAlign: 'center' },
   seasonText: { flex: 1, fontSize: 12.5, fontWeight: '600', textAlign: 'center' },
+  seasonTextFirst: { textAlign: 'left' },
 
   clanHero: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   clanBadge: { width: 54, height: 54, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
