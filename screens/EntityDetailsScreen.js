@@ -318,6 +318,70 @@ function getDeckAverages(deck) {
   return { avgElixir, avgLevel };
 }
 
+
+function getCardIdentity(card) {
+  if (card?.id !== undefined && card?.id !== null) return `id:${card.id}`;
+  if (card?.name) return `name:${String(card.name).toLowerCase()}`;
+  return null;
+}
+
+function getCurrentDeckBattleStats(battlelog, currentDeck, playerTag) {
+  const deck = Array.isArray(currentDeck) ? currentDeck : [];
+  const deckIds = new Set(deck.map(getCardIdentity).filter(Boolean));
+  const battles = Array.isArray(battlelog) ? battlelog.slice(0, 30) : [];
+
+  let games = 0;
+  let wins = 0;
+  let losses = 0;
+  let draws = 0;
+  let crowns = 0;
+  let threeCrownWins = 0;
+
+  battles.forEach((battle) => {
+    const team = Array.isArray(battle?.team) ? battle.team : [];
+    const opponent = Array.isArray(battle?.opponent) ? battle.opponent : [];
+    const player = team.find((entry) => String(entry?.tag || '').toUpperCase() === String(playerTag || '').toUpperCase()) || team[0];
+
+    if (!player || !Array.isArray(player.cards)) return;
+
+    const usedCards = new Set(player.cards.map(getCardIdentity).filter(Boolean));
+    let matchingCards = 0;
+    deckIds.forEach((id) => {
+      if (usedCards.has(id)) matchingCards += 1;
+    });
+
+    if (matchingCards < 6) return;
+
+    const teamCrowns = number(player?.crowns);
+    const opponentCrowns = opponent.reduce((sum, entry) => sum + number(entry?.crowns), 0);
+
+    games += 1;
+    crowns += teamCrowns;
+
+    if (teamCrowns > opponentCrowns) {
+      wins += 1;
+      if (teamCrowns >= 3) threeCrownWins += 1;
+    } else if (teamCrowns < opponentCrowns) {
+      losses += 1;
+    } else {
+      draws += 1;
+    }
+  });
+
+  return {
+    games,
+    wins,
+    losses,
+    draws,
+    winRate: games > 0 ? (wins / games) * 100 : 0,
+    crowns,
+    threeCrownWins,
+    threeCrownRate: wins > 0 ? (threeCrownWins / wins) * 100 : 0,
+    avgCrowns: games > 0 ? (crowns / games).toFixed(1) : '0.0',
+    checkedBattles: Math.min(30, battles.length),
+  };
+}
+
 function CardItem({ index = 0, card, theme, compact = false, deck }) {
   const image = deck ? resolveCurrentDeckImage(card, index, deck) : (
     card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium
@@ -554,6 +618,10 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const favouriteCard = data.currentFavouriteCard;
   const currentDeck = Array.isArray(data.currentDeck) ? data.currentDeck : [];
   const currentDeckSupport = Array.isArray(data.currentDeckSupportCards) ? data.currentDeckSupportCards : [];
+  const deckBattleStats = useMemo(
+    () => getCurrentDeckBattleStats(battlelog, currentDeck, tag),
+    [battlelog, currentDeck, tag],
+  );
   const badges = Array.isArray(data.badges) ? data.badges : [];
 
   const allCards = useMemo(() => {
@@ -824,6 +892,33 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                       </View>
                     </View>
                   </View>
+                  <View style={styles.deckBattleStatsGrid}>
+                    {[
+                      ['sword-cross', 'Games', formatNumber(deckBattleStats.games)],
+                      ['trophy', 'Wins', formatNumber(deckBattleStats.wins)],
+                      ['close-circle-outline', 'Losses', formatNumber(deckBattleStats.losses)],
+                      ['minus-circle-outline', 'Draws', formatNumber(deckBattleStats.draws)],
+                      ['percent', 'Win Rate', `${deckBattleStats.winRate.toFixed(1)}%`],
+                      ['crown', 'Crowns', formatNumber(deckBattleStats.crowns)],
+                      ['crown-outline', '3-Crown Wins', formatNumber(deckBattleStats.threeCrownWins)],
+                      ['percent', '3-Crown Rate', `${deckBattleStats.threeCrownRate.toFixed(1)}%`],
+                      ['chart-line', 'Avg Crown', deckBattleStats.avgCrowns],
+                    ].map(([icon, label, value]) => (
+                      <View key={label} style={styles.deckBattleStatItem}>
+                        <MaterialCommunityIcons name={icon} size={13} color={theme.colors.primary} />
+                        <View style={styles.deckBattleStatText}>
+                          <Text style={[styles.deckBattleStatLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
+                          <Text style={[styles.deckBattleStatValue, { color: theme.colors.onSurface }]}>{value}</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                  <View style={styles.deckBattleStatsNote}>
+                    <MaterialCommunityIcons name="information-outline" size={11} color={theme.colors.onSurfaceVariant} />
+                    <Text style={[styles.deckBattleStatsNoteText, { color: theme.colors.onSurfaceVariant }]}>
+                      Stats are based on the player's last 30 battles.
+                    </Text>
+                  </View>
                 </>
               ) : null}
             </Surface></AnimatedSection>
@@ -994,6 +1089,13 @@ const styles = StyleSheet.create({
   towerCardSlot: { flex: 1, minWidth: 0 },
   towerDivider: { width: 1, height: 56, marginHorizontal: 10 },
   deckStatsColumn: { flex: 1, minWidth: 0, gap: 12 },
+  deckBattleStatsGrid: { marginTop: 14, flexDirection: 'row', flexWrap: 'wrap', rowGap: 10, columnGap: 8 },
+  deckBattleStatItem: { width: '47%', flexDirection: 'row', alignItems: 'center', minHeight: 30 },
+  deckBattleStatText: { flex: 1, marginLeft: 6, minWidth: 0 },
+  deckBattleStatLabel: { fontSize: 9.5, fontWeight: '600' },
+  deckBattleStatValue: { marginTop: 1, fontSize: 12, fontWeight: '800' },
+  deckBattleStatsNote: { marginTop: 9, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 },
+  deckBattleStatsNoteText: { fontSize: 8, textAlign: 'center' },
   deckStatRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   deckStatLabel: { fontSize: 10.5, fontWeight: '600' },
   deckStatValue: { fontSize: 12.5, fontWeight: '800', marginLeft: 1 },
