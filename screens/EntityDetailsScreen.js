@@ -382,12 +382,12 @@ function getCurrentDeckBattleStats(battlelog, currentDeck, playerTag) {
   };
 }
 
-function CardItem({ index = 0, card, theme, compact = false, deck }) {
+function CardItem({ index = 0, card, theme, compact = false, deck, tower = false }) {
   const image = deck ? resolveCurrentDeckImage(card, index, deck) : (
     card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium
   );
   return (
-    <AnimatedDetailItem index={index} layoutStyle={[styles.cardItem, compact && styles.compactCardItem]}>
+    <AnimatedDetailItem index={index} layoutStyle={[styles.cardItem, compact && styles.compactCardItem, tower && styles.towerCardItem]}>
       <View style={[styles.cardItemInner, compact && styles.compactCardItemInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
         <View style={styles.cardVisual}>
           {image ? (
@@ -876,7 +876,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                   <Text style={[styles.subSectionTitle, { color: theme.colors.onSurfaceVariant }]}>Tower Card</Text>
                   <View style={styles.towerInfoRow}>
                     <View style={styles.towerCardSlot}>
-                      {currentDeckSupport.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact />)}
+                      {currentDeckSupport.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact tower />)}
                     </View>
                     <View style={[styles.towerDivider, { backgroundColor: theme.colors.outlineVariant }]} />
                     <View style={styles.deckStatsColumn}>
@@ -1078,6 +1078,7 @@ const styles = StyleSheet.create({
   subSectionTitle: { marginTop: 15, marginBottom: 8, fontSize: 12, fontWeight: '700' },
   towerInfoRow: { position: 'relative', flexDirection: 'row', alignItems: 'stretch' },
   towerCardSlot: { width: '25%', minWidth: 0, flexGrow: 0, flexShrink: 0, flexBasis: '25%' },
+  towerCardItem: { width: '100%', height: 120 },
   towerDivider: { width: 1, marginHorizontal: 10, flexGrow: 0, flexShrink: 0 },
   deckStatsColumn: { flex: 1, minWidth: 0, flexGrow: 1, flexShrink: 1, flexBasis: 0 },
   deckBattleStatsGrid: { marginTop: -8, flexDirection: 'row', flexWrap: 'wrap', rowGap: 8, columnGap: 8 },
