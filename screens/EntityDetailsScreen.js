@@ -308,6 +308,16 @@ function resolveCurrentDeckImage(card, index, deck) {
   return normal;
 }
 
+
+function getDeckAverages(deck) {
+  const cards = Array.isArray(deck) ? deck : [];
+  const elixirs = cards.map((card) => Number(card?.elixirCost)).filter(Number.isFinite);
+  const levels = cards.map((card) => Number(card?.level)).filter(Number.isFinite);
+  const avgElixir = elixirs.length ? (elixirs.reduce((sum, value) => sum + value, 0) / elixirs.length).toFixed(1) : '—';
+  const avgLevel = levels.length ? Math.round(levels.reduce((sum, value) => sum + value, 0) / levels.length) : '—';
+  return { avgElixir, avgLevel };
+}
+
 function CardItem({ index = 0, card, theme, compact = false, deck }) {
   const image = deck ? resolveCurrentDeckImage(card, index, deck) : (
     card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium
@@ -795,9 +805,24 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               </View>
               {currentDeckSupport.length > 0 ? (
                 <>
-                  <Text style={[styles.subSectionTitle, { color: theme.colors.onSurfaceVariant }]}>Tower / support cards</Text>
-                  <View style={styles.deckGrid}>
-                    {currentDeckSupport.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact />)}
+                  <Text style={[styles.subSectionTitle, { color: theme.colors.onSurfaceVariant }]}>Tower Card</Text>
+                  <View style={styles.towerInfoRow}>
+                    <View style={styles.towerCardSlot}>
+                      {currentDeckSupport.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact />)}
+                    </View>
+                    <View style={[styles.towerDivider, { backgroundColor: theme.colors.outlineVariant }]} />
+                    <View style={styles.deckStatsColumn}>
+                      <View style={styles.deckStatRow}>
+                        <MaterialCommunityIcons name="water" size={16} color={theme.colors.primary} />
+                        <Text style={[styles.deckStatLabel, { color: theme.colors.onSurfaceVariant }]}>Avg Elixir:</Text>
+                        <Text style={[styles.deckStatValue, { color: theme.colors.onSurface }]}>{getDeckAverages(currentDeck).avgElixir}</Text>
+                      </View>
+                      <View style={styles.deckStatRow}>
+                        <MaterialCommunityIcons name="star-four-points" size={16} color={theme.colors.primary} />
+                        <Text style={[styles.deckStatLabel, { color: theme.colors.onSurfaceVariant }]}>Avg Level:</Text>
+                        <Text style={[styles.deckStatValue, { color: theme.colors.onSurface }]}>{getDeckAverages(currentDeck).avgLevel}</Text>
+                      </View>
+                    </View>
                   </View>
                 </>
               ) : null}
@@ -965,6 +990,13 @@ const styles = StyleSheet.create({
 
   deckGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 11, rowGap: 9, alignItems: 'flex-start' },
   subSectionTitle: { marginTop: 15, marginBottom: 8, fontSize: 12, fontWeight: '700' },
+  towerInfoRow: { flexDirection: 'row', alignItems: 'center' },
+  towerCardSlot: { flex: 1, minWidth: 0 },
+  towerDivider: { width: 1, height: 56, marginHorizontal: 10 },
+  deckStatsColumn: { flex: 1, minWidth: 0, gap: 12 },
+  deckStatRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  deckStatLabel: { fontSize: 10.5, fontWeight: '600' },
+  deckStatValue: { fontSize: 12.5, fontWeight: '800', marginLeft: 1 },
   cardItem: { width: '22.2%', height: 120 },
   cardItemInner: { height: 120, borderRadius: 16, padding: 5 },
   compactCardItem: { width: '22.2%', height: 120 },
