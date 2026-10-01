@@ -360,6 +360,29 @@ function getDisplayCardLevel(card) {
   return level + (CARD_LEVEL_OFFSETS[rarity] ?? 0);
 }
 
+function normalizeCardName(name) {
+  return String(name ?? '').trim().toLowerCase().replace(/\\s+/g, ' ');
+}
+
+function resolveFavouriteCardLevel(favouriteCard, playerCards) {
+  if (!favouriteCard || !Array.isArray(playerCards)) return favouriteCard;
+
+  const favouriteName = normalizeCardName(favouriteCard.name);
+  if (!favouriteName) return favouriteCard;
+
+  const playerCard = playerCards.find(
+    (card) => normalizeCardName(card?.name) === favouriteName,
+  );
+
+  if (!playerCard) return favouriteCard;
+
+  return {
+    ...favouriteCard,
+    level: playerCard.level,
+    rarity: favouriteCard.rarity || playerCard.rarity,
+  };
+}
+
 function openCurrentDeckInClashRoyale(deck) {
   const cards = Array.isArray(deck) ? deck : [];
   const cardIds = cards
@@ -755,6 +778,15 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     : arenaNumber(data.arena);
   const favouriteCard = data.currentFavouriteCard;
   const currentDeckSupport = Array.isArray(data.currentDeckSupportCards) ? data.currentDeckSupportCards : [];
+  const allPlayerCards = useMemo(() => {
+    const cards = Array.isArray(data.cards) ? data.cards : [];
+    const supportCards = Array.isArray(data.supportCards) ? data.supportCards : [];
+    return [...cards, ...supportCards];
+  }, [data.cards, data.supportCards]);
+  const favouriteCardResolved = useMemo(
+    () => resolveFavouriteCardLevel(favouriteCard, allPlayerCards),
+    [favouriteCard, allPlayerCards],
+  );
   const deckBattleStats = useMemo(
     () => getCurrentDeckBattleStats(battlelog, currentDeck, tag),
     [battlelog, currentDeck, tag],
@@ -1168,7 +1200,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
               <SectionTitle icon="cards-outline" title="Favourite card" theme={theme} />
               {favouriteCard ? (
                 <View style={styles.favoriteRow}>
-                  <CardItem card={favouriteCard} theme={theme} compact />
+                  <CardItem card={favouriteCardResolved} theme={theme} compact />
                   <View style={styles.favoriteDetails}>
                     <InfoRow icon="cards-heart" label="Name" value={favouriteCard.name || '—'} theme={theme} />
                     <InfoRow icon="diamond-stone" label="Rarity" value={favouriteCard.rarity || '—'} theme={theme} />
