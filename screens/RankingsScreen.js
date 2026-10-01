@@ -1,7 +1,7 @@
 // * screens/RankingsScreen.js — swipe navigation and clan/player detail routing (v78)
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { View, FlatList, StyleSheet, Keyboard, RefreshControl, Animated, BackHandler, PanResponder } from 'react-native';
-import { Text, IconButton, Surface, useTheme } from 'react-native-paper';
+import { Text, IconButton, Surface, Button, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchCountries, fetchPathOfLegendRankings, fetchClanWarRankings, fetchMergeTacticsRankings } from '../api/client';
@@ -109,7 +109,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
     return () => subscription.remove();
   }, [detailEntity, previewEntity, searchOpen, onRequestHome]);
 
-  const loadData = useCallback((locationId, type = topTab, clanMode = clanRankingMode) => {
+  const loadData = useCallback((locationId, type = topTab, clanMode = clanRankingMode, attempt = 1) => {
     if (!locationId || detailEntityRef.current) return;
 
     if (retryTimerRef.current) {
@@ -118,12 +118,14 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
     }
 
     setLoading(true);
-    setError(null);
-    setSelectedLimit(null);
-    setSearchQuery('');
-    lastOffset.current = 0;
-    setShowJumpButton(false);
-    setJumpToTop(false);
+    if (attempt === 1) {
+      setError(null);
+      setSelectedLimit(null);
+      setSearchQuery('');
+      lastOffset.current = 0;
+      setShowJumpButton(false);
+      setJumpToTop(false);
+    }
 
     const request = type === 'clans'
       ? (clanMode === 'path' ? fetchPathOfLegendRankings(locationId) : fetchClanWarRankings(locationId, 500))
@@ -141,18 +143,23 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
           clearTimeout(retryTimerRef.current);
           retryTimerRef.current = null;
         }
+        setError(null);
         setLoading(false);
       })
       .catch(() => {
-        // Keep the loading state active until a request succeeds.
-        // Retry only while Rankings is still the visible section.
-        if (!detailEntityRef.current) {
+        if (detailEntityRef.current) return;
+
+        if (attempt < 3) {
           retryTimerRef.current = setTimeout(() => {
             retryTimerRef.current = null;
-            loadData(locationId, type, clanMode);
-          }, 2000);
+            loadData(locationId, type, clanMode, attempt + 1);
+          }, 3000);
+          return;
         }
-      })
+
+        setLoading(false);
+        setError('Please check your internet connection and try again.');
+      });
   }, [topTab, clanRankingMode]);
 
   useEffect(() => {
@@ -329,7 +336,21 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
         searchQuery={searchQuery} onSearchQueryChange={setSearchQuery} searchBy={searchBy} isClanTab={topTab === 'clans'}
         onSearchByChange={(mode) => { setSearchBy(mode); setSearchQuery(''); }} isMergeTab={topTab === 'merge'} />
 
-      {!error && (
+      {error ? (
+        <View style={styles.errorContainer}>
+          <MaterialCommunityIcons name="wifi-alert" size={42} color={theme.colors.onSurfaceVariant} />
+          <Text style={[styles.errorText, { color: theme.colors.onSurfaceVariant }]}>{error}</Text>
+          <Button
+            mode="contained"
+            onPress={() => loadData(selectedLocation?.id, topTab, clanRankingMode)}
+            style={styles.retry}
+            buttonColor={theme.colors.primary}
+            textColor={theme.colors.onPrimary}
+          >
+            Retry
+          </Button>
+        </View>
+      ) : (
         <View
           {...horizontalSwipeResponder.panHandlers}
           style={styles.listWrap}
@@ -398,7 +419,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
 
       <EntityPreviewModal visible={!!previewEntity} entity={previewEntity} type={previewType} countryName={selectedLocation?.id === 'global' ? null : selectedLocation?.name} onClose={() => setPreviewEntity(null)} onExpand={expandPreview} onClanPress={openClanDetails} />
 
-      {error && null}
+
     </SafeAreaView>
   );
 }
@@ -410,9 +431,9 @@ const styles = StyleSheet.create({
   tabPage: { flex: 1 },
   list: { marginTop: 0, paddingTop: 0 },
   listContent: { paddingTop: 0, paddingBottom: 108, marginTop: 0 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  errorText: { textAlign: 'center' },
-  retry: { marginTop: 12 },
+  errorContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 28 },
+  errorText: { textAlign: 'center', marginTop: 10, fontSize: 13 },
+  retry: { marginTop: 14, borderRadius: 20 },
   empty: { alignItems: 'center', justifyContent: 'center', paddingTop: 28, paddingHorizontal: 24 },
   emptyText: { marginTop: 8, fontSize: 13 },
   jumpAnimated: { position: 'absolute', right: 18, bottom: 82 },
