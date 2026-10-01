@@ -959,7 +959,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     return evolutionLevel === 2 || evolutionLevel === 3;
   }).length;
 
-  const rarityOrder = {
+  const CARD_RARITY_ORDER = {
     common: 1,
     rare: 2,
     epic: 3,
@@ -982,8 +982,8 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
       } else if (cardSortBy === 'level') {
         comparison = getDisplayCardLevel(a) - getDisplayCardLevel(b);
       } else if (cardSortBy === 'rarity') {
-        comparison = (rarityOrder[String(a?.rarity ?? '').toLowerCase()] ?? 99)
-          - (rarityOrder[String(b?.rarity ?? '').toLowerCase()] ?? 99);
+        comparison = (CARD_RARITY_ORDER[String(a?.rarity ?? '').toLowerCase()] ?? 99)
+          - (CARD_RARITY_ORDER[String(b?.rarity ?? '').toLowerCase()] ?? 99);
       } else if (cardSortBy === 'elixir') {
         comparison = number(a?.elixirCost) - number(b?.elixirCost);
       }
