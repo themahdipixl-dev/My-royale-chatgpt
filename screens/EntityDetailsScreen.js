@@ -946,7 +946,6 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const allCards = [...cardCollections.cards, ...cardCollections.supportCards];
   const supportCards = cardCollections.supportCards;
   const playerCards = Array.isArray(data.cards) ? data.cards : [];
-  const cardCount = allCards.length;
   const maxLevelCards = allCards.filter((card) => number(card?.level) >= number(card?.maxLevel) && card?.maxLevel).length;
 
   // Player API ownership bit field:
@@ -1417,7 +1416,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
 
             <AnimatedSection index={8} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <View style={styles.cardCollectionHeader}>
-                <SectionTitle icon="archive" title="Card collection" theme={theme} />
+                <SectionTitle icon="archive" title="Card collection" theme={theme} noBottomMargin />
                 <CardSortControls
                   sortBy={cardSortBy}
                   setSortBy={setCardSortBy}
