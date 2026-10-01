@@ -622,8 +622,9 @@ function CardItem({ index = 0, card, theme, compact = false, deck, tower = false
   const image = deck ? resolveCurrentDeckImage(card, index, deck) : (
     card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium
   );
-  return (
-    <AnimatedDetailItem index={index} layoutStyle={[styles.cardItem, compact && styles.compactCardItem, tower && styles.towerCardItem, grid && index % 4 !== 3 && styles.cardGridGap]}>
+  const cardLayoutStyle = [styles.cardItem, compact && styles.compactCardItem, tower && styles.towerCardItem, grid && index % 4 !== 3 && styles.cardGridGap];
+
+  const cardContent = (
       <View style={[styles.cardItemInner, compact && styles.compactCardItemInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
         <View style={styles.cardVisual}>
           {image ? (
@@ -647,7 +648,14 @@ function CardItem({ index = 0, card, theme, compact = false, deck, tower = false
           </View>
         </View>
       </View>
-    </AnimatedDetailItem>
+  );
+
+  // Reordering the card grid must not re-trigger measureInWindow animations.
+  // AnimatedDetailItem can be sensitive to large child reorders on native.
+  return grid ? (
+    <View style={cardLayoutStyle}>{cardContent}</View>
+  ) : (
+    <AnimatedDetailItem index={index} layoutStyle={cardLayoutStyle}>{cardContent}</AnimatedDetailItem>
   );
 }
 
