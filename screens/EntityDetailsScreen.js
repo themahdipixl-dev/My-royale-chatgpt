@@ -897,7 +897,7 @@ function BadgeVisual({ item, theme, size = 58 }) {
   );
 }
 
-function BadgeItem({ index = 0, badge, theme }) {
+function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false }) {
   const progress = number(badge?.progress);
   const target = number(badge?.target);
   const ratio = target > 0 ? Math.min(1, progress / target) : 0;
@@ -927,7 +927,10 @@ function BadgeItem({ index = 0, badge, theme }) {
   );
 
   return (
-    <AnimatedDetailItem index={index} layoutStyle={styles.badgeItem}>
+    <AnimatedDetailItem
+      index={index}
+      layoutStyle={playerDetailsGrid ? styles.badgeItemPlayerDetails : styles.badgeItem}
+    >
       {content}
     </AnimatedDetailItem>
   );
@@ -1981,7 +1984,12 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                 <>
                   <View style={styles.badgesGrid}>
                     {badges.slice(0, 6).map((badge, index) => (
-                      <BadgeItem key={badge?.name || badge?.id || index} badge={badge} theme={theme} />
+                      <BadgeItem
+                        key={badge?.name || badge?.id || index}
+                        badge={badge}
+                        theme={theme}
+                        playerDetailsGrid
+                      />
                     ))}
                   </View>
                   {badges.length > 6 ? (
@@ -2251,12 +2259,13 @@ const styles = StyleSheet.create({
   cardsCollapseFade: { position: 'absolute', left: 0, right: 0, top: 72, height: 97, overflow: 'hidden' },
   cardsFadeGradient: { flex: 1, width: '100%' },
   cardsExpandButton: { alignSelf: 'center', width: 34, height: 30, marginTop: 14, alignItems: 'center', justifyContent: 'center' },
-  badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 8 },
   viewAllButton: { marginTop: 12, minHeight: 44, borderRadius: 15, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
   viewAllText: { fontSize: 12.5, fontWeight: '800' },
   badgesPageContent: { padding: 14, paddingBottom: 36 },
   badgesPageRow: { gap: 8, marginBottom: 8 },
   badgeItem: { width: '31.8%', minHeight: 150 },
+  badgeItemPlayerDetails: { width: '31.5%', minHeight: 150 },
   badgeItemInner: { flex: 1, minHeight: 150, borderRadius: 16, padding: 9, alignItems: 'center' },
   badgeImage: { width: 58, height: 58 },
   missingBadgeIcon: { alignItems: 'center', justifyContent: 'center' },
