@@ -821,20 +821,23 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const cardCount = allCards.length;
   const maxLevelCards = allCards.filter((card) => number(card?.level) >= number(card?.maxLevel) && card?.maxLevel).length;
 
-  // evolutionLevel is a bit field:
-  // 1 = Evolution unlocked, 2 = Hero unlocked, 3 = both.
-  // maxEvolutionLevel uses the same bits to describe which forms exist for the card.
-  const evolutionCardsTotal = allCards.filter(
-    (card) => (number(card?.maxEvolutionLevel) & 1) !== 0,
-  ).length;
-  const heroCardsTotal = allCards.filter(
-    (card) => (number(card?.maxEvolutionLevel) & 2) !== 0,
-  ).length;
+  // The player's iconUrls tell us which special forms they actually own:
+  // heroMedium = Hero owned, evolutionMedium = Evolution owned.
+  // A card can have either one or both independently.
   const evolutionCards = allCards.filter(
-    (card) => (number(card?.evolutionLevel) & 1) !== 0,
+    (card) => Boolean(card?.iconUrls?.evolutionMedium),
   ).length;
   const heroCards = allCards.filter(
-    (card) => (number(card?.evolutionLevel) & 2) !== 0,
+    (card) => Boolean(card?.iconUrls?.heroMedium),
+  ).length;
+
+  // Keep the totals based on the player's card collection so the displayed
+  // denominator follows the same API card data without hardcoded counts.
+  const evolutionCardsTotal = allCards.filter(
+    (card) => Boolean(card?.iconUrls?.evolutionMedium),
+  ).length;
+  const heroCardsTotal = allCards.filter(
+    (card) => Boolean(card?.iconUrls?.heroMedium),
   ).length;
 
   const title = isClan
