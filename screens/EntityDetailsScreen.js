@@ -711,7 +711,17 @@ function CardItem({ index = 0, card, theme, compact = false, deck, tower = false
     </View>
   );
 
-  const decoratedCardContent = cardBody;
+  const decoratedCardContent = rarity === 'legendary' ? (
+    <View style={styles.legendaryStrokeFrame}>
+      <View style={[styles.legendaryStrokeGradientTop, { backgroundColor: '#66BB6A' }]} pointerEvents="none" />
+      <View style={[styles.legendaryStrokeGradientBottom, { backgroundColor: '#EC407A' }]} pointerEvents="none" />
+      <View style={[styles.legendaryStrokeGradientLeft, { backgroundColor: '#66BB6A' }]} pointerEvents="none" />
+      <View style={[styles.legendaryStrokeGradientRight, { backgroundColor: '#EC407A' }]} pointerEvents="none" />
+      <View style={styles.legendaryStrokeInner}>
+        {cardBody}
+      </View>
+    </View>
+  ) : cardBody;
 
   return grid ? (
     <View style={cardLayoutStyle}>{decoratedCardContent}</View>
@@ -1700,6 +1710,47 @@ const styles = StyleSheet.create({
   deckBattleStatLabel: { fontSize: 9.5, fontWeight: '600' },
   deckBattleStatValue: { marginTop: 0, marginLeft: 3, fontSize: 12, fontWeight: '800' },
   cardItem: { width: '23.5%', height: 120 },
+  legendaryStrokeFrame: {
+    position: 'relative',
+    width: '100%',
+    height: 120,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  legendaryStrokeGradientTop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: 2,
+  },
+  legendaryStrokeGradientBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    height: 2,
+  },
+  legendaryStrokeGradientLeft: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 2,
+    height: '100%',
+  },
+  legendaryStrokeGradientRight: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 2,
+    height: '100%',
+  },
+  legendaryStrokeInner: {
+    height: 116,
+    margin: 2,
+    borderRadius: 14,
+    overflow: 'visible',
+  },
   cardItemInner: { height: 120, borderRadius: 16, padding: 5, overflow: 'visible' },
           compactCardItem: { width: '23.5%', height: 120 },
   cardGridGap: { marginRight: '2%' },
