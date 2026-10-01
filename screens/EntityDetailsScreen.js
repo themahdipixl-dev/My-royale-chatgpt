@@ -545,18 +545,19 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
             styles.cardSortTriangle,
             {
               transform: [
-                { translateY: directionProgress.interpolate({ inputRange: [0, 1], outputRange: [0, 0] }) },
                 { rotate: directionProgress.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] }) },
               ],
             },
           ]}
         >
-          <View
-            style={[
-              styles.cardSortRoundedTriangle,
-              { backgroundColor: theme.colors.onPrimaryContainer },
-            ]}
-          />
+          <View style={styles.cardSortTriangleShape}>
+            <View
+              style={[
+                styles.cardSortTriangleInner,
+                { borderBottomColor: theme.colors.onPrimaryContainer },
+              ]}
+            />
+          </View>
         </Animated.View>
       </Pressable>
 
@@ -1651,13 +1652,17 @@ const styles = StyleSheet.create({
   cardCollectionTitleWrap: { flex: 1, minWidth: 0 },
   cardSortControls: { flexDirection: 'row', alignItems: 'center', gap: 7, marginLeft: 8, flexShrink: 0, zIndex: 20 },
   cardSortDirection: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' },
-  cardSortTriangle: { position: 'absolute', top: 10, left: 10 },
-  cardSortRoundedTriangle: {
-    width: 12,
-    height: 10,
-    borderRadius: 3,
-    transform: [{ rotate: '0deg' }],
-    overflow: 'hidden',
+  cardSortTriangle: { position: 'absolute', top: 9, left: 9, width: 14, height: 14, alignItems: 'center', justifyContent: 'center' },
+  cardSortTriangleShape: { width: 14, height: 12, alignItems: 'center', justifyContent: 'flex-end' },
+  cardSortTriangleInner: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 7,
+    borderRightWidth: 7,
+    borderBottomWidth: 12,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderRadius: 2,
   },
   cardSortMenuWrap: { position: 'relative', zIndex: 20 },
   cardSortCapsule: { minWidth: 82, height: 32, paddingHorizontal: 11, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 5 },
