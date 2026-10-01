@@ -2,10 +2,12 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Animated,
   BackHandler,
   FlatList,
   Image,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -226,9 +228,9 @@ function AnimatedSection({ children, index = 0, register }) {
     </Animated.View>
   );
 }
-function SectionTitle({ icon, title, subtitle, right, theme }) {
+function SectionTitle({ icon, title, subtitle, right, theme, noBottomMargin = false }) {
   return (
-    <View style={styles.sectionTitleRow}>
+    <View style={[styles.sectionTitleRow, noBottomMargin && { marginBottom: 0 }]}>
       <View style={styles.sectionTitleLeft}>
         <View style={[styles.sectionIcon, { backgroundColor: theme.colors.primaryContainer }]}>
           <MaterialCommunityIcons name={icon} size={18} color={theme.colors.onPrimaryContainer} />
@@ -356,6 +358,18 @@ function getDisplayCardLevel(card) {
   if (!Number.isFinite(level)) return null;
   const rarity = String(card?.rarity ?? '').trim().toLowerCase();
   return level + (CARD_LEVEL_OFFSETS[rarity] ?? 0);
+}
+
+function openCurrentDeckInClashRoyale(deck) {
+  const cards = Array.isArray(deck) ? deck : [];
+  const cardIds = cards
+    .map((card) => card?.id)
+    .filter((id) => id !== undefined && id !== null);
+
+  if (cardIds.length !== 8) return;
+
+  const deckLink = `https://link.clashroyale.com/deck/en?deck=${cardIds.join(';')}`;
+  Linking.openURL(deckLink).catch(() => {});
 }
 
 function getDeckAverages(deck) {
@@ -995,7 +1009,34 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             </Surface></AnimatedSection>
 
             <AnimatedSection index={6} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
-              <SectionTitle icon="cards" title="Current deck" right={`${currentDeck.length} cards`} theme={theme} />
+              <View style={styles.currentDeckHeader}>
+                <SectionTitle icon="cards" title="Current deck" theme={theme} noBottomMargin />
+                <Pressable
+                  onPress={() => {
+                    if (currentDeck.length !== 8) return;
+                    Alert.alert(
+                      'Copy deck?',
+                      'Do you want to copy this deck to Clash Royale?',
+                      [
+                        { text: 'No', style: 'cancel' },
+                        { text: 'Yes', onPress: () => openCurrentDeckInClashRoyale(currentDeck) },
+                      ],
+                    );
+                  }}
+                  disabled={currentDeck.length !== 8}
+                  style={({ pressed }) => [
+                    styles.copyDeckButton,
+                    { backgroundColor: theme.colors.primaryContainer, opacity: pressed ? 0.7 : currentDeck.length === 8 ? 1 : 0.45 },
+                  ]}
+                  hitSlop={4}
+                >
+                  <MaterialCommunityIcons
+                    name="arrow-top-right"
+                    size={18}
+                    color={theme.colors.onPrimaryContainer}
+                  />
+                </Pressable>
+              </View>
               <View style={styles.deckGrid}>
                 {currentDeck.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact deck={currentDeck} index={index} />)}
               </View>
@@ -1170,6 +1211,9 @@ const styles = StyleSheet.create({
   sectionSubtitle: { marginLeft: 6, justifyContent: 'center' },
   sectionSubtitleLine: { fontSize: 8.5, lineHeight: 9, fontWeight: '600' },
   sectionRight: { marginLeft: 8, fontSize: 11 },
+  currentDeckHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 13 },
+  currentDeckHeaderTitle: { flex: 1 },
+  copyDeckButton: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', marginLeft: 8 },
 
   performanceNumbers: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   bigPercent: { fontSize: 28, fontWeight: '900' },
