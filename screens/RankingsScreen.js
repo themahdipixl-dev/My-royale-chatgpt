@@ -58,6 +58,9 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const countriesLoadingRef = useRef(false);
   const topTabRef = useRef(topTab);
   const handleTopTabChangeRef = useRef(null);
+  const retryTimerRef = useRef(null);
+  const detailEntityRef = useRef(detailEntity);
+  detailEntityRef.current = detailEntity;
   topTabRef.current = topTab;
 
   const handleCountryOpen = useCallback(() => {
@@ -106,25 +109,64 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   }, [detailEntity, previewEntity, searchOpen, onRequestHome]);
 
   const loadData = useCallback((locationId, type = topTab, clanMode = clanRankingMode) => {
-    if (!locationId) return;
-    setLoading(true); setError(null); setSelectedLimit(null); setSearchQuery('');
-    lastOffset.current = 0; setShowJumpButton(false); setJumpToTop(false);
+    if (!locationId || detailEntityRef.current) return;
+
+    if (retryTimerRef.current) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSelectedLimit(null);
+    setSearchQuery('');
+    lastOffset.current = 0;
+    setShowJumpButton(false);
+    setJumpToTop(false);
 
     const request = type === 'clans'
       ? (clanMode === 'path' ? fetchPathOfLegendRankings(locationId) : fetchClanWarRankings(locationId, 500))
       : type === 'merge' ? fetchMergeTacticsRankings(500) : fetchPathOfLegendRankings(locationId);
 
-    request.then((items) => {
-      if (type === 'clans') setClans(items);
-      else if (type === 'merge') setMergers(items);
-      else setPlayers(items);
-      setAnimationKey((value) => value + 1);
-      requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: 0, animated: false }));
-    }).catch((requestError) => setError(requestError?.message || "Couldn't load rankings. Try again."))
-      .finally(() => setLoading(false));
+    request
+      .then((items) => {
+        if (detailEntityRef.current) return;
+        if (type === 'clans') setClans(items);
+        else if (type === 'merge') setMergers(items);
+        else setPlayers(items);
+        setAnimationKey((value) => value + 1);
+        requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: 0, animated: false }));
+        if (retryTimerRef.current) {
+          clearTimeout(retryTimerRef.current);
+          retryTimerRef.current = null;
+        }
+      })
+      .catch(() => {
+        // Stay silent and retry only while the Rankings screen is still visible.
+        if (!detailEntityRef.current) {
+          retryTimerRef.current = setTimeout(() => {
+            retryTimerRef.current = null;
+            loadData(locationId, type, clanMode);
+          }, 2000);
+        }
+      })
+      .finally(() => {
+        if (!detailEntityRef.current) setLoading(false);
+      });
   }, [topTab, clanRankingMode]);
 
-  useEffect(() => { loadData(selectedLocation?.id, topTab, clanRankingMode); }, [selectedLocation, topTab, clanRankingMode, loadData]);
+  useEffect(() => {
+    loadData(selectedLocation?.id, topTab, clanRankingMode);
+  }, [selectedLocation, topTab, clanRankingMode, loadData]);
+
+  useEffect(() => {
+    return () => {
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (detailEntity) return;
@@ -295,7 +337,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
               // Keep every non-active page visually empty during a swipe.
               // Also hide cached data while the active tab is loading, so the
               // destination never flashes stale/partially refreshed rows.
-              const visibleTabItems = tabKey === topTab && !loading ? tabItems : [];
+              const visibleTabItems = tabKey === topTab ? tabItems : [];
               const tabRowHeight = tabKey === 'clans' && clanRankingMode === 'war' ? CLAN_ROW_HEIGHT : ROW_HEIGHT;
               return (
                 <View key={tabKey} style={[styles.tabPage, { width: Math.max(1, pagerWidth) }]}>
@@ -348,10 +390,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
 
       <EntityPreviewModal visible={!!previewEntity} entity={previewEntity} type={previewType} countryName={selectedLocation?.id === 'global' ? null : selectedLocation?.name} onClose={() => setPreviewEntity(null)} onExpand={expandPreview} onClanPress={openClanDetails} />
 
-      {error && <View style={styles.center}>
-        <Text style={[styles.errorText, { color: theme.colors.onSurface }]}>{error}</Text>
-        <Button mode="contained" onPress={() => loadData(selectedLocation?.id, topTab)} style={styles.retry}>Retry</Button>
-      </View>}
+      {error && null}
     </SafeAreaView>
   );
 }
