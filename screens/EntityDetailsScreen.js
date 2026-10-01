@@ -1030,10 +1030,9 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     [cardCollections.cards, cardSortBy, cardSortAscending],
   );
 
-  const sortedSupportCards = useMemo(
-    () => sortCardList(cardCollections.supportCards, cardSortBy, cardSortAscending),
-    [cardCollections.supportCards, cardSortBy, cardSortAscending],
-  );
+  // Tower Cards are intentionally excluded from sorting.
+  // Sort controls affect only the normal player-card collection.
+  const sortedSupportCards = cardCollections.supportCards;
 
 
   const title = isClan
