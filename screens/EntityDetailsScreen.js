@@ -1653,7 +1653,6 @@ const styles = StyleSheet.create({
   cardSortControls: { flexDirection: 'row', alignItems: 'center', gap: 7, marginLeft: 8, flexShrink: 0, zIndex: 20 },
   cardSortDirection: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' },
   cardSortTriangle: { position: 'absolute', top: 9, left: 9, width: 14, height: 14, alignItems: 'center', justifyContent: 'center' },
-  cardSortTriangle: { position: 'absolute', top: 9, left: 9, width: 14, height: 14, alignItems: 'center', justifyContent: 'center' },
   cardSortMenuWrap: { position: 'relative', zIndex: 20 },
   cardSortCapsule: { minWidth: 82, height: 32, paddingHorizontal: 11, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 5 },
   cardSortText: { fontSize: 11, fontWeight: '800' },
