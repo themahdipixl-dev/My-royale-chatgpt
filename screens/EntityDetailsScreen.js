@@ -481,6 +481,7 @@ function getCurrentDeckBattleStats(battlelog, currentDeck, playerTag) {
 
 function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme }) {
   const [open, setOpen] = useState(false);
+  const directionProgress = useRef(new Animated.Value(0)).current;
   const menuHeight = useRef(new Animated.Value(0)).current;
   const menuOpacity = useRef(new Animated.Value(0)).current;
   const menuScale = useRef(new Animated.Value(0.96)).current;
@@ -523,25 +524,57 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
   return (
     <View style={styles.cardSortControls}>
       <Pressable
-        onPress={() => setAscending((value) => !value)}
+        onPress={() => {
+          const nextAscending = !ascending;
+          setAscending(nextAscending);
+          Animated.spring(directionProgress, {
+            toValue: nextAscending ? 0 : 1,
+            friction: 7,
+            tension: 85,
+            useNativeDriver: true,
+          }).start();
+        }}
         style={({ pressed }) => [
           styles.cardSortDirection,
           { backgroundColor: theme.colors.primaryContainer, opacity: pressed ? 0.72 : 1 },
         ]}
         accessibilityLabel={ascending ? 'Ascending' : 'Descending'}
       >
-        <MaterialCommunityIcons
-          name="triangle"
-          size={8}
-          color={ascending ? theme.colors.onPrimaryContainer : theme.colors.onSurfaceVariant}
-          style={styles.cardSortTriangleUp}
-        />
-        <MaterialCommunityIcons
-          name="triangle-down"
-          size={8}
-          color={!ascending ? theme.colors.onPrimaryContainer : theme.colors.onSurfaceVariant}
-          style={styles.cardSortTriangleDown}
-        />
+        <Animated.View
+          style={[
+            styles.cardSortTriangle,
+            {
+              transform: [
+                { translateY: directionProgress.interpolate({ inputRange: [0, 1], outputRange: [0, 7] }) },
+                { rotate: directionProgress.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] }) },
+              ],
+            },
+          ]}
+        >
+          <MaterialCommunityIcons
+            name="triangle"
+            size={8}
+            color={theme.colors.onPrimaryContainer}
+          />
+        </Animated.View>
+        <Animated.View
+          style={[
+            styles.cardSortTriangle,
+            styles.cardSortTriangleBottom,
+            {
+              transform: [
+                { translateY: directionProgress.interpolate({ inputRange: [0, 1], outputRange: [0, -7] }) },
+                { rotate: directionProgress.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '0deg'] }) },
+              ],
+            },
+          ]}
+        >
+          <MaterialCommunityIcons
+            name="triangle"
+            size={8}
+            color={theme.colors.onSurfaceVariant}
+          />
+        </Animated.View>
       </Pressable>
 
       <View style={styles.cardSortMenuWrap}>
@@ -1416,7 +1449,9 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
 
             <AnimatedSection index={8} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <View style={styles.cardCollectionHeader}>
-                <SectionTitle icon="archive" title="Card collection" theme={theme} noBottomMargin />
+                <View style={styles.cardCollectionTitleWrap}>
+                  <SectionTitle icon="archive" title="Card collection" theme={theme} noBottomMargin />
+                </View>
                 <CardSortControls
                   sortBy={cardSortBy}
                   setSortBy={setCardSortBy}
@@ -1629,11 +1664,12 @@ const styles = StyleSheet.create({
 
   favoriteRow: { flexDirection: 'row', alignItems: 'flex-start' },
   favoriteDetails: { flex: 1, marginLeft: 8 },
-  cardCollectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 13 },
-  cardSortControls: { flexDirection: 'row', alignItems: 'center', gap: 7, marginLeft: 8, zIndex: 20 },
-  cardSortDirection: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', position: 'relative' },
-  cardSortTriangleUp: { position: 'absolute', top: 8 },
-  cardSortTriangleDown: { position: 'absolute', bottom: 8 },
+  cardCollectionHeader: { flexDirection: 'row', alignItems: 'center', width: '100%', marginBottom: 13 },
+  cardCollectionTitleWrap: { flex: 1, minWidth: 0 },
+  cardSortControls: { flexDirection: 'row', alignItems: 'center', gap: 7, marginLeft: 8, flexShrink: 0, zIndex: 20 },
+  cardSortDirection: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' },
+  cardSortTriangle: { position: 'absolute', top: 8, left: 12 },
+  cardSortTriangleBottom: { top: 16 },
   cardSortMenuWrap: { position: 'relative', zIndex: 20 },
   cardSortCapsule: { minWidth: 82, height: 32, paddingHorizontal: 11, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 5 },
   cardSortText: { fontSize: 11, fontWeight: '800' },
