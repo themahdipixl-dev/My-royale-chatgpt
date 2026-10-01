@@ -831,14 +831,6 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     (card) => Boolean(card?.iconUrls?.heroMedium),
   ).length;
 
-  // Keep the totals based on the player's card collection so the displayed
-  // denominator follows the same API card data without hardcoded counts.
-  const evolutionCardsTotal = allCards.filter(
-    (card) => Boolean(card?.iconUrls?.evolutionMedium),
-  ).length;
-  const heroCardsTotal = allCards.filter(
-    (card) => Boolean(card?.iconUrls?.heroMedium),
-  ).length;
 
   const title = isClan
     ? firstValue(data.name, data.clan?.name, 'Clan')
@@ -1246,9 +1238,9 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             <AnimatedSection index={8} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <SectionTitle icon="archive" title="Card collection" right={`${cardCount} cards`} theme={theme} />
               <View style={styles.collectionSummary}>
-                <StatTile icon="check-decagram" label="Max level" value={formatNumber(maxLevelCards) + '/' + formatNumber(cardCount)} theme={theme} />
-                <StatTile icon="auto-fix" label="Evolutions" value={formatNumber(evolutionCards) + '/' + formatNumber(evolutionCardsTotal)} theme={theme} />
-                <StatTile icon="account-star" label="Heroes" value={formatNumber(heroCards) + '/' + formatNumber(heroCardsTotal)} theme={theme} />
+                <StatTile icon="check-decagram" label="Max level" value={formatNumber(maxLevelCards)} theme={theme} />
+                <StatTile icon="auto-fix" label="Evolutions" value={formatNumber(evolutionCards)} theme={theme} />
+                <StatTile icon="account-star" label="Heroes" value={formatNumber(heroCards)} theme={theme} />
               </View>
               <View style={styles.allCardsGrid}>
                 {cardCollections.cards.map((card, index) => (
