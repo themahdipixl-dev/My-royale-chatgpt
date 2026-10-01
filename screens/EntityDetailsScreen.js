@@ -2,7 +2,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
+  Modal,
   Animated,
   BackHandler,
   FlatList,
@@ -561,6 +561,10 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const [battleLoading, setBattleLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showAllBadges, setShowAllBadges] = useState(false);
+  const [showCopyDeckModal, setShowCopyDeckModal] = useState(false);
+  const copyDeckModalOpacity = useRef(new Animated.Value(0)).current;
+  const copyDeckModalScale = useRef(new Animated.Value(0.92)).current;
+  const copyDeckModalY = useRef(new Animated.Value(18)).current;
 
   const isClan = type === 'clan';
   const tag = firstValue(entity?.tag, entity?.playerTag);
@@ -694,6 +698,34 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     if (!clanTag) return;
     await Clipboard.setStringAsync(String(clanTag));
   }, [data.clan?.tag]);
+
+  const openCopyDeckModal = useCallback(() => {
+    if (currentDeck.length !== 8) return;
+    setShowCopyDeckModal(true);
+    copyDeckModalOpacity.setValue(0);
+    copyDeckModalScale.setValue(0.92);
+    copyDeckModalY.setValue(18);
+    Animated.parallel([
+      Animated.timing(copyDeckModalOpacity, { toValue: 1, duration: 180, useNativeDriver: true }),
+      Animated.spring(copyDeckModalScale, { toValue: 1, friction: 8, tension: 75, useNativeDriver: true }),
+      Animated.spring(copyDeckModalY, { toValue: 0, friction: 8, tension: 70, useNativeDriver: true }),
+    ]).start();
+  }, [currentDeck.length, copyDeckModalOpacity, copyDeckModalScale, copyDeckModalY]);
+
+  const closeCopyDeckModal = useCallback(() => {
+    Animated.parallel([
+      Animated.timing(copyDeckModalOpacity, { toValue: 0, duration: 150, useNativeDriver: true }),
+      Animated.timing(copyDeckModalScale, { toValue: 0.94, duration: 150, useNativeDriver: true }),
+      Animated.timing(copyDeckModalY, { toValue: 12, duration: 150, useNativeDriver: true }),
+    ]).start(({ finished }) => {
+      if (finished) setShowCopyDeckModal(false);
+    });
+  }, [copyDeckModalOpacity, copyDeckModalScale, copyDeckModalY]);
+
+  const confirmCopyDeck = useCallback(() => {
+    closeCopyDeckModal();
+    setTimeout(() => openCurrentDeckInClashRoyale(currentDeck), 165);
+  }, [closeCopyDeckModal, currentDeck]);
   const wins = number(data.wins);
   const losses = number(data.losses);
   const battles = number(data.battleCount) || wins + losses;
@@ -1014,17 +1046,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                   <SectionTitle icon="cards" title="Current deck" theme={theme} noBottomMargin />
                 </View>
                 <Pressable
-                  onPress={() => {
-                    if (currentDeck.length !== 8) return;
-                    Alert.alert(
-                      'Copy deck?',
-                      'Do you want to copy this deck to Clash Royale?',
-                      [
-                        { text: 'No', style: 'cancel' },
-                        { text: 'Yes', onPress: () => openCurrentDeckInClashRoyale(currentDeck) },
-                      ],
-                    );
-                  }}
+                  onPress={openCopyDeckModal}
                   disabled={currentDeck.length !== 8}
                   style={({ pressed }) => [
                     styles.copyDeckButton,
@@ -1082,6 +1104,65 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                 </>
               ) : null}
             </Surface></AnimatedSection>
+
+            <Modal
+              visible={showCopyDeckModal}
+              transparent
+              animationType="none"
+              onRequestClose={closeCopyDeckModal}
+              statusBarTranslucent
+            >
+              <View style={styles.copyDeckModalRoot}>
+                <Pressable style={styles.copyDeckModalBackdrop} onPress={closeCopyDeckModal} />
+                <Animated.View
+                  style={[
+                    styles.copyDeckModalCard,
+                    {
+                      backgroundColor: theme.colors.surfaceContainerHigh,
+                      opacity: copyDeckModalOpacity,
+                      transform: [
+                        { translateY: copyDeckModalY },
+                        { scale: copyDeckModalScale },
+                      ],
+                    },
+                  ]}
+                >
+                  <View style={[styles.copyDeckModalIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+                    <MaterialCommunityIcons
+                      name="arrow-top-right"
+                      size={24}
+                      color={theme.colors.onPrimaryContainer}
+                    />
+                  </View>
+                  <Text style={[styles.copyDeckModalTitle, { color: theme.colors.onSurface }]}>
+                    Copy deck to Clash Royale?
+                  </Text>
+                  <Text style={[styles.copyDeckModalText, { color: theme.colors.onSurfaceVariant }]}>
+                    This will open Clash Royale with the current deck ready to use.
+                  </Text>
+                  <View style={styles.copyDeckModalActions}>
+                    <Pressable
+                      onPress={closeCopyDeckModal}
+                      style={({ pressed }) => [
+                        styles.copyDeckModalButton,
+                        { backgroundColor: theme.colors.surfaceContainerHighest, opacity: pressed ? 0.7 : 1 },
+                      ]}
+                    >
+                      <Text style={[styles.copyDeckModalButtonText, { color: theme.colors.onSurface }]}>Cancel</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={confirmCopyDeck}
+                      style={({ pressed }) => [
+                        styles.copyDeckModalButton,
+                        { backgroundColor: theme.colors.primary, opacity: pressed ? 0.78 : 1 },
+                      ]}
+                    >
+                      <Text style={[styles.copyDeckModalButtonText, { color: theme.colors.onPrimary }]}>Open</Text>
+                    </Pressable>
+                  </View>
+                </Animated.View>
+              </View>
+            </Modal>
 
             <AnimatedSection index={7} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <SectionTitle icon="cards-outline" title="Favourite card" theme={theme} />
@@ -1216,6 +1297,15 @@ const styles = StyleSheet.create({
   currentDeckHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 13, width: '100%' },
   currentDeckHeaderTitle: { flex: 1, minWidth: 0 },
   copyDeckButton: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', marginLeft: 8, flexShrink: 0 },
+  copyDeckModalRoot: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 },
+  copyDeckModalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.52)' },
+  copyDeckModalCard: { width: '100%', maxWidth: 390, borderRadius: 28, padding: 22, elevation: 8 },
+  copyDeckModalIcon: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center', alignSelf: 'center', marginBottom: 14 },
+  copyDeckModalTitle: { fontSize: 19, fontWeight: '800', textAlign: 'center' },
+  copyDeckModalText: { marginTop: 8, fontSize: 12.5, lineHeight: 19, textAlign: 'center' },
+  copyDeckModalActions: { flexDirection: 'row', gap: 9, marginTop: 20 },
+  copyDeckModalButton: { flex: 1, minHeight: 46, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  copyDeckModalButtonText: { fontSize: 13, fontWeight: '800' },
 
   performanceNumbers: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   bigPercent: { fontSize: 28, fontWeight: '900' },
