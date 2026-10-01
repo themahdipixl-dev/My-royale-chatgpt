@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, View, Image, ActivityIndicator } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { IconButton, Text, useTheme } from 'react-native-paper';
+import { Button, IconButton, Text, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchPlayer } from '../api/client';
 import { getClanBadgeImage } from '../utils/clanBadges';
