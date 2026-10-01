@@ -903,6 +903,33 @@ function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, activeB
   const ratio = target > 0 ? Math.min(1, progress / target) : 0;
   const badgeKey = String(badge?.name || badge?.id || index);
   const popupVisible = playerDetailsGrid && activeBadgeKey === badgeKey;
+  const popupOpacity = useRef(new Animated.Value(0)).current;
+  const [popupMounted, setPopupMounted] = useState(false);
+
+  useEffect(() => {
+    if (!playerDetailsGrid) return undefined;
+
+    if (popupVisible) {
+      setPopupMounted(true);
+      popupOpacity.stopAnimation();
+      Animated.timing(popupOpacity, {
+        toValue: 1,
+        duration: 170,
+        useNativeDriver: true,
+      }).start();
+    } else if (popupMounted) {
+      popupOpacity.stopAnimation();
+      Animated.timing(popupOpacity, {
+        toValue: 0,
+        duration: 140,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (finished) setPopupMounted(false);
+      });
+    }
+
+    return undefined;
+  }, [playerDetailsGrid, popupVisible, popupMounted, popupOpacity]);
 
   const content = (
     <Pressable
@@ -916,13 +943,14 @@ function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, activeB
       ]}>
         <BadgeVisual item={badge} theme={theme} size={76} />
 
-        {popupVisible ? (
+        {popupMounted ? (
           <Animated.View
             style={[
               styles.badgeInfoPopup,
               {
                 backgroundColor: theme.colors.surfaceContainerHighest,
                 borderColor: theme.colors.outlineVariant,
+                opacity: popupOpacity,
               },
             ]}
           >
