@@ -1801,10 +1801,17 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                         },
                       ]}
                     >
-                      <View style={styles.cardsFadeBase} />
-                      <View style={styles.cardsFadeSoft} />
-                      <View style={styles.cardsFadeStrong} />
-                      <View style={styles.cardsFadeMid} />
+                      <View style={styles.cardsFadeGradient}>
+                        {Array.from({ length: 18 }, (_, fadeIndex) => (
+                          <View
+                            key={fadeIndex}
+                            style={[
+                              styles.cardsFadeStrip,
+                              { opacity: 0.015 + (fadeIndex / 17) * 0.105 },
+                            ]}
+                          />
+                        ))}
+                      </View>
                     </Animated.View>
                   ) : null}
                 </Animated.View>
@@ -2050,11 +2057,9 @@ const styles = StyleSheet.create({
   allCardsGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 9, alignItems: 'flex-start' },
   normalCardsSection: { width: '100%' },
   normalCardsRevealWrap: { width: '100%', overflow: 'hidden' },
-  cardsCollapseFade: { position: 'absolute', left: 0, right: 0, top: 105, height: 64, flexDirection: 'column', justifyContent: 'flex-end' },
-  cardsFadeBase: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 64, backgroundColor: 'rgba(35,35,35,0.045)' },
-  cardsFadeSoft: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 50, backgroundColor: 'rgba(35,35,35,0.075)' },
-  cardsFadeStrong: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 34, backgroundColor: 'rgba(35,35,35,0.11)' },
-  cardsFadeMid: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 20, backgroundColor: 'rgba(35,35,35,0.16)' },
+  cardsCollapseFade: { position: 'absolute', left: 0, right: 0, top: 86, height: 83, overflow: 'hidden' },
+  cardsFadeGradient: { flex: 1, flexDirection: 'column', justifyContent: 'flex-end' },
+  cardsFadeStrip: { flex: 1, width: '100%', backgroundColor: 'rgba(0,0,0,1)' },
   cardsExpandButton: { alignSelf: 'center', width: 34, height: 30, marginTop: 14, alignItems: 'center', justifyContent: 'center' },
   badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   viewAllButton: { marginTop: 12, minHeight: 44, borderRadius: 15, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
