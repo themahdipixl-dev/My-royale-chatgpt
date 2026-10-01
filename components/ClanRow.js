@@ -4,6 +4,7 @@ import { Animated, StyleSheet, Text, View, Pressable, Image } from 'react-native
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Surface, useTheme } from 'react-native-paper';
 import { getClanBadgeImage } from '../utils/clanBadges';
+import RetryImage from './RetryImage';
 
 export const CLAN_ROW_HEIGHT = 70;
 
@@ -41,7 +42,7 @@ export default function ClanRow({ item, index, animationKey = 0, onPress }) {
           <Text style={[styles.rankText, { color: rank <= 3 ? '#1A1300' : theme.colors.onSurfaceVariant }]}>{rank}</Text>
         </View>
         <View style={styles.clanIcon}>
-          {badgeImage ? <Image source={{ uri: badgeImage }} style={styles.clanBadgeImage} resizeMode="contain" /> : null}
+          {badgeImage ? <RetryImage uri={badgeImage} style={styles.clanBadgeImage} resizeMode="contain" /> : null}
         </View>
         <View style={styles.info}>
           <Text style={[styles.name, { color: theme.colors.onSurface }]} numberOfLines={1}>{clanName}</Text>
