@@ -261,9 +261,72 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   const [modalVisible, setModalVisible] = useState(false);
   const [playerData, setPlayerData] = useState(null);
   const [playerLoading, setPlayerLoading] = useState(false);
+  const [playerError, setPlayerError] = useState(null);
   const playerRetryTimerRef = useRef(null);
 
   const isClan = type === 'clan';
+
+  const loadPlayerData = useCallback((tag, attempt = 1) => {
+    if (!tag || !visible || isClan) return;
+
+    setPlayerLoading(true);
+    if (attempt === 1) setPlayerError(null);
+
+    fetchPlayer(tag)
+      .then((player) => {
+        setPlayerData(player);
+        setPlayerLoading(false);
+        setPlayerError(null);
+        if (playerRetryTimerRef.current) {
+          clearTimeout(playerRetryTimerRef.current);
+          playerRetryTimerRef.current = null;
+        }
+      })
+      .catch(() => {
+        if (!visible) return;
+
+        if (attempt < 3) {
+          playerRetryTimerRef.current = setTimeout(() => {
+            playerRetryTimerRef.current = null;
+            loadPlayerData(tag, attempt + 1);
+          }, 3000);
+          return;
+        }
+
+        setPlayerLoading(false);
+        setPlayerError('Please check your internet connection and try again.');
+      });
+  }, [visible, isClan]);
+
+  useEffect(() => {
+    if (playerRetryTimerRef.current) {
+      clearTimeout(playerRetryTimerRef.current);
+      playerRetryTimerRef.current = null;
+    }
+
+    if (!visible || !entity || isClan) {
+      setPlayerLoading(false);
+      setPlayerError(null);
+      return undefined;
+    }
+
+    const tag = firstValue(entity.tag, entity.playerTag);
+    if (!tag) {
+      setPlayerLoading(false);
+      setPlayerError('Please check your internet connection and try again.');
+      return undefined;
+    }
+
+    setPlayerData(null);
+    loadPlayerData(tag);
+
+    return () => {
+      if (playerRetryTimerRef.current) {
+        clearTimeout(playerRetryTimerRef.current);
+        playerRetryTimerRef.current = null;
+      }
+    };
+  }, [visible, entity, isClan, loadPlayerData]);
 
   useEffect(() => {
     if (playerRetryTimerRef.current) {
@@ -693,6 +756,25 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
             {playerLoading && !isClan && (
               <ActivityIndicator size="small" color={theme.colors.primary} style={styles.loader} />
             )}
+            {playerError && !isClan && (
+              <View style={styles.playerErrorContainer}>
+                <Text style={[styles.playerErrorText, { color: theme.colors.onSurfaceVariant }]}>
+                  {playerError}
+                </Text>
+                <Button
+                  mode="contained"
+                  onPress={() => {
+                    const tag = firstValue(entity?.tag, entity?.playerTag);
+                    if (tag) loadPlayerData(tag);
+                  }}
+                  style={styles.retryButton}
+                  buttonColor={theme.colors.primary}
+                  textColor={theme.colors.onPrimary}
+                >
+                  Retry
+                </Button>
+              </View>
+            )}
             </Animated.View>
           </View>
         </Animated.View>
@@ -762,6 +844,9 @@ const styles = StyleSheet.create({
   clanCardValue: { fontSize: 11.5, fontWeight: '800', marginTop: 1 },
 
   loader: { position: 'absolute', bottom: 5, alignSelf: 'center' },
+  playerErrorContainer: { position: 'absolute', left: 18, right: 18, bottom: 8, alignItems: 'center' },
+  playerErrorText: { textAlign: 'center', fontSize: 12 },
+  retryButton: { marginTop: 8, borderRadius: 18, minHeight: 36 },
   clanBody: { flex: 1, justifyContent: 'center' },
   primaryStats: { flexDirection: 'row', gap: 7, marginTop: 9 },
   primaryStat: { flex: 1, minHeight: 64, borderRadius: 15, paddingHorizontal: 9, backgroundColor: 'rgba(127,127,127,0.10)', flexDirection: 'row', alignItems: 'center' },
