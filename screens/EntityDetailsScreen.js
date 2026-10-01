@@ -887,6 +887,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const [cardsExpanded, setCardsExpanded] = useState(false);
   const cardsExpandProgress = useRef(new Animated.Value(0)).current;
   const cardCollectionOffsetY = useRef(0);
+  const cardCollectionContentY = useRef(0);
   const filterStrokeProgress = useRef({
     evolutions: new Animated.Value(0),
     heroes: new Animated.Value(0),
@@ -1256,7 +1257,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     if (!nextExpanded) {
       requestAnimationFrame(() => {
         scrollRef.current?.scrollTo({
-          y: Math.max(0, cardCollectionOffsetY.current - 8),
+          y: Math.max(0, cardCollectionContentY.current - 4),
           animated: true,
         });
       });
@@ -1696,7 +1697,12 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
             </Surface></AnimatedSection>
 
             <AnimatedSection index={8} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
-              <View style={styles.cardCollectionHeader}>
+              <View
+                style={styles.cardCollectionHeader}
+                onLayout={(event) => {
+                  cardCollectionContentY.current = event.nativeEvent.layout.y;
+                }}
+              >
                 <View style={styles.cardCollectionTitleWrap}>
                   <SectionTitle icon="archive" title="Card collection" theme={theme} noBottomMargin />
                 </View>
@@ -1759,12 +1765,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                   animation={filterStrokeProgress}
                 />
               </View>
-              <View
-                style={styles.normalCardsSection}
-                onLayout={(event) => {
-                  cardCollectionOffsetY.current = event.nativeEvent.layout.y;
-                }}
-              >
+              <View style={styles.normalCardsSection}>
                 <Animated.View
                   style={[
                     styles.normalCardsRevealWrap,
@@ -1788,19 +1789,16 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                       style={[
                         styles.cardsCollapseFade,
                         {
-                          backgroundColor: theme.colors.surfaceContainer,
                           opacity: cardsExpandProgress.interpolate({
-                            inputRange: [0, 0.35, 1],
-                            outputRange: [1, 0.75, 0],
+                            inputRange: [0, 0.4, 1],
+                            outputRange: [1, 0.55, 0],
                           }),
                         },
                       ]}
                     >
-                      <View style={[styles.cardsFadeStrip, { opacity: 0.08, backgroundColor: theme.colors.surfaceContainer }]} />
-                      <View style={[styles.cardsFadeStrip, { opacity: 0.22, backgroundColor: theme.colors.surfaceContainer }]} />
-                      <View style={[styles.cardsFadeStrip, { opacity: 0.42, backgroundColor: theme.colors.surfaceContainer }]} />
-                      <View style={[styles.cardsFadeStrip, { opacity: 0.66, backgroundColor: theme.colors.surfaceContainer }]} />
-                      <View style={[styles.cardsFadeStrip, { opacity: 0.88, backgroundColor: theme.colors.surfaceContainer }]} />
+                      <View style={styles.cardsFadeBase} />
+                      <View style={styles.cardsFadeSoft} />
+                      <View style={styles.cardsFadeStrong} />
                     </Animated.View>
                   ) : null}
                 </Animated.View>
@@ -2047,7 +2045,9 @@ const styles = StyleSheet.create({
   normalCardsSection: { width: '100%' },
   normalCardsRevealWrap: { width: '100%', overflow: 'hidden' },
   cardsCollapseFade: { position: 'absolute', left: 0, right: 0, top: 129, height: 40, flexDirection: 'column', justifyContent: 'flex-end' },
-  cardsFadeStrip: { width: '100%', height: 8 },
+  cardsFadeBase: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 40, backgroundColor: 'rgba(35,35,35,0.10)' },
+  cardsFadeSoft: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 30, backgroundColor: 'rgba(35,35,35,0.18)' },
+  cardsFadeStrong: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 18, backgroundColor: 'rgba(35,35,35,0.30)' },
   cardsExpandButton: { alignSelf: 'center', width: 34, height: 30, marginTop: 14, alignItems: 'center', justifyContent: 'center' },
   badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   viewAllButton: { marginTop: 12, minHeight: 44, borderRadius: 15, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
