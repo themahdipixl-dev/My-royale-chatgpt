@@ -641,84 +641,97 @@ function CardItem({ index = 0, card, theme, compact = false, deck, tower = false
   const image = deck ? resolveCurrentDeckImage(card, index, deck) : (
     card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium
   );
-  const cardLayoutStyle = [styles.cardItem, compact && styles.compactCardItem, tower && styles.towerCardItem, grid && index % 4 !== 3 && styles.cardGridGap];
+  const cardLayoutStyle = [
+    styles.cardItem,
+    compact && styles.compactCardItem,
+    tower && styles.towerCardItem,
+    grid && index % 4 !== 3 && styles.cardGridGap,
+  ];
 
   const rarity = String(card?.rarity ?? '').trim().toLowerCase();
-  const glowColor = {
+  const rarityColor = {
     common: '#42A5F5',
     rare: '#FF9800',
     epic: '#AB47BC',
     champion: '#FFD54F',
   }[rarity] || null;
 
-  const cardContent = (
-      <View style={[styles.cardItemInner, compact && styles.compactCardItemInner, { backgroundColor: theme.colors.surfaceContainerHighest, ...(glowColor ? { borderWidth: 1, borderColor: glowColor, shadowColor: glowColor, shadowOpacity: 0.48, shadowRadius: 5, shadowOffset: { width: 0, height: 0 }, elevation: 4 } : null) }]}>
-        <View style={styles.cardVisual}>
-          {image ? (
-            <Image source={{ uri: image }} style={compact ? styles.compactCardImage : styles.cardImage} resizeMode="contain" />
-          ) : (
-            <View style={[styles.cardImageFallback, { backgroundColor: theme.colors.primaryContainer }]}>
-              <MaterialCommunityIcons name="cards-outline" size={28} color={theme.colors.onPrimaryContainer} />
-            </View>
-          )}
-          <View style={styles.cardOverlayMeta}>
-            <View style={[styles.cardMetaPill, { backgroundColor: theme.colors.primaryContainer }]}>
-              <Text style={[styles.cardLevel, { color: theme.colors.onPrimaryContainer }]}>L {getDisplayCardLevel(card) ?? '—'}</Text>
-            </View>
-            {card?.elixirCost !== undefined ? (
-              <View style={[styles.cardMetaPill, { backgroundColor: theme.colors.primaryContainer }]}>
-
-                <MaterialCommunityIcons name="water" size={9} color={theme.colors.onPrimaryContainer} />
-                <Text style={[styles.cardElixir, { color: theme.colors.onPrimaryContainer }]}>{card.elixirCost}</Text>
-              </View>
-            ) : null}
-          </View>
-        </View>
-      </View>
-  );
-
-  const decoratedCardContent = rarity === 'legendary' ? (
-    <View style={styles.legendaryGradientFrame}>
-      <View pointerEvents="none" style={styles.legendaryGradientStroke} />
-      <View style={[
+  const cardBody = (
+    <View
+      style={[
         styles.cardItemInner,
         compact && styles.compactCardItemInner,
-        styles.legendaryCardInner,
-        { backgroundColor: theme.colors.surfaceContainerHighest },
-      ]}>
-        <View style={styles.cardVisual}>
-          {image ? (
-            <Image source={{ uri: image }} style={compact ? styles.compactCardImage : styles.cardImage} resizeMode="contain" />
-          ) : (
-            <View style={[styles.cardImageFallback, { backgroundColor: theme.colors.primaryContainer }]}>
-              <MaterialCommunityIcons name="cards-outline" size={28} color={theme.colors.onPrimaryContainer} />
-            </View>
-          )}
-          <View style={styles.cardOverlayMeta}>
-            <View style={[styles.cardMetaPill, { backgroundColor: theme.colors.primaryContainer }]}>
-              <Text style={[styles.cardLevel, { color: theme.colors.onPrimaryContainer }]}>L {getDisplayCardLevel(card) ?? '—'}</Text>
-            </View>
-            {card?.elixirCost !== undefined ? (
-              <View style={[styles.cardMetaPill, { backgroundColor: theme.colors.primaryContainer }]}>
-                <MaterialCommunityIcons name="water" size={9} color={theme.colors.onPrimaryContainer} />
-                <Text style={[styles.cardElixir, { color: theme.colors.onPrimaryContainer }]}>{card.elixirCost}</Text>
-              </View>
-            ) : null}
+        {
+          backgroundColor: theme.colors.surfaceContainerHighest,
+          ...(rarityColor
+            ? {
+                borderWidth: 1,
+                borderColor: rarityColor,
+              }
+            : null),
+        },
+      ]}
+    >
+      <View style={styles.cardVisual}>
+        {image ? (
+          <Image
+            source={{ uri: image }}
+            style={compact ? styles.compactCardImage : styles.cardImage}
+            resizeMode="contain"
+          />
+        ) : (
+          <View style={[styles.cardImageFallback, { backgroundColor: theme.colors.primaryContainer }]}>
+            <MaterialCommunityIcons
+              name="cards-outline"
+              size={28}
+              color={theme.colors.onPrimaryContainer}
+            />
           </View>
+        )}
+        <View style={styles.cardOverlayMeta}>
+          <View style={[styles.cardMetaPill, { backgroundColor: theme.colors.primaryContainer }]}>
+            <Text style={[styles.cardLevel, { color: theme.colors.onPrimaryContainer }]}>
+              L {getDisplayCardLevel(card) ?? '—'}
+            </Text>
+          </View>
+          {card?.elixirCost !== undefined ? (
+            <View style={[styles.cardMetaPill, { backgroundColor: theme.colors.primaryContainer }]}>
+              <MaterialCommunityIcons
+                name="water"
+                size={9}
+                color={theme.colors.onPrimaryContainer}
+              />
+              <Text style={[styles.cardElixir, { color: theme.colors.onPrimaryContainer }]}>
+                {card.elixirCost}
+              </Text>
+            </View>
+          ) : null}
         </View>
       </View>
     </View>
-  ) : cardContent;
+  );
 
-  // Reordering the card grid must not re-trigger measureInWindow animations.
-  // AnimatedDetailItem can be sensitive to large child reorders on native.
+  // Legendary uses only native-safe Views for its two-color stroke.
+  // Avoid experimental_backgroundImage because it can disappear when a sorted
+  // grid reuses native children during Fabric reconciliation.
+  const decoratedCardContent = rarity === 'legendary' ? (
+    <View style={styles.legendaryGradientFrame}>
+      <View style={[styles.legendaryStrokeTop, { backgroundColor: '#66BB6A' }]} pointerEvents="none" />
+      <View style={[styles.legendaryStrokeLeft, { backgroundColor: '#66BB6A' }]} pointerEvents="none" />
+      <View style={[styles.legendaryStrokeRight, { backgroundColor: '#EC407A' }]} pointerEvents="none" />
+      <View style={[styles.legendaryStrokeBottom, { backgroundColor: '#EC407A' }]} pointerEvents="none" />
+      <View style={styles.legendaryCardInner}>
+        {cardBody}
+      </View>
+    </View>
+  ) : cardBody;
+
   return grid ? (
     <View style={cardLayoutStyle}>{decoratedCardContent}</View>
   ) : (
     <AnimatedDetailItem index={index} layoutStyle={cardLayoutStyle}>{decoratedCardContent}</AnimatedDetailItem>
   );
 }
-
 function BadgeItem({ index = 0, badge, theme }) {
   const image = badge?.iconUrls?.large || badge?.iconUrls?.medium;
   const progress = number(badge?.progress);
@@ -840,7 +853,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const [showAllBadges, setShowAllBadges] = useState(false);
   const [showCopyDeckModal, setShowCopyDeckModal] = useState(false);
   const [cardSortBy, setCardSortBy] = useState('name');
-  const [cardSortAscending, setCardSortAscending] = useState(true);
+  const [cardSortAscending, setCardSortAscending] = useState(false);
   const copyDeckModalOpacity = useRef(new Animated.Value(0)).current;
   const copyDeckModalScale = useRef(new Animated.Value(0.92)).current;
   const copyDeckModalY = useRef(new Animated.Value(18)).current;
@@ -1702,12 +1715,11 @@ const styles = StyleSheet.create({
   cardItem: { width: '23.5%', height: 120 },
   cardItemInner: { height: 120, borderRadius: 16, padding: 5, overflow: 'visible' },
   legendaryGradientFrame: { position: 'relative', width: '100%', height: 120, borderRadius: 16, overflow: 'hidden' },
-  legendaryGradientStroke: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: 16,
-    experimental_backgroundImage: 'linear-gradient(135deg, #66BB6A 0%, #EC407A 100%)',
-  },
-  legendaryCardInner: { height: 118, margin: 1, borderRadius: 15, padding: 5 },
+  legendaryStrokeTop: { position: 'absolute', top: 0, left: 0, right: 0, height: 1 },
+  legendaryStrokeLeft: { position: 'absolute', top: 0, left: 0, bottom: 0, width: 1 },
+  legendaryStrokeRight: { position: 'absolute', top: 0, right: 0, bottom: 0, width: 1 },
+  legendaryStrokeBottom: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 1 },
+  legendaryCardInner: { height: 118, margin: 1, borderRadius: 15 },
   compactCardItem: { width: '23.5%', height: 120 },
   cardGridGap: { marginRight: '2%' },
   compactCardItemInner: { height: 120, borderRadius: 16, padding: 5 },
