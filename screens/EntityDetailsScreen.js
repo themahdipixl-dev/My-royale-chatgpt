@@ -941,7 +941,7 @@ function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, activeB
         { backgroundColor: theme.colors.surfaceContainerHighest },
         popupVisible && styles.badgeItemActive,
       ]}>
-        <BadgeVisual item={badge} theme={theme} size={76} />
+        <BadgeVisual item={badge} theme={theme} size={84} />
 
         {popupMounted ? (
           <Animated.View
@@ -2163,10 +2163,9 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               contentContainerStyle={styles.badgesPageContent}
               columnWrapperStyle={styles.badgesPageRow}
               showsVerticalScrollIndicator={false}
-              initialNumToRender={9}
-              maxToRenderPerBatch={9}
-              windowSize={5}
-              removeClippedSubviews
+              initialNumToRender={12}
+              maxToRenderPerBatch={12}
+              windowSize={7}
             />
           </SafeAreaView>
         </Modal>
@@ -2332,10 +2331,10 @@ const styles = StyleSheet.create({
   badgesPageContent: { padding: 14, paddingBottom: 36 },
   badgesPageRow: { gap: 8, marginBottom: 8 },
   badgeItem: { width: '31.8%', minHeight: 150 },
-  badgeItemPlayerDetails: { width: '31.5%', height: 92 },
+  badgeItemPlayerDetails: { width: '31.5%', aspectRatio: 1 },
   badgeItemActive: { zIndex: 11 },
-  badgeItemInner: { width: '100%', height: 92, borderRadius: 16, padding: 6, alignItems: 'center', overflow: 'visible' },
-  badgeImage: { width: 76, height: 76 },
+  badgeItemInner: { width: '100%', height: '100%', borderRadius: 16, padding: 4, alignItems: 'center', justifyContent: 'center', overflow: 'visible' },
+  badgeImage: { width: 84, height: 84 },
   missingBadgeIcon: { alignItems: 'center', justifyContent: 'center' },
   missingBadgeCrown: { position: 'absolute' },
   badgeVisual: { alignItems: 'center', justifyContent: 'center' },
