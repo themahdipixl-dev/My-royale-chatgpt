@@ -1804,6 +1804,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                       <View style={styles.cardsFadeBase} />
                       <View style={styles.cardsFadeSoft} />
                       <View style={styles.cardsFadeStrong} />
+                      <View style={styles.cardsFadeMid} />
                     </Animated.View>
                   ) : null}
                 </Animated.View>
@@ -2049,10 +2050,11 @@ const styles = StyleSheet.create({
   allCardsGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 9, alignItems: 'flex-start' },
   normalCardsSection: { width: '100%' },
   normalCardsRevealWrap: { width: '100%', overflow: 'hidden' },
-  cardsCollapseFade: { position: 'absolute', left: 0, right: 0, top: 129, height: 40, flexDirection: 'column', justifyContent: 'flex-end' },
-  cardsFadeBase: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 40, backgroundColor: 'rgba(35,35,35,0.10)' },
-  cardsFadeSoft: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 30, backgroundColor: 'rgba(35,35,35,0.18)' },
-  cardsFadeStrong: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 18, backgroundColor: 'rgba(35,35,35,0.30)' },
+  cardsCollapseFade: { position: 'absolute', left: 0, right: 0, top: 105, height: 64, flexDirection: 'column', justifyContent: 'flex-end' },
+  cardsFadeBase: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 64, backgroundColor: 'rgba(35,35,35,0.045)' },
+  cardsFadeSoft: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 50, backgroundColor: 'rgba(35,35,35,0.075)' },
+  cardsFadeStrong: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 34, backgroundColor: 'rgba(35,35,35,0.11)' },
+  cardsFadeMid: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 20, backgroundColor: 'rgba(35,35,35,0.16)' },
   cardsExpandButton: { alignSelf: 'center', width: 34, height: 30, marginTop: 14, alignItems: 'center', justifyContent: 'center' },
   badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   viewAllButton: { marginTop: 12, minHeight: 44, borderRadius: 15, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
