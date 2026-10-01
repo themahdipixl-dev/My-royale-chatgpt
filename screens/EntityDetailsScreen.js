@@ -1333,7 +1333,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
           <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>{headerTitle}</Text>
         </View>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <AnimatedSection index={0} register={registerAnimatedSection}><Surface elevation={0} style={[styles.heroCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+          <AnimatedSection index={0} register={registerAnimatedSection}><Surface elevation={0} style={[styles.heroCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
             <View style={[styles.heroIcon, { backgroundColor: theme.colors.primaryContainer }]}>
               <MaterialCommunityIcons name="account-group" size={30} color={theme.colors.onPrimaryContainer} />
             </View>
@@ -1427,7 +1427,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                 />
               }
             >
-            <AnimatedSection index={1} register={registerAnimatedSection}><Surface elevation={0} style={[styles.heroCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection index={1} register={registerAnimatedSection}><Surface elevation={0} style={[styles.heroCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
               <View style={styles.heroTop}>
                 <View style={[styles.heroIcon, { backgroundColor: theme.colors.primaryContainer }]}>
                   {playerLeagueImage ? (
@@ -1472,7 +1472,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               <StatTile index={5} icon="fire" label="Win streak" value={formatNumber(data.currentWinLoseStreak)} theme={theme} />
             </View>
 
-            <AnimatedSection index={2} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection index={2} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
               <SectionTitle icon="chart-donut" title="Battle performance" theme={theme} />
               <View style={styles.performanceNumbers}>
                 <View>
@@ -1494,7 +1494,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               </View>
             </Surface></AnimatedSection>
 
-            <AnimatedSection index={3} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection index={3} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
               <SectionTitle icon="sword-cross" title="Player information" theme={theme} />
               <InfoRow icon="account" label="Tag" value={data.tag || '—'} theme={theme} onPress={handleCopyTag} />
               <InfoRow icon="shield-account" label="Role" value={data.role || '—'} theme={theme} />
@@ -1507,7 +1507,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               <InfoRow icon="trophy-outline" label="Legacy trophy high score" value={formatNumber(data.legacyTrophyRoadHighScore)} theme={theme} />
             </Surface></AnimatedSection>
 
-            <AnimatedSection index={4} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection index={4} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
               <SectionTitle icon="sword" title="POL" subtitle="Path Of Legends" theme={theme} />
               <View style={styles.seasonTable}>
                 <View style={styles.seasonHeader}>
@@ -1537,7 +1537,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               </View>
             </Surface></AnimatedSection>
 
-            <AnimatedSection index={5} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection index={5} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
               <SectionTitle icon="account-group" title="Clan" theme={theme} />
               <View style={styles.clanHero}>
                 <View style={styles.clanBadge}>
@@ -1569,7 +1569,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               <InfoRow icon="cards" label="Clan cards collected" value={formatNumber(data.clanCardsCollected)} theme={theme} />
             </Surface></AnimatedSection>
 
-            <AnimatedSection index={6} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection index={6} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
               <View style={styles.currentDeckHeader}>
                 <View style={styles.currentDeckHeaderTitle}>
                   <SectionTitle icon="cards" title="Current deck" theme={theme} noBottomMargin />
@@ -1693,7 +1693,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               </View>
             </Modal>
 
-            <AnimatedSection index={7} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection index={7} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
               <SectionTitle icon="cards-outline" title="Favourite card" theme={theme} />
               {favouriteCard ? (
                 <View style={styles.favoriteRow}>
@@ -1716,7 +1716,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                 cardCollectionContentY.current = event.nativeEvent.layout.y;
               }}
             >
-              <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer } ]}>
+              <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant } ]}>
               <View
                 style={styles.cardCollectionHeader}
               >
@@ -1872,7 +1872,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               ) : null}
             </Surface></AnimatedSection>
 
-            <AnimatedSection index={9} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection index={9} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
               <SectionTitle icon="medal" title="Badges & achievements" right={`${badges.length}`} theme={theme} />
               {badges.length === 0 ? (
                 <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No badge data.</Text>
@@ -1902,7 +1902,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               )}
             </Surface></AnimatedSection>
 
-            <AnimatedSection index={10} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection index={10} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
               <SectionTitle icon="sword-cross" title="Battle log" right={battlelog.length ? `${battlelog.length} battles` : undefined} theme={theme} />
               {battleLoading ? (
                 <View style={styles.battleLoading}>
@@ -1942,7 +1942,7 @@ const styles = StyleSheet.create({
   retryButton: { marginTop: 16, paddingHorizontal: 18, paddingVertical: 10, borderRadius: 20 },
   retryText: { fontSize: 13, fontWeight: '700' },
 
-  heroCard: { borderRadius: 24, padding: 16, marginBottom: 12 },
+  heroCard: { borderRadius: 24, padding: 16, marginBottom: 12, borderWidth: 1 },
   heroTop: { flexDirection: 'row', alignItems: 'center' },
   heroIcon: { width: 64, height: 64, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
   heroLeagueIcon: { width: 42, height: 42 },
@@ -1969,7 +1969,7 @@ const styles = StyleSheet.create({
   statLabel: { fontSize: 8.5, fontWeight: '600', textAlign: 'left' },
   statValue: { marginTop: 0, fontSize: 15, fontWeight: '900', letterSpacing: -0.2, textAlign: 'left' },
 
-  sectionCard: { borderRadius: 22, padding: 14, marginBottom: 12 },
+  sectionCard: { borderRadius: 22, padding: 14, marginBottom: 12, borderWidth: 1 },
   sectionTitleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 13 },
   sectionTitleLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   sectionIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
