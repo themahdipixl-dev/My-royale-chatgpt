@@ -7,6 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchPlayer } from '../api/client';
 import { getClanBadgeImage } from '../utils/clanBadges';
 import { getPlayerLeagueImage } from '../utils/playerLeagueassets';
+import RetryImage from './RetryImage';
 const pointIcon = require('../assets/Point-icon.png');
 
 function firstValue(...values) {
@@ -215,7 +216,7 @@ function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant
         <View style={[styles.tileIconWrap, isFeatured && styles.featuredIconWrap]}>
           <AnimatedIcon delay={delay}>
             {imageUri ? (
-              <Image source={{ uri: imageUri }} style={[styles.cardIcon, isFeatured && styles.featuredCardIcon]} resizeMode="contain" />
+              <RetryImage uri={imageUri} style={[styles.cardIcon, isFeatured && styles.featuredCardIcon]} resizeMode="contain" />
             ) : image ? (
               <Image source={image} style={[styles.tileImage, isFeatured && styles.featuredTileImage]} resizeMode="contain" />
             ) : (
@@ -471,10 +472,10 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
             <View style={styles.header}>
               <View style={[styles.entityIcon, { backgroundColor: theme.colors.primaryContainer }]}>
                 {isClan ? (
-                  entityBadgeImage ? <Image source={{ uri: entityBadgeImage }} style={styles.clanHeaderBadge} resizeMode="contain" /> : null
+                  entityBadgeImage ? <RetryImage uri={entityBadgeImage} style={styles.clanHeaderBadge} resizeMode="contain" /> : null
                 ) : (
                   playerLeagueImage ? (
-                    <Image source={{ uri: playerLeagueImage }} style={styles.playerIcon} resizeMode="contain" />
+                    <RetryImage uri={playerLeagueImage} style={styles.playerIcon} resizeMode="contain" />
                   ) : (
                     <MaterialCommunityIcons name="account-circle-outline" size={40} color={theme.colors.primary} />
                   )
@@ -577,7 +578,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                     <View style={styles.favoriteVisual}>
                       {favouriteIcon ? (
                         <AnimatedIcon delay={300}>
-                          <Image source={{ uri: favouriteIcon }} style={styles.favoriteCardImage} resizeMode="contain" />
+                          <RetryImage uri={favouriteIcon} style={styles.favoriteCardImage} resizeMode="contain" />
                         </AnimatedIcon>
                       ) : (
                         <AnimatedIcon delay={300}>
@@ -632,7 +633,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                       >
                         <AnimatedIcon delay={540} style={[styles.clanIconWrap, { backgroundColor: theme.colors.primaryContainer }]}>
                           {clanBadgeImage ? (
-                            <Image source={{ uri: clanBadgeImage }} style={styles.clanCardBadgeImage} resizeMode="contain" />
+                            <RetryImage uri={clanBadgeImage} style={styles.clanCardBadgeImage} resizeMode="contain" />
                           ) : null}
                         </AnimatedIcon>
                         <View style={styles.clanCardText}>
