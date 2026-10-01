@@ -722,7 +722,7 @@ function BattleRow({ battle, theme, index }) {
   );
 }
 
-export default function sortCardList(cards, sortBy, ascending) {
+function sortCardList(cards, sortBy, ascending) {
   const items = Array.isArray(cards) ? [...cards] : [];
   const direction = ascending ? 1 : -1;
 
