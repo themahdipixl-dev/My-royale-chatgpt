@@ -820,7 +820,22 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const supportCards = cardCollections.supportCards;
   const cardCount = allCards.length;
   const maxLevelCards = allCards.filter((card) => number(card?.level) >= number(card?.maxLevel) && card?.maxLevel).length;
-  const evolvedCards = allCards.filter((card) => number(card?.evolutionLevel) > 0).length;
+
+  // evolutionLevel is a bit field:
+  // 1 = Evolution unlocked, 2 = Hero unlocked, 3 = both.
+  // maxEvolutionLevel uses the same bits to describe which forms exist for the card.
+  const evolutionCardsTotal = allCards.filter(
+    (card) => (number(card?.maxEvolutionLevel) & 1) !== 0,
+  ).length;
+  const heroCardsTotal = allCards.filter(
+    (card) => (number(card?.maxEvolutionLevel) & 2) !== 0,
+  ).length;
+  const evolutionCards = allCards.filter(
+    (card) => (number(card?.evolutionLevel) & 1) !== 0,
+  ).length;
+  const heroCards = allCards.filter(
+    (card) => (number(card?.evolutionLevel) & 2) !== 0,
+  ).length;
 
   const title = isClan
     ? firstValue(data.name, data.clan?.name, 'Clan')
@@ -1228,8 +1243,9 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             <AnimatedSection index={8} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <SectionTitle icon="archive" title="Card collection" right={`${cardCount} cards`} theme={theme} />
               <View style={styles.collectionSummary}>
-                <StatTile icon="check-decagram" label="Max level" value={formatNumber(maxLevelCards)} theme={theme} />
-                <StatTile icon="auto-fix" label="Evolved" value={formatNumber(evolvedCards)} theme={theme} />
+                <StatTile icon="check-decagram" label="Max level" value={formatNumber(maxLevelCards) + '/' + formatNumber(cardCount)} theme={theme} />
+                <StatTile icon="auto-fix" label="Evolutions" value={formatNumber(evolutionCards) + '/' + formatNumber(evolutionCardsTotal)} theme={theme} />
+                <StatTile icon="account-star" label="Heroes" value={formatNumber(heroCards) + '/' + formatNumber(heroCardsTotal)} theme={theme} />
               </View>
               <View style={styles.allCardsGrid}>
                 {cardCollections.cards.map((card, index) => (
