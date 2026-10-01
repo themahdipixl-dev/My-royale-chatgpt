@@ -687,6 +687,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   }, [loadBattlelog]);
 
   const data = player || entity || {};
+  const currentDeck = useMemo(() => (Array.isArray(data.currentDeck) ? data.currentDeck : []), [data.currentDeck]);
   const handleCopyTag = useCallback(async () => {
     const tagToCopy = firstValue(data.tag, data.clan?.tag);
     if (!tagToCopy) return;
@@ -753,7 +754,6 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     ? (formatSeasonalArena(seasonalArena) || null)
     : arenaNumber(data.arena);
   const favouriteCard = data.currentFavouriteCard;
-  const currentDeck = useMemo(() => (Array.isArray(data.currentDeck) ? data.currentDeck : []), [data.currentDeck]);
   const currentDeckSupport = Array.isArray(data.currentDeckSupportCards) ? data.currentDeckSupportCards : [];
   const deckBattleStats = useMemo(
     () => getCurrentDeckBattleStats(battlelog, currentDeck, tag),
