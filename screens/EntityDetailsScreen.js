@@ -818,16 +818,18 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
 
   const allCards = [...cardCollections.cards, ...cardCollections.supportCards];
   const supportCards = cardCollections.supportCards;
+  const playerCards = Array.isArray(data.cards) ? data.cards : [];
   const cardCount = allCards.length;
   const maxLevelCards = allCards.filter((card) => number(card?.level) >= number(card?.maxLevel) && card?.maxLevel).length;
 
-  // The player's iconUrls tell us which special forms they actually own:
-  // heroMedium = Hero owned, evolutionMedium = Evolution owned.
-  // A card can have either one or both independently.
-  const evolutionCards = allCards.filter(
+  // Count special forms from the player's own cards only.
+  // evolutionMedium = this player owns the Evolution.
+  // heroMedium = this player owns the Hero.
+  // If both exist on the same card, count one of each.
+  const evolutionCards = playerCards.filter(
     (card) => Boolean(card?.iconUrls?.evolutionMedium),
   ).length;
-  const heroCards = allCards.filter(
+  const heroCards = playerCards.filter(
     (card) => Boolean(card?.iconUrls?.heroMedium),
   ).length;
 
