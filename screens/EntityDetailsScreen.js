@@ -22,6 +22,7 @@ import * as Clipboard from 'expo-clipboard';
 import { fetchPlayer, fetchPlayerBattlelog } from '../api/client';
 import { getClanBadgeImage } from '../utils/clanBadges';
 import { getPlayerLeagueImage } from '../utils/playerLeagueassets';
+import RetryImage from '../components/RetryImage';
 const pointIcon = require('../assets/Point-icon.png');
 
 function firstValue(...values) {
@@ -731,8 +732,8 @@ function CardItem({ index = 0, card, theme, compact = false, deck, tower = false
     >
       <View style={styles.cardVisual}>
         {image ? (
-          <Image
-            source={{ uri: image }}
+          <RetryImage
+            uri={image}
             style={compact ? styles.compactCardImage : styles.cardImage}
             resizeMode="contain"
           />
@@ -849,11 +850,11 @@ function BadgeItem({ index = 0, badge, theme }) {
   const content = (
     <View style={[styles.badgeItemInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
       {image ? (
-        <Image
-          source={{ uri: image }}
+        <RetryImage
+          uri={image}
           style={styles.badgeImage}
           resizeMode="contain"
-          onError={() => {
+          onExhausted={() => {
             setImageIndex((current) => (
               current + 1 < imageCandidates.length ? current + 1 : current
             ));
@@ -1489,7 +1490,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               <View style={styles.heroTop}>
                 <View style={[styles.heroIcon, { backgroundColor: theme.colors.primaryContainer }]}>
                   {playerLeagueImage ? (
-                    <Image source={{ uri: playerLeagueImage }} style={styles.heroLeagueIcon} resizeMode="contain" />
+                    <RetryImage uri={playerLeagueImage} style={styles.heroLeagueIcon} resizeMode="contain" />
                   ) : (
                     <MaterialCommunityIcons name="account-circle-outline" size={46} color={theme.colors.primary} />
                   )}
@@ -1600,7 +1601,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               <View style={styles.clanHero}>
                 <View style={styles.clanBadge}>
                   {getClanBadgeImage(data.clan?.badgeId) ? (
-                    <Image source={{ uri: getClanBadgeImage(data.clan?.badgeId) }} style={styles.clanBadgeImage} resizeMode="contain" />
+                    <RetryImage uri={getClanBadgeImage(data.clan?.badgeId)} style={styles.clanBadgeImage} resizeMode="contain" />
                   ) : null}
                 </View>
                 <View style={styles.clanIdentity}>
