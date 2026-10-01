@@ -4,6 +4,7 @@ import { Animated, View, Text, Image, StyleSheet, Pressable } from 'react-native
 import { Surface, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getPlayerLeagueImage } from '../utils/playerLeagueassets';
+import RetryImage from './RetryImage';
 
 const RANK_COLORS = { 1: '#F5B942', 2: '#B8C2D1', 3: '#CD8B4F' };
 export const ROW_HEIGHT = 70;
@@ -44,7 +45,7 @@ export default function RankRow({ item, index, animationKey = 0, onPress, trophy
         </View>
         <View style={styles.avatar}>
           {playerLeagueImage ? (
-            <Image source={{ uri: playerLeagueImage }} style={styles.avatarImage} resizeMode="contain" />
+            <RetryImage uri={playerLeagueImage} style={styles.avatarImage} resizeMode="contain" />
           ) : (
             <MaterialCommunityIcons name="account-circle-outline" size={34} color={theme.colors.primary} />
           )}
