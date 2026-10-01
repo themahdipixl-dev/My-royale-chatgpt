@@ -550,14 +550,12 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
             },
           ]}
         >
-          <Text
-            style={[
-              styles.cardSortTriangleGlyph,
-              { color: theme.colors.onPrimaryContainer },
-            ]}
-          >
-            ▲
-          </Text>
+          <View style={styles.cardSortRoundedTriangle}>
+            <View style={[styles.cardSortTriangleCore, { borderBottomColor: theme.colors.onPrimaryContainer }]} />
+            <View style={[styles.cardSortTriangleCornerTop, { backgroundColor: theme.colors.onPrimaryContainer }]} />
+            <View style={[styles.cardSortTriangleCornerLeft, { backgroundColor: theme.colors.onPrimaryContainer }]} />
+            <View style={[styles.cardSortTriangleCornerRight, { backgroundColor: theme.colors.onPrimaryContainer }]} />
+          </View>
         </Animated.View>
       </Pressable>
 
@@ -566,7 +564,7 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
           onPress={toggleMenu}
           style={({ pressed }) => [
             styles.cardSortCapsule,
-            { backgroundColor: theme.colors.surfaceContainerHighest, opacity: pressed ? 0.78 : 1 },
+            { backgroundColor: theme.colors.primaryContainer, opacity: pressed ? 0.78 : 1 },
           ]}
         >
           <Text style={[styles.cardSortText, { color: theme.colors.onSurface }]}>Sort by</Text>
@@ -984,23 +982,17 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     return evolutionLevel === 2 || evolutionLevel === 3;
   }).length;
 
-  const sortCards = useCallback((cards) => {
-    const items = Array.isArray(cards) ? [...cards] : [];
+  const sortedPlayerCards = useMemo(() => {
+    const items = Array.isArray(cardCollections.cards) ? [...cardCollections.cards] : [];
     const direction = cardSortAscending ? 1 : -1;
-
-    const compareNames = (a, b) => {
-      const left = String(a?.name ?? '').toLowerCase();
-      const right = String(b?.name ?? '').toLowerCase();
-      if (left < right) return -1;
-      if (left > right) return 1;
-      return 0;
-    };
 
     items.sort((a, b) => {
       let comparison = 0;
 
       if (cardSortBy === 'name') {
-        comparison = compareNames(a, b);
+        const left = String(a?.name ?? '').toLowerCase();
+        const right = String(b?.name ?? '').toLowerCase();
+        comparison = left < right ? -1 : left > right ? 1 : 0;
       } else if (cardSortBy === 'level') {
         comparison = number(getDisplayCardLevel(a)) - number(getDisplayCardLevel(b));
       } else if (cardSortBy === 'rarity') {
@@ -1011,23 +1003,48 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
       }
 
       if (!Number.isFinite(comparison) || comparison === 0) {
-        comparison = compareNames(a, b);
+        const left = String(a?.name ?? '').toLowerCase();
+        const right = String(b?.name ?? '').toLowerCase();
+        comparison = left < right ? -1 : left > right ? 1 : 0;
       }
 
       return comparison * direction;
     });
 
     return items;
-  }, [cardSortBy, cardSortAscending]);
+  }, [cardCollections.cards, cardSortBy, cardSortAscending]);
 
-  const sortedPlayerCards = useMemo(
-    () => sortCards(cardCollections.cards),
-    [cardCollections.cards, sortCards],
-  );
-  const sortedSupportCards = useMemo(
-    () => sortCards(cardCollections.supportCards),
-    [cardCollections.supportCards, sortCards],
-  );
+  const sortedSupportCards = useMemo(() => {
+    const items = Array.isArray(cardCollections.supportCards) ? [...cardCollections.supportCards] : [];
+    const direction = cardSortAscending ? 1 : -1;
+
+    items.sort((a, b) => {
+      let comparison = 0;
+
+      if (cardSortBy === 'name') {
+        const left = String(a?.name ?? '').toLowerCase();
+        const right = String(b?.name ?? '').toLowerCase();
+        comparison = left < right ? -1 : left > right ? 1 : 0;
+      } else if (cardSortBy === 'level') {
+        comparison = number(getDisplayCardLevel(a)) - number(getDisplayCardLevel(b));
+      } else if (cardSortBy === 'rarity') {
+        comparison = (CARD_RARITY_ORDER[String(a?.rarity ?? '').toLowerCase()] ?? 99)
+          - (CARD_RARITY_ORDER[String(b?.rarity ?? '').toLowerCase()] ?? 99);
+      } else if (cardSortBy === 'elixir') {
+        comparison = number(a?.elixirCost) - number(b?.elixirCost);
+      }
+
+      if (!Number.isFinite(comparison) || comparison === 0) {
+        const left = String(a?.name ?? '').toLowerCase();
+        const right = String(b?.name ?? '').toLowerCase();
+        comparison = left < right ? -1 : left > right ? 1 : 0;
+      }
+
+      return comparison * direction;
+    });
+
+    return items;
+  }, [cardCollections.supportCards, cardSortBy, cardSortAscending]);
 
 
   const title = isClan
@@ -1654,8 +1671,24 @@ const styles = StyleSheet.create({
   cardCollectionTitleWrap: { flex: 1, minWidth: 0 },
   cardSortControls: { flexDirection: 'row', alignItems: 'center', gap: 7, marginLeft: 8, flexShrink: 0, zIndex: 20 },
   cardSortDirection: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' },
-  cardSortTriangle: { position: 'absolute', top: 10, left: 10, width: 12, height: 12, alignItems: 'center', justifyContent: 'center' },
-  cardSortTriangleGlyph: { fontSize: 8, lineHeight: 10, fontWeight: '800' },
+  cardSortTriangle: { position: 'absolute', top: 9, left: 9, width: 14, height: 14, alignItems: 'center', justifyContent: 'center' },
+  cardSortRoundedTriangle: { width: 12, height: 11, position: 'relative' },
+  cardSortTriangleCore: {
+    position: 'absolute',
+    left: 1,
+    top: 0,
+    width: 0,
+    height: 0,
+    borderLeftWidth: 5,
+    borderRightWidth: 5,
+    borderBottomWidth: 10,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderRadius: 2,
+  },
+  cardSortTriangleCornerTop: { position: 'absolute', width: 3, height: 3, borderRadius: 1.5, left: 4.5, top: 0 },
+  cardSortTriangleCornerLeft: { position: 'absolute', width: 3, height: 3, borderRadius: 1.5, left: 0, top: 8 },
+  cardSortTriangleCornerRight: { position: 'absolute', width: 3, height: 3, borderRadius: 1.5, right: 0, top: 8 },
   cardSortMenuWrap: { position: 'relative', zIndex: 20 },
   cardSortCapsule: { minWidth: 82, height: 32, paddingHorizontal: 11, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 5 },
   cardSortText: { fontSize: 11, fontWeight: '800' },
