@@ -550,14 +550,14 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
             },
           ]}
         >
-          <View style={styles.cardSortTriangleShape}>
-            <View
-              style={[
-                styles.cardSortTriangleInner,
-                { borderBottomColor: theme.colors.onPrimaryContainer },
-              ]}
-            />
-          </View>
+          <Text
+            style={[
+              styles.cardSortTriangleGlyph,
+              { color: theme.colors.onPrimaryContainer },
+            ]}
+          >
+            ▲
+          </Text>
         </Animated.View>
       </Pressable>
 
@@ -988,16 +988,21 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     const items = Array.isArray(cards) ? [...cards] : [];
     const direction = cardSortAscending ? 1 : -1;
 
+    const compareNames = (a, b) => {
+      const left = String(a?.name ?? '').toLowerCase();
+      const right = String(b?.name ?? '').toLowerCase();
+      if (left < right) return -1;
+      if (left > right) return 1;
+      return 0;
+    };
+
     items.sort((a, b) => {
       let comparison = 0;
 
       if (cardSortBy === 'name') {
-        comparison = String(a?.name ?? '').localeCompare(String(b?.name ?? ''), undefined, {
-          sensitivity: 'base',
-          numeric: true,
-        });
+        comparison = compareNames(a, b);
       } else if (cardSortBy === 'level') {
-        comparison = getDisplayCardLevel(a) - getDisplayCardLevel(b);
+        comparison = number(getDisplayCardLevel(a)) - number(getDisplayCardLevel(b));
       } else if (cardSortBy === 'rarity') {
         comparison = (CARD_RARITY_ORDER[String(a?.rarity ?? '').toLowerCase()] ?? 99)
           - (CARD_RARITY_ORDER[String(b?.rarity ?? '').toLowerCase()] ?? 99);
@@ -1005,11 +1010,8 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
         comparison = number(a?.elixirCost) - number(b?.elixirCost);
       }
 
-      if (comparison === 0) {
-        comparison = String(a?.name ?? '').localeCompare(String(b?.name ?? ''), undefined, {
-          sensitivity: 'base',
-          numeric: true,
-        });
+      if (!Number.isFinite(comparison) || comparison === 0) {
+        comparison = compareNames(a, b);
       }
 
       return comparison * direction;
@@ -1652,18 +1654,8 @@ const styles = StyleSheet.create({
   cardCollectionTitleWrap: { flex: 1, minWidth: 0 },
   cardSortControls: { flexDirection: 'row', alignItems: 'center', gap: 7, marginLeft: 8, flexShrink: 0, zIndex: 20 },
   cardSortDirection: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' },
-  cardSortTriangle: { position: 'absolute', top: 9, left: 9, width: 14, height: 14, alignItems: 'center', justifyContent: 'center' },
-  cardSortTriangleShape: { width: 14, height: 12, alignItems: 'center', justifyContent: 'flex-end' },
-  cardSortTriangleInner: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 7,
-    borderRightWidth: 7,
-    borderBottomWidth: 12,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderRadius: 2,
-  },
+  cardSortTriangle: { position: 'absolute', top: 10, left: 10, width: 12, height: 12, alignItems: 'center', justifyContent: 'center' },
+  cardSortTriangleGlyph: { fontSize: 8, lineHeight: 10, fontWeight: '800' },
   cardSortMenuWrap: { position: 'relative', zIndex: 20 },
   cardSortCapsule: { minWidth: 82, height: 32, paddingHorizontal: 11, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 5 },
   cardSortText: { fontSize: 11, fontWeight: '800' },
