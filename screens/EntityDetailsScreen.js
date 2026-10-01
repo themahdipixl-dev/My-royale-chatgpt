@@ -483,7 +483,7 @@ function CardCollectionFilterTile({ type, icon, label, value, selected, onPress,
   const progress = animation[type];
   const borderColor = progress.interpolate({
     inputRange: [0, 1],
-    outputRange: ['transparent', '#66BB6A'],
+    outputRange: ['transparent', type === 'heroes' ? '#FFD54F' : '#AB47BC'],
   });
   const scale = progress.interpolate({
     inputRange: [0, 1],
@@ -672,10 +672,14 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
   );
 }
 
-function CardItem({ index = 0, card, theme, compact = false, deck, tower = false, grid = false }) {
-  const image = deck ? resolveCurrentDeckImage(card, index, deck) : (
-    card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium
-  );
+function CardItem({ index = 0, card, theme, compact = false, deck, tower = false, grid = false, collectionFilter = null }) {
+  const image = deck
+    ? resolveCurrentDeckImage(card, index, deck)
+    : collectionFilter === 'heroes'
+      ? (card?.iconUrls?.heroMedium || card?.iconUrls?.medium)
+      : collectionFilter === 'evolutions'
+        ? (card?.iconUrls?.evolutionMedium || card?.iconUrls?.medium)
+        : (card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium);
   const cardLayoutStyle = [
     styles.cardItem,
     compact && styles.compactCardItem,
@@ -1623,7 +1627,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               </View>
               <View style={styles.allCardsGrid}>
                 {sortedPlayerCards.map((card, index) => (
-                  <CardItem key={card?.id ?? ('card-' + String(card?.name ?? index))} card={card} theme={theme} index={index} grid />
+                  <CardItem key={card?.id ?? ('card-' + String(card?.name ?? index))} card={card} theme={theme} index={index} grid collectionFilter={cardCollectionFilter} />
                 ))}
               </View>
               {supportCards.length > 0 ? (
