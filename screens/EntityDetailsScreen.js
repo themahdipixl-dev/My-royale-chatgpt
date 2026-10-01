@@ -471,6 +471,131 @@ function getCurrentDeckBattleStats(battlelog, currentDeck, playerTag) {
   };
 }
 
+function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme }) {
+  const [open, setOpen] = useState(false);
+  const menuHeight = useRef(new Animated.Value(0)).current;
+  const menuOpacity = useRef(new Animated.Value(0)).current;
+  const menuScale = useRef(new Animated.Value(0.96)).current;
+
+  const options = [
+    { key: 'name', label: 'By name' },
+    { key: 'level', label: 'By level' },
+    { key: 'rarity', label: 'By rarity' },
+    { key: 'elixir', label: 'By elixir' },
+  ];
+
+  const toggleMenu = useCallback(() => {
+    const nextOpen = !open;
+    setOpen(nextOpen);
+    Animated.parallel([
+      Animated.timing(menuHeight, {
+        toValue: nextOpen ? 196 : 0,
+        duration: nextOpen ? 240 : 180,
+        useNativeDriver: false,
+      }),
+      Animated.timing(menuOpacity, {
+        toValue: nextOpen ? 1 : 0,
+        duration: nextOpen ? 180 : 120,
+        useNativeDriver: true,
+      }),
+      Animated.spring(menuScale, {
+        toValue: nextOpen ? 1 : 0.96,
+        friction: 8,
+        tension: 80,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [open, menuHeight, menuOpacity, menuScale]);
+
+  const selectOption = useCallback((key) => {
+    setSortBy(key);
+    toggleMenu();
+  }, [setSortBy, toggleMenu]);
+
+  return (
+    <View style={styles.cardSortControls}>
+      <Pressable
+        onPress={() => setAscending((value) => !value)}
+        style={({ pressed }) => [
+          styles.cardSortDirection,
+          { backgroundColor: theme.colors.primaryContainer, opacity: pressed ? 0.72 : 1 },
+        ]}
+        accessibilityLabel={ascending ? 'Ascending' : 'Descending'}
+      >
+        <MaterialCommunityIcons
+          name="triangle"
+          size={8}
+          color={ascending ? theme.colors.onPrimaryContainer : theme.colors.onSurfaceVariant}
+          style={styles.cardSortTriangleUp}
+        />
+        <MaterialCommunityIcons
+          name="triangle-down"
+          size={8}
+          color={!ascending ? theme.colors.onPrimaryContainer : theme.colors.onSurfaceVariant}
+          style={styles.cardSortTriangleDown}
+        />
+      </Pressable>
+
+      <View style={styles.cardSortMenuWrap}>
+        <Pressable
+          onPress={toggleMenu}
+          style={({ pressed }) => [
+            styles.cardSortCapsule,
+            { backgroundColor: theme.colors.surfaceContainerHighest, opacity: pressed ? 0.78 : 1 },
+          ]}
+        >
+          <Text style={[styles.cardSortText, { color: theme.colors.onSurface }]}>Sort by</Text>
+          <MaterialCommunityIcons
+            name={open ? 'chevron-up' : 'chevron-down'}
+            size={17}
+            color={theme.colors.onSurfaceVariant}
+          />
+        </Pressable>
+
+        <Animated.View
+          pointerEvents={open ? 'auto' : 'none'}
+          style={[
+            styles.cardSortDropdown,
+            {
+              backgroundColor: theme.colors.surfaceContainerHigh,
+              height: menuHeight,
+              opacity: menuOpacity,
+              transform: [{ scale: menuScale }],
+            },
+          ]}
+        >
+          {options.map((option, index) => (
+            <Pressable
+              key={option.key}
+              onPress={() => selectOption(option.key)}
+              style={({ pressed }) => [
+                styles.cardSortOption,
+                { opacity: pressed ? 0.68 : 1 },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.cardSortOptionText,
+                  {
+                    color: option.key === sortBy
+                      ? theme.colors.primary
+                      : theme.colors.onSurface,
+                  },
+                ]}
+              >
+                {option.label}
+              </Text>
+              {index < options.length - 1 ? (
+                <View style={[styles.cardSortDivider, { backgroundColor: theme.colors.outlineVariant }]} />
+              ) : null}
+            </Pressable>
+          ))}
+        </Animated.View>
+      </View>
+    </View>
+  );
+}
+
 function CardItem({ index = 0, card, theme, compact = false, deck, tower = false, grid = false }) {
   const image = deck ? resolveCurrentDeckImage(card, index, deck) : (
     card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium
@@ -588,6 +713,8 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const [error, setError] = useState(null);
   const [showAllBadges, setShowAllBadges] = useState(false);
   const [showCopyDeckModal, setShowCopyDeckModal] = useState(false);
+  const [cardSortBy, setCardSortBy] = useState('name');
+  const [cardSortAscending, setCardSortAscending] = useState(true);
   const copyDeckModalOpacity = useRef(new Animated.Value(0)).current;
   const copyDeckModalScale = useRef(new Animated.Value(0.92)).current;
   const copyDeckModalY = useRef(new Animated.Value(18)).current;
@@ -832,6 +959,57 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     const evolutionLevel = Number(card?.evolutionLevel);
     return evolutionLevel === 2 || evolutionLevel === 3;
   }).length;
+
+  const rarityOrder = {
+    common: 1,
+    rare: 2,
+    epic: 3,
+    legendary: 4,
+    champion: 5,
+  };
+
+  const sortCards = useCallback((cards) => {
+    const items = Array.isArray(cards) ? [...cards] : [];
+    const direction = cardSortAscending ? 1 : -1;
+
+    items.sort((a, b) => {
+      let comparison = 0;
+
+      if (cardSortBy === 'name') {
+        comparison = String(a?.name ?? '').localeCompare(String(b?.name ?? ''), undefined, {
+          sensitivity: 'base',
+          numeric: true,
+        });
+      } else if (cardSortBy === 'level') {
+        comparison = getDisplayCardLevel(a) - getDisplayCardLevel(b);
+      } else if (cardSortBy === 'rarity') {
+        comparison = (rarityOrder[String(a?.rarity ?? '').toLowerCase()] ?? 99)
+          - (rarityOrder[String(b?.rarity ?? '').toLowerCase()] ?? 99);
+      } else if (cardSortBy === 'elixir') {
+        comparison = number(a?.elixirCost) - number(b?.elixirCost);
+      }
+
+      if (comparison === 0) {
+        comparison = String(a?.name ?? '').localeCompare(String(b?.name ?? ''), undefined, {
+          sensitivity: 'base',
+          numeric: true,
+        });
+      }
+
+      return comparison * direction;
+    });
+
+    return items;
+  }, [cardSortBy, cardSortAscending]);
+
+  const sortedPlayerCards = useMemo(
+    () => sortCards(cardCollections.cards),
+    [cardCollections.cards, sortCards],
+  );
+  const sortedSupportCards = useMemo(
+    () => sortCards(cardCollections.supportCards),
+    [cardCollections.supportCards, sortCards],
+  );
 
 
   const title = isClan
@@ -1238,14 +1416,23 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
             </Surface></AnimatedSection>
 
             <AnimatedSection index={8} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
-              <SectionTitle icon="archive" title="Card collection" right={`${cardCount} cards`} theme={theme} />
+              <View style={styles.cardCollectionHeader}>
+                <SectionTitle icon="archive" title="Card collection" theme={theme} />
+                <CardSortControls
+                  sortBy={cardSortBy}
+                  setSortBy={setCardSortBy}
+                  ascending={cardSortAscending}
+                  setAscending={setCardSortAscending}
+                  theme={theme}
+                />
+              </View>
               <View style={styles.collectionSummary}>
                 <StatTile icon="check-decagram" label="Max level" value={formatNumber(maxLevelCards)} theme={theme} />
                 <StatTile icon="auto-fix" label="Evolutions" value={formatNumber(evolutionCards)} theme={theme} />
                 <StatTile icon="account-star" label="Heroes" value={formatNumber(heroCards)} theme={theme} />
               </View>
               <View style={styles.allCardsGrid}>
-                {cardCollections.cards.map((card, index) => (
+                {sortedPlayerCards.map((card, index) => (
                   <CardItem key={card?.id ?? index} card={card} theme={theme} index={index} grid />
                 ))}
               </View>
@@ -1255,7 +1442,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                     <Text style={[styles.subSectionTitle, { color: theme.colors.onSurface }]}>Tower Cards</Text>
                   </View>
                   <View style={styles.allCardsGrid}>
-                    {supportCards.map((card, index) => (
+                    {sortedSupportCards.map((card, index) => (
                       <CardItem key={card?.id ?? ('support-' + index)} card={card} theme={theme} index={index} grid />
                     ))}
                   </View>
@@ -1443,6 +1630,19 @@ const styles = StyleSheet.create({
 
   favoriteRow: { flexDirection: 'row', alignItems: 'flex-start' },
   favoriteDetails: { flex: 1, marginLeft: 8 },
+  cardCollectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 13 },
+  cardSortControls: { flexDirection: 'row', alignItems: 'center', gap: 7, marginLeft: 8, zIndex: 20 },
+  cardSortDirection: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', position: 'relative' },
+  cardSortTriangleUp: { position: 'absolute', top: 8 },
+  cardSortTriangleDown: { position: 'absolute', bottom: 8 },
+  cardSortMenuWrap: { position: 'relative', zIndex: 20 },
+  cardSortCapsule: { minWidth: 82, height: 32, paddingHorizontal: 11, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 5 },
+  cardSortText: { fontSize: 11, fontWeight: '800' },
+  cardSortDropdown: { position: 'absolute', top: 38, right: 0, width: 132, borderRadius: 17, overflow: 'hidden', elevation: 8, zIndex: 30 },
+  cardSortOption: { height: 49, paddingHorizontal: 13, justifyContent: 'center', position: 'relative' },
+  cardSortOptionText: { fontSize: 11.5, fontWeight: '700' },
+  cardSortDivider: { position: 'absolute', left: 13, right: 13, bottom: 0, height: StyleSheet.hairlineWidth },
+
   collectionSummary: { flexDirection: 'row', gap: 9, marginBottom: 10 },
   allCardsGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 9, alignItems: 'flex-start' },
   badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
