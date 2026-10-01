@@ -776,6 +776,58 @@ function CardItem({ index = 0, card, theme, compact = false, deck, tower = false
     <AnimatedDetailItem index={index} layoutStyle={cardLayoutStyle}>{decoratedCardContent}</AnimatedDetailItem>
   );
 }
+
+function getBadgePriority(badge) {
+  const name = String(badge?.name ?? '').trim().toLowerCase();
+
+  // Mastery badges are always the final group.
+  if (name.startsWith('mastery') || name.includes('mastery')) return 99;
+
+  // Clash Royale's current collection categories:
+  // Champion → Annual → Normal → Merge Tactics → Archived.
+  if (name.includes('champion')) return 0;
+  if (/20\\d{2}/.test(name) || name.includes('yearbadge') || name.includes('annual') || name.includes('season')) return 1;
+  if (name.includes('merge') || name.includes('tactics') || name.includes('autochess')) return 3;
+  if (name.includes('archived') || name.includes('legacy')) return 4;
+  return 2;
+}
+
+function sortBadgesByGameCategory(badges) {
+  const items = Array.isArray(badges) ? [...badges] : [];
+
+  items.sort((a, b) => {
+    const categoryComparison = getBadgePriority(a) - getBadgePriority(b);
+    if (categoryComparison !== 0) return categoryComparison;
+
+    // The API does not expose badge rarity/official priority as a field.
+    // Within a category, show the most progressed upgradeable badges first.
+    const levelA = Number(a?.level);
+    const levelB = Number(b?.level);
+    const hasLevelA = Number.isFinite(levelA);
+    const hasLevelB = Number.isFinite(levelB);
+
+    if (hasLevelA !== hasLevelB) return hasLevelA ? -1 : 1;
+    if (hasLevelA && levelA !== levelB) return levelB - levelA;
+
+    const targetA = Number(a?.target);
+    const targetB = Number(b?.target);
+    const progressA = Number(a?.progress);
+    const progressB = Number(b?.progress);
+    const ratioA = Number.isFinite(targetA) && targetA > 0 && Number.isFinite(progressA)
+      ? progressA / targetA
+      : -1;
+    const ratioB = Number.isFinite(targetB) && targetB > 0 && Number.isFinite(progressB)
+      ? progressB / targetB
+      : -1;
+
+    if (ratioA !== ratioB) return ratioB - ratioA;
+
+    return String(a?.name ?? '').localeCompare(String(b?.name ?? ''));
+  });
+
+  return items;
+}
+
 function BadgeItem({ index = 0, badge, theme }) {
   const imageCandidates = useMemo(() => {
     const urls = badge?.iconUrls || {};
@@ -1230,7 +1282,8 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     () => getCurrentDeckBattleStats(battlelog, currentDeck, tag),
     [battlelog, currentDeck, tag],
   );
-  const badges = Array.isArray(data.badges) ? data.badges : [];
+  const badges = useMemo(() => sortBadgesByGameCategory(data.badges), [data.badges]);
+  const achievements = Array.isArray(data.achievements) ? data.achievements : [];
 
   const cardCollections = useMemo(() => {
     const cards = Array.isArray(data.cards) ? data.cards : [];
@@ -1878,7 +1931,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
             </Surface></AnimatedSection>
 
             <AnimatedSection index={9} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
-              <SectionTitle icon="medal" title="Badges & achievements" right={`${badges.length}`} theme={theme} />
+              <SectionTitle icon="medal" title="Badges" right={`${badges.length}`} theme={theme} />
               {badges.length === 0 ? (
                 <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No badge data.</Text>
               ) : (
@@ -1908,6 +1961,48 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
             </Surface></AnimatedSection>
 
             <AnimatedSection index={10} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
+              <SectionTitle icon="trophy-outline" title="Achievements" right={`${achievements.length}`} theme={theme} />
+              {achievements.length === 0 ? (
+                <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No achievement data.</Text>
+              ) : (
+                <View style={styles.achievementsList}>
+                  {achievements.map((achievement, index) => (
+                    <View
+                      key={achievement?.name || index}
+                      style={[
+                        styles.achievementRow,
+                        { backgroundColor: theme.colors.surfaceContainerHighest },
+                        index < achievements.length - 1 && { marginBottom: 7 },
+                      ]}
+                    >
+                      <View style={[styles.achievementIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+                        <MaterialCommunityIcons
+                          name="trophy-outline"
+                          size={18}
+                          color={theme.colors.onPrimaryContainer}
+                        />
+                      </View>
+                      <View style={styles.achievementMain}>
+                        <Text numberOfLines={1} style={[styles.achievementName, { color: theme.colors.onSurface }]}>
+                          {achievement?.name || 'Achievement'}
+                        </Text>
+                        <Text numberOfLines={1} style={[styles.achievementInfo, { color: theme.colors.onSurfaceVariant }]}>
+                          {achievement?.info || 'Achievement progress'}
+                        </Text>
+                      </View>
+                      <View style={styles.achievementStars}>
+                        <MaterialCommunityIcons name="star" size={14} color={theme.colors.primary} />
+                        <Text style={[styles.achievementStarsText, { color: theme.colors.onSurface }]}>
+                          {number(achievement?.stars)}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </Surface></AnimatedSection>
+
+            <AnimatedSection index={11} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
               <SectionTitle icon="sword-cross" title="Battle log" right={battlelog.length ? `${battlelog.length} battles` : undefined} theme={theme} />
               {battleLoading ? (
                 <View style={styles.battleLoading}>
@@ -2131,6 +2226,14 @@ const styles = StyleSheet.create({
   badgeFill: { height: '100%', borderRadius: 3 },
   badgeProgress: { marginTop: 3, fontSize: 8.5 },
 
+  achievementsList: { width: '100%' },
+  achievementRow: { minHeight: 58, borderRadius: 16, padding: 9, flexDirection: 'row', alignItems: 'center' },
+  achievementIcon: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  achievementMain: { flex: 1, minWidth: 0, marginLeft: 9 },
+  achievementName: { fontSize: 12.5, fontWeight: '800' },
+  achievementInfo: { marginTop: 3, fontSize: 9.5 },
+  achievementStars: { marginLeft: 8, flexDirection: 'row', alignItems: 'center', minWidth: 30, justifyContent: 'flex-end' },
+  achievementStarsText: { marginLeft: 2, fontSize: 11, fontWeight: '800' },
   battleLoading: { paddingVertical: 20, alignItems: 'center' },
   battleRow: { minHeight: 58, borderRadius: 16, padding: 9, marginBottom: 7, flexDirection: 'row', alignItems: 'center' },
   resultIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
