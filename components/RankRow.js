@@ -1,6 +1,6 @@
 // * components/RankRow.js — player row press handling infrastructure (v65)
 import React, { useEffect, useRef } from 'react';
-import { Animated, View, Text, Image, StyleSheet, Pressable } from 'react-native';
+import { Animated, View, Text, StyleSheet, Pressable } from 'react-native';
 import { Surface, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getPlayerLeagueImage } from '../utils/playerLeagueassets';
