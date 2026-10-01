@@ -17,6 +17,7 @@ import {
 import { IconButton, Surface, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Clipboard from 'expo-clipboard';
 import { fetchPlayer, fetchPlayerBattlelog } from '../api/client';
 import { getClanBadgeImage } from '../utils/clanBadges';
@@ -1801,21 +1802,19 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                         },
                       ]}
                     >
-                      <View style={styles.cardsFadeGradient}>
-                        {Array.from({ length: 42 }, (_, fadeIndex) => {
-                          const t = fadeIndex / 41;
-                          const eased = t * t * (3 - 2 * t);
-                          return (
-                            <View
-                              key={fadeIndex}
-                              style={[
-                                styles.cardsFadeStrip,
-                                { backgroundColor: theme.colors.surfaceContainer, opacity: 0.006 + eased * 0.075 },
-                              ]}
-                            />
-                          );
-                        })}
-                      </View>
+                      <LinearGradient
+                        colors={[
+                          'transparent',
+                          'rgba(0,0,0,0.025)',
+                          'rgba(0,0,0,0.10)',
+                          theme.colors.surfaceContainer,
+                        ]}
+                        locations={[0, 0.38, 0.68, 1]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 0, y: 1 }}
+                        dither
+                        style={styles.cardsFadeGradient}
+                      />
                     </Animated.View>
                   ) : null}
                 </Animated.View>
@@ -2062,8 +2061,7 @@ const styles = StyleSheet.create({
   normalCardsSection: { width: '100%' },
   normalCardsRevealWrap: { width: '100%', overflow: 'hidden' },
   cardsCollapseFade: { position: 'absolute', left: 0, right: 0, top: 72, height: 97, overflow: 'hidden' },
-  cardsFadeGradient: { flex: 1, flexDirection: 'column', justifyContent: 'flex-end' },
-  cardsFadeStrip: { flex: 1, width: '100%' },
+  cardsFadeGradient: { flex: 1, width: '100%' },
   cardsExpandButton: { alignSelf: 'center', width: 34, height: 30, marginTop: 14, alignItems: 'center', justifyContent: 'center' },
   badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   viewAllButton: { marginTop: 12, minHeight: 44, borderRadius: 15, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
