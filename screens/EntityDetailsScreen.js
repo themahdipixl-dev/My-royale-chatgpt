@@ -677,12 +677,20 @@ function CardItem({ index = 0, card, theme, compact = false, deck, tower = false
       </View>
   );
 
+  const decoratedCardContent = rarity === 'legendary' ? (
+    <View style={styles.legendaryGlowWrap}>
+      <View pointerEvents="none" style={[styles.legendaryGlowHalf, styles.legendaryGlowGreen]} />
+      <View pointerEvents="none" style={[styles.legendaryGlowHalf, styles.legendaryGlowPink]} />
+      {cardContent}
+    </View>
+  ) : cardContent;
+
   // Reordering the card grid must not re-trigger measureInWindow animations.
   // AnimatedDetailItem can be sensitive to large child reorders on native.
   return grid ? (
-    <View style={cardLayoutStyle}>{cardContent}</View>
+    <View style={cardLayoutStyle}>{decoratedCardContent}</View>
   ) : (
-    <AnimatedDetailItem index={index} layoutStyle={cardLayoutStyle}>{cardContent}</AnimatedDetailItem>
+    <AnimatedDetailItem index={index} layoutStyle={cardLayoutStyle}>{decoratedCardContent}</AnimatedDetailItem>
   );
 }
 
@@ -1668,6 +1676,10 @@ const styles = StyleSheet.create({
   deckBattleStatValue: { marginTop: 0, marginLeft: 3, fontSize: 12, fontWeight: '800' },
   cardItem: { width: '23.5%', height: 120 },
   cardItemInner: { height: 120, borderRadius: 16, padding: 5, overflow: 'visible' },
+  legendaryGlowWrap: { position: 'relative', width: '100%', height: '100%' },
+  legendaryGlowHalf: { position: 'absolute', top: 0, bottom: 0, width: '54%', borderWidth: 1, borderRadius: 16 },
+  legendaryGlowGreen: { left: 0, borderColor: '#66BB6A', shadowColor: '#66BB6A', shadowOpacity: 0.42, shadowRadius: 5, shadowOffset: { width: 0, height: 0 }, elevation: 3 },
+  legendaryGlowPink: { right: 0, borderColor: '#EC407A', shadowColor: '#EC407A', shadowOpacity: 0.42, shadowRadius: 5, shadowOffset: { width: 0, height: 0 }, elevation: 3 },
   compactCardItem: { width: '23.5%', height: 120 },
   cardGridGap: { marginRight: '2%' },
   compactCardItemInner: { height: 120, borderRadius: 16, padding: 5 },
