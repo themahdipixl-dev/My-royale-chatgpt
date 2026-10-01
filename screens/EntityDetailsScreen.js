@@ -1212,7 +1212,6 @@ const styles = StyleSheet.create({
   sectionSubtitleLine: { fontSize: 8.5, lineHeight: 9, fontWeight: '600' },
   sectionRight: { marginLeft: 8, fontSize: 11 },
   currentDeckHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 13 },
-  currentDeckHeaderTitle: { flex: 1 },
   copyDeckButton: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', marginLeft: 8 },
 
   performanceNumbers: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
