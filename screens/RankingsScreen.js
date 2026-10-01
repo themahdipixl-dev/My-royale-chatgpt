@@ -60,7 +60,6 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const handleTopTabChangeRef = useRef(null);
   const retryTimerRef = useRef(null);
   const detailEntityRef = useRef(detailEntity);
-  const wasDetailOpenRef = useRef(Boolean(detailEntity));
   detailEntityRef.current = detailEntity;
   topTabRef.current = topTab;
 
@@ -167,21 +166,14 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   }, [selectedLocation, topTab, clanRankingMode, loadData]);
 
   useEffect(() => {
-    if (detailEntity) {
-      wasDetailOpenRef.current = true;
-      if (retryTimerRef.current) {
-        clearTimeout(retryTimerRef.current);
-        retryTimerRef.current = null;
-      }
-      setLoading(false);
-      return;
-    }
+    if (!detailEntity) return;
 
-    if (wasDetailOpenRef.current) {
-      wasDetailOpenRef.current = false;
-      loadData(selectedLocation?.id, topTab, clanRankingMode);
+    if (retryTimerRef.current) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
     }
-  }, [detailEntity, loadData, selectedLocation, topTab, clanRankingMode]);
+    setLoading(false);
+  }, [detailEntity]);
 
   useEffect(() => {
     if (detailEntity) return;
