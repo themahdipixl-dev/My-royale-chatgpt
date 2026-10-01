@@ -481,6 +481,7 @@ function getCurrentDeckBattleStats(battlelog, currentDeck, playerTag) {
 
 function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme }) {
   const [open, setOpen] = useState(false);
+  const menuProgress = useRef(new Animated.Value(0)).current;
 
   const options = [
     { key: 'name', label: 'By name' },
@@ -488,6 +489,45 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
     { key: 'rarity', label: 'By rarity' },
     { key: 'elixir', label: 'By elixir' },
   ];
+
+  const toggleMenu = () => {
+    const nextOpen = !open;
+    if (nextOpen) {
+      setOpen(true);
+      menuProgress.setValue(0);
+      Animated.spring(menuProgress, {
+        toValue: 1,
+        friction: 8,
+        tension: 90,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(menuProgress, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (finished) setOpen(false);
+      });
+    }
+  };
+
+  const selectOption = (key) => {
+    // Close the menu first; update the grid only after the visual close.
+    Animated.timing(menuProgress, {
+      toValue: 0,
+      duration: 160,
+      useNativeDriver: true,
+    }).start(({ finished }) => {
+      if (finished) {
+        setOpen(false);
+        setSortBy(key);
+      }
+    });
+  };
+
+  const selectedOption = options.find((option) => option.key === sortBy);
+  const selectedLabel = selectedOption?.label ?? 'Sort by';
 
   return (
     <View style={styles.cardSortControls}>
@@ -500,12 +540,12 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
             opacity: pressed ? 0.72 : 1,
           },
         ]}
-        accessibilityLabel={ascending ? 'Ascending' : 'Descending'}
+        accessibilityLabel={ascending ? 'Descending' : 'Ascending'}
       >
         <View style={styles.cardSortTriangle}>
           <MaterialCommunityIcons
-            name={ascending ? 'triangle' : 'triangle-down'}
-            size={14}
+            name={ascending ? 'triangle-down' : 'triangle'}
+            size={12}
             color={theme.colors.onPrimaryContainer}
           />
         </View>
@@ -513,7 +553,7 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
 
       <View style={styles.cardSortMenuWrap}>
         <Pressable
-          onPress={() => setOpen((value) => !value)}
+          onPress={toggleMenu}
           style={({ pressed }) => [
             styles.cardSortCapsule,
             {
@@ -522,7 +562,12 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
             },
           ]}
         >
-          <Text style={[styles.cardSortText, { color: theme.colors.onSurface }]}>Sort by</Text>
+          <Text
+            numberOfLines={1}
+            style={[styles.cardSortText, { color: theme.colors.onSurface }]}
+          >
+            {selectedLabel}
+          </Text>
           <MaterialCommunityIcons
             name={open ? 'chevron-up' : 'chevron-down'}
             size={17}
@@ -531,19 +576,33 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
         </Pressable>
 
         {open ? (
-          <View
+          <Animated.View
             style={[
               styles.cardSortDropdown,
-              { backgroundColor: theme.colors.surfaceContainerHigh },
+              {
+                backgroundColor: theme.colors.surfaceContainerHigh,
+                opacity: menuProgress,
+                transform: [
+                  {
+                    translateY: menuProgress.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-7, 0],
+                    }),
+                  },
+                  {
+                    scale: menuProgress.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.97, 1],
+                    }),
+                  },
+                ],
+              },
             ]}
           >
             {options.map((option, index) => (
               <Pressable
                 key={option.key}
-                onPress={() => {
-                  setOpen(false);
-                  setSortBy(option.key);
-                }}
+                onPress={() => selectOption(option.key)}
                 style={({ pressed }) => [
                   styles.cardSortOption,
                   { opacity: pressed ? 0.68 : 1 },
@@ -571,7 +630,7 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
                 ) : null}
               </Pressable>
             ))}
-          </View>
+          </Animated.View>
         ) : null}
       </View>
     </View>
