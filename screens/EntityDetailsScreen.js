@@ -175,6 +175,10 @@ function AnimatedDetailItem({ children, index = 0, layoutStyle }) {
     });
   }, [animation, layout]);
 
+  if (!animation) {
+    return <View style={layoutStyle}>{children}</View>;
+  }
+
   return (
     <Animated.View
       ref={nodeRef}
@@ -773,16 +777,36 @@ function CardItem({ index = 0, card, theme, compact = false, deck, tower = false
   );
 }
 function BadgeItem({ index = 0, badge, theme }) {
-  const image = badge?.iconUrls?.large || badge?.iconUrls?.medium;
+  const imageCandidates = useMemo(() => {
+    const urls = badge?.iconUrls || {};
+    return [urls.large, urls.medium, urls.small].filter(
+      (url, candidateIndex, list) => Boolean(url) && list.indexOf(url) === candidateIndex,
+    );
+  }, [badge]);
+
+  const [imageIndex, setImageIndex] = useState(0);
+  useEffect(() => {
+    setImageIndex(0);
+  }, [badge]);
+
+  const image = imageCandidates[imageIndex] || null;
   const progress = number(badge?.progress);
   const target = number(badge?.target);
   const ratio = target > 0 ? Math.min(1, progress / target) : 0;
 
-  return (
-    <AnimatedDetailItem index={index} layoutStyle={styles.badgeItem}>
-      <View style={[styles.badgeItemInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+  const content = (
+    <View style={[styles.badgeItemInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
       {image ? (
-        <Image source={{ uri: image }} style={styles.badgeImage} resizeMode="contain" />
+        <Image
+          source={{ uri: image }}
+          style={styles.badgeImage}
+          resizeMode="contain"
+          onError={() => {
+            setImageIndex((current) => (
+              current + 1 < imageCandidates.length ? current + 1 : current
+            ));
+          }}
+        />
       ) : (
         <MaterialCommunityIcons name="medal-outline" size={34} color={theme.colors.primary} />
       )}
@@ -790,7 +814,9 @@ function BadgeItem({ index = 0, badge, theme }) {
         {badge?.name || 'Badge'}
       </Text>
       <Text style={[styles.badgeLevel, { color: theme.colors.primary }]}>
-        Level {badge?.level ?? '—'}{badge?.maxLevel ? ` / ${badge.maxLevel}` : ''}
+        {badge?.level != null
+          ? `Level ${badge.level}${badge?.maxLevel ? ` / ${badge.maxLevel}` : ''}`
+          : 'Achievement'}
       </Text>
       {target > 0 ? (
         <>
@@ -802,7 +828,12 @@ function BadgeItem({ index = 0, badge, theme }) {
           </Text>
         </>
       ) : null}
-      </View>
+    </View>
+  );
+
+  return (
+    <AnimatedDetailItem index={index} layoutStyle={styles.badgeItem}>
+      {content}
     </AnimatedDetailItem>
   );
 }
