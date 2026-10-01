@@ -10,6 +10,7 @@ import {
   Linking,
   Pressable,
   ScrollView,
+  RefreshControl,
   StyleSheet,
   View,
 } from 'react-native';
@@ -875,6 +876,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const [player, setPlayer] = useState(null);
   const [battlelog, setBattlelog] = useState([]);
   const [loading, setLoading] = useState(type === 'player');
+  const [refreshing, setRefreshing] = useState(false);
   const [battleLoading, setBattleLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showAllBadges, setShowAllBadges] = useState(false);
@@ -996,6 +998,64 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
       cancelled = true;
     };
   }, [isClan, tag]);
+
+  const refreshProgress = useRef(new Animated.Value(0)).current;
+  const refreshRotate = useRef(new Animated.Value(0)).current;
+
+  const refreshPlayerData = useCallback(async () => {
+    if (isClan || !tag || refreshing) return;
+
+    setRefreshing(true);
+    refreshProgress.setValue(0);
+    refreshRotate.setValue(0);
+
+    Animated.parallel([
+      Animated.spring(refreshProgress, {
+        toValue: 1,
+        friction: 7,
+        tension: 70,
+        useNativeDriver: true,
+      }),
+      Animated.loop(
+        Animated.timing(refreshRotate, {
+          toValue: 1,
+          duration: 850,
+          useNativeDriver: true,
+        }),
+      ),
+    ]).start();
+
+    let latestError = null;
+    try {
+      for (let attempt = 1; attempt <= 3; attempt += 1) {
+        try {
+          const freshPlayer = await fetchPlayer(tag);
+          setPlayer(freshPlayer);
+          setError(null);
+          latestError = null;
+          break;
+        } catch (err) {
+          latestError = err;
+          if (attempt < 3) {
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+          }
+        }
+      }
+
+      loadBattlelog();
+      if (latestError) {
+        setError('Please check your internet connection and try again.');
+      }
+    } finally {
+      refreshRotate.stopAnimation();
+      refreshRotate.setValue(0);
+      Animated.timing(refreshProgress, {
+        toValue: 0,
+        duration: 260,
+        useNativeDriver: true,
+      }).start(() => setRefreshing(false));
+    }
+  }, [isClan, tag, refreshing, refreshProgress, refreshRotate, loadBattlelog]);
 
   const loadBattlelog = useCallback(() => {
     if (isClan || !tag) return;
@@ -1278,6 +1338,18 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               contentContainerStyle={styles.content}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
+              bounces
+              alwaysBounceVertical
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={refreshPlayerData}
+                  tintColor={theme.colors.primary}
+                  colors={[theme.colors.primary]}
+                  progressBackgroundColor={theme.colors.surfaceContainerHighest}
+                  progressViewOffset={4}
+                />
+              }
             >
             <AnimatedSection index={1} register={registerAnimatedSection}><Surface elevation={0} style={[styles.heroCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <View style={styles.heroTop}>
