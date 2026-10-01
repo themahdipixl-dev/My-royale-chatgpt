@@ -545,34 +545,17 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
             styles.cardSortTriangle,
             {
               transform: [
-                { translateY: directionProgress.interpolate({ inputRange: [0, 1], outputRange: [0, 7] }) },
+                { translateY: directionProgress.interpolate({ inputRange: [0, 1], outputRange: [0, 0] }) },
                 { rotate: directionProgress.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] }) },
               ],
             },
           ]}
         >
-          <MaterialCommunityIcons
-            name="triangle"
-            size={8}
-            color={theme.colors.onPrimaryContainer}
-          />
-        </Animated.View>
-        <Animated.View
-          style={[
-            styles.cardSortTriangle,
-            styles.cardSortTriangleBottom,
-            {
-              transform: [
-                { translateY: directionProgress.interpolate({ inputRange: [0, 1], outputRange: [0, -7] }) },
-                { rotate: directionProgress.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '0deg'] }) },
-              ],
-            },
-          ]}
-        >
-          <MaterialCommunityIcons
-            name="triangle"
-            size={8}
-            color={theme.colors.onSurfaceVariant}
+          <View
+            style={[
+              styles.cardSortRoundedTriangle,
+              { backgroundColor: theme.colors.onPrimaryContainer },
+            ]}
           />
         </Animated.View>
       </Pressable>
@@ -1668,8 +1651,14 @@ const styles = StyleSheet.create({
   cardCollectionTitleWrap: { flex: 1, minWidth: 0 },
   cardSortControls: { flexDirection: 'row', alignItems: 'center', gap: 7, marginLeft: 8, flexShrink: 0, zIndex: 20 },
   cardSortDirection: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' },
-  cardSortTriangle: { position: 'absolute', top: 8, left: 12 },
-  cardSortTriangleBottom: { top: 16 },
+  cardSortTriangle: { position: 'absolute', top: 10, left: 10 },
+  cardSortRoundedTriangle: {
+    width: 12,
+    height: 10,
+    borderRadius: 3,
+    transform: [{ rotate: '0deg' }],
+    overflow: 'hidden',
+  },
   cardSortMenuWrap: { position: 'relative', zIndex: 20 },
   cardSortCapsule: { minWidth: 82, height: 32, paddingHorizontal: 11, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 5 },
   cardSortText: { fontSize: 11, fontWeight: '800' },
