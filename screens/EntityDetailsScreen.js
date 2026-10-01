@@ -897,39 +897,66 @@ function BadgeVisual({ item, theme, size = 58 }) {
   );
 }
 
-function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false }) {
+function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, activeBadgeKey = null, onToggleBadgePopup }) {
   const progress = number(badge?.progress);
   const target = number(badge?.target);
   const ratio = target > 0 ? Math.min(1, progress / target) : 0;
+  const badgeKey = String(badge?.name || badge?.id || index);
+  const popupVisible = playerDetailsGrid && activeBadgeKey === badgeKey;
 
   const content = (
-    <View style={[styles.badgeItemInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-      <BadgeVisual item={badge} theme={theme} size={58} />
-      <Text numberOfLines={2} style={[styles.badgeName, { color: theme.colors.onSurface }]}>
-        {badge?.name || 'Badge'}
-      </Text>
-      <Text style={[styles.badgeLevel, { color: theme.colors.primary }]}>
-        {badge?.level != null
-          ? `Level ${badge.level}${badge?.maxLevel ? ` / ${badge.maxLevel}` : ''}`
-          : 'Achievement'}
-      </Text>
-      {target > 0 ? (
-        <>
-          <View style={[styles.badgeTrack, { backgroundColor: theme.colors.surfaceContainer }]}>
-            <View style={[styles.badgeFill, { width: `${ratio * 100}%`, backgroundColor: theme.colors.primary }]} />
-          </View>
-          <Text style={[styles.badgeProgress, { color: theme.colors.onSurfaceVariant }]}>
-            {formatNumber(progress)} / {formatNumber(target)}
-          </Text>
-        </>
-      ) : null}
-    </View>
+    <Pressable
+      onPress={() => onToggleBadgePopup?.(popupVisible ? null : badgeKey)}
+      style={styles.badgePressable}
+    >
+      <View style={[
+        styles.badgeItemInner,
+        { backgroundColor: theme.colors.surfaceContainerHighest },
+        popupVisible && styles.badgeItemActive,
+      ]}>
+        <BadgeVisual item={badge} theme={theme} size={76} />
+
+        {popupVisible ? (
+          <Animated.View
+            style={[
+              styles.badgeInfoPopup,
+              {
+                backgroundColor: theme.colors.surfaceContainerHighest,
+                borderColor: theme.colors.outlineVariant,
+              },
+            ]}
+          >
+            <Text numberOfLines={2} style={[styles.badgePopupName, { color: theme.colors.onSurface }]}>
+              {badge?.name || 'Badge'}
+            </Text>
+            <Text style={[styles.badgePopupLevel, { color: theme.colors.primary }]}>
+              {badge?.level != null
+                ? `Level ${badge.level}${badge?.maxLevel ? ` / ${badge.maxLevel}` : ''}`
+                : 'Achievement'}
+            </Text>
+            {target > 0 ? (
+              <>
+                <View style={[styles.badgeTrack, { backgroundColor: theme.colors.surfaceContainer }]}>
+                  <View style={[styles.badgeFill, { width: `${ratio * 100}%`, backgroundColor: theme.colors.primary }]} />
+                </View>
+                <Text style={[styles.badgeProgress, { color: theme.colors.onSurfaceVariant }]}>
+                  {formatNumber(progress)} / {formatNumber(target)}
+                </Text>
+              </>
+            ) : null}
+          </Animated.View>
+        ) : null}
+      </View>
+    </Pressable>
   );
 
   return (
     <AnimatedDetailItem
       index={index}
-      layoutStyle={playerDetailsGrid ? styles.badgeItemPlayerDetails : styles.badgeItem}
+      layoutStyle={[
+        playerDetailsGrid ? styles.badgeItemPlayerDetails : styles.badgeItem,
+        popupVisible && styles.badgeItemPopupActive,
+      ]}
     >
       {content}
     </AnimatedDetailItem>
@@ -1021,6 +1048,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const [battleLoading, setBattleLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showAllBadges, setShowAllBadges] = useState(false);
+  const [activeBadgeKey, setActiveBadgeKey] = useState(null);
   const [showCopyDeckModal, setShowCopyDeckModal] = useState(false);
   const [cardSortBy, setCardSortBy] = useState('name');
   const [cardSortAscending, setCardSortAscending] = useState(false);
@@ -1983,12 +2011,20 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               ) : (
                 <>
                   <View style={styles.badgesGrid}>
+                    {activeBadgeKey ? (
+                      <Pressable
+                        style={styles.badgesPopupDismiss}
+                        onPress={() => setActiveBadgeKey(null)}
+                      />
+                    ) : null}
                     {badges.slice(0, 6).map((badge, index) => (
                       <BadgeItem
                         key={badge?.name || badge?.id || index}
                         badge={badge}
                         theme={theme}
                         playerDetailsGrid
+                        activeBadgeKey={activeBadgeKey}
+                        onToggleBadgePopup={setActiveBadgeKey}
                       />
                     ))}
                   </View>
@@ -2027,7 +2063,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                       ]}
                     >
                       <View style={[styles.achievementIcon, { backgroundColor: theme.colors.primaryContainer }]}>
-                        <BadgeVisual item={achievement} theme={theme} size={30} />
+                        <BadgeVisual item={achievement} theme={theme} size={46} />
                       </View>
                       <View style={styles.achievementMain}>
                         <Text numberOfLines={1} style={[styles.achievementName, { color: theme.colors.onSurface }]}>
@@ -2259,19 +2295,26 @@ const styles = StyleSheet.create({
   cardsCollapseFade: { position: 'absolute', left: 0, right: 0, top: 72, height: 97, overflow: 'hidden' },
   cardsFadeGradient: { flex: 1, width: '100%' },
   cardsExpandButton: { alignSelf: 'center', width: 34, height: 30, marginTop: 14, alignItems: 'center', justifyContent: 'center' },
-  badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 8 },
+  badgesGrid: { position: 'relative', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 8 },
+  badgesPopupDismiss: { ...StyleSheet.absoluteFillObject, zIndex: 1 },
+  badgeItemPopupActive: { zIndex: 10 },
+  badgePressable: { width: '100%', height: '100%' },
   viewAllButton: { marginTop: 12, minHeight: 44, borderRadius: 15, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
   viewAllText: { fontSize: 12.5, fontWeight: '800' },
   badgesPageContent: { padding: 14, paddingBottom: 36 },
   badgesPageRow: { gap: 8, marginBottom: 8 },
   badgeItem: { width: '31.8%', minHeight: 150 },
-  badgeItemPlayerDetails: { width: '31.5%', minHeight: 150 },
-  badgeItemInner: { flex: 1, minHeight: 150, borderRadius: 16, padding: 9, alignItems: 'center' },
-  badgeImage: { width: 58, height: 58 },
+  badgeItemPlayerDetails: { width: '31.5%', minHeight: 112 },
+  badgeItemActive: { zIndex: 11 },
+  badgeItemInner: { flex: 1, minHeight: 112, borderRadius: 16, padding: 6, alignItems: 'center', overflow: 'visible' },
+  badgeImage: { width: 76, height: 76 },
   missingBadgeIcon: { alignItems: 'center', justifyContent: 'center' },
   missingBadgeCrown: { position: 'absolute' },
   badgeVisual: { alignItems: 'center', justifyContent: 'center' },
   badgeName: { marginTop: 5, fontSize: 10, fontWeight: '700', textAlign: 'center' },
+  badgeInfoPopup: { position: 'absolute', left: -6, right: -6, top: 94, minHeight: 78, borderRadius: 14, borderWidth: 1, paddingHorizontal: 9, paddingVertical: 8, alignItems: 'center', justifyContent: 'center', elevation: 8, zIndex: 20 },
+  badgePopupName: { fontSize: 10.5, fontWeight: '800', textAlign: 'center' },
+  badgePopupLevel: { marginTop: 2, fontSize: 9.5, fontWeight: '800', textAlign: 'center' },
   badgeLevel: { marginTop: 3, fontSize: 9.5, fontWeight: '800', textAlign: 'center' },
   badgeTrack: { width: '100%', height: 5, borderRadius: 3, overflow: 'hidden', marginTop: 7 },
   badgeFill: { height: '100%', borderRadius: 3 },
@@ -2279,7 +2322,7 @@ const styles = StyleSheet.create({
 
   achievementsList: { width: '100%' },
   achievementRow: { minHeight: 58, borderRadius: 16, padding: 9, flexDirection: 'row', alignItems: 'center' },
-  achievementIcon: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  achievementIcon: { width: 52, height: 52, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
   achievementMain: { flex: 1, minWidth: 0, marginLeft: 9 },
   achievementName: { fontSize: 12.5, fontWeight: '800' },
   achievementInfo: { marginTop: 3, fontSize: 9.5 },
