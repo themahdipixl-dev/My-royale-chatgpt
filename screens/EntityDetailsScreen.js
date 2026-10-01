@@ -829,6 +829,18 @@ function sortBadgesByGameCategory(badges) {
   return items;
 }
 
+function MissingBadgeIcon({ theme, size = 42 }) {
+  return (
+    <View style={[styles.missingBadgeIcon, { width: size, height: size }]}>
+      <MaterialCommunityIcons
+        name="hexagon-outline"
+        size={size}
+        color={theme.colors.onSurfaceVariant}
+      />
+    </View>
+  );
+}
+
 function BadgeItem({ index = 0, badge, theme }) {
   const imageCandidates = useMemo(() => {
     const urls = badge?.iconUrls || {};
@@ -861,7 +873,7 @@ function BadgeItem({ index = 0, badge, theme }) {
           }}
         />
       ) : (
-        <MaterialCommunityIcons name="medal-outline" size={34} color={theme.colors.primary} />
+        <MissingBadgeIcon theme={theme} />
       )}
       <Text numberOfLines={2} style={[styles.badgeName, { color: theme.colors.onSurface }]}>
         {badge?.name || 'Badge'}
@@ -1977,11 +1989,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                       ]}
                     >
                       <View style={[styles.achievementIcon, { backgroundColor: theme.colors.primaryContainer }]}>
-                        <MaterialCommunityIcons
-                          name="trophy-outline"
-                          size={18}
-                          color={theme.colors.onPrimaryContainer}
-                        />
+                        <MissingBadgeIcon theme={theme} size={30} />
                       </View>
                       <View style={styles.achievementMain}>
                         <Text numberOfLines={1} style={[styles.achievementName, { color: theme.colors.onSurface }]}>
@@ -2221,6 +2229,7 @@ const styles = StyleSheet.create({
   badgeItem: { width: '31.8%', minHeight: 150 },
   badgeItemInner: { flex: 1, minHeight: 150, borderRadius: 16, padding: 9, alignItems: 'center' },
   badgeImage: { width: 58, height: 58 },
+  missingBadgeIcon: { alignItems: 'center', justifyContent: 'center' },
   badgeName: { marginTop: 5, fontSize: 10, fontWeight: '700', textAlign: 'center' },
   badgeLevel: { marginTop: 3, fontSize: 9.5, fontWeight: '800', textAlign: 'center' },
   badgeTrack: { width: '100%', height: 5, borderRadius: 3, overflow: 'hidden', marginTop: 7 },
