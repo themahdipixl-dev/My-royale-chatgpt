@@ -60,6 +60,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const handleTopTabChangeRef = useRef(null);
   const retryTimerRef = useRef(null);
   const detailEntityRef = useRef(detailEntity);
+  const wasDetailOpenRef = useRef(Boolean(detailEntity));
   detailEntityRef.current = detailEntity;
   topTabRef.current = topTab;
 
@@ -152,7 +153,6 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
           }, 2000);
         }
       })
-      .then(undefined, () => {})
   }, [topTab, clanRankingMode]);
 
   useEffect(() => {
@@ -161,17 +161,20 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
 
   useEffect(() => {
     if (detailEntity) {
+      wasDetailOpenRef.current = true;
       if (retryTimerRef.current) {
         clearTimeout(retryTimerRef.current);
         retryTimerRef.current = null;
       }
       setLoading(false);
-      return undefined;
+      return;
     }
 
-    loadData(selectedLocation?.id, topTab, clanRankingMode);
-    return undefined;
-  }, [detailEntity]);
+    if (wasDetailOpenRef.current) {
+      wasDetailOpenRef.current = false;
+      loadData(selectedLocation?.id, topTab, clanRankingMode);
+    }
+  }, [detailEntity, loadData, selectedLocation, topTab, clanRankingMode]);
 
   useEffect(() => {
     if (detailEntity) return;
