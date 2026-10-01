@@ -185,7 +185,7 @@ function AnimatedDetailItem({ children, index = 0, layoutStyle }) {
   );
 }
 
-function AnimatedSection({ children, index = 0, register }) {
+function AnimatedSection({ children, index = 0, register, onLayout }) {
   const opacity = useRef(new Animated.Value(0)).current;
   const layoutY = useRef(0);
   const layoutH = useRef(1);
@@ -224,6 +224,7 @@ function AnimatedSection({ children, index = 0, register }) {
       onLayout={(event) => {
         layoutY.current = event.nativeEvent.layout.y;
         layoutH.current = event.nativeEvent.layout.height;
+        onLayout?.(event);
         requestAnimationFrame(() => checkRef.current?.());
       }}
       style={{ opacity }}
@@ -1257,7 +1258,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     if (!nextExpanded) {
       requestAnimationFrame(() => {
         scrollRef.current?.scrollTo({
-          y: Math.max(0, cardCollectionContentY.current - 4),
+          y: Math.max(0, cardCollectionContentY.current - 6),
           animated: true,
         });
       });
@@ -1696,12 +1697,16 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               )}
             </Surface></AnimatedSection>
 
-            <AnimatedSection index={8} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <AnimatedSection
+              index={8}
+              register={registerAnimatedSection}
+              onLayout={(event) => {
+                cardCollectionContentY.current = event.nativeEvent.layout.y;
+              }}
+            >
+              <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer } ]}>
               <View
                 style={styles.cardCollectionHeader}
-                onLayout={(event) => {
-                  cardCollectionContentY.current = event.nativeEvent.layout.y;
-                }}
               >
                 <View style={styles.cardCollectionTitleWrap}>
                   <SectionTitle icon="archive" title="Card collection" theme={theme} noBottomMargin />
