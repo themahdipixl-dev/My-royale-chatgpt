@@ -481,10 +481,6 @@ function getCurrentDeckBattleStats(battlelog, currentDeck, playerTag) {
 
 function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme }) {
   const [open, setOpen] = useState(false);
-  const directionProgress = useRef(new Animated.Value(0)).current;
-  const menuHeight = useRef(new Animated.Value(0)).current;
-  const menuOpacity = useRef(new Animated.Value(0)).current;
-  const menuScale = useRef(new Animated.Value(0.96)).current;
 
   const options = [
     { key: 'name', label: 'By name' },
@@ -493,101 +489,37 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
     { key: 'elixir', label: 'By elixir' },
   ];
 
-  const toggleMenu = useCallback(() => {
-    const nextOpen = !open;
-    setOpen(nextOpen);
-    Animated.parallel([
-      Animated.timing(menuHeight, {
-        toValue: nextOpen ? 196 : 0,
-        duration: nextOpen ? 240 : 180,
-        useNativeDriver: false,
-      }),
-      Animated.timing(menuOpacity, {
-        toValue: nextOpen ? 1 : 0,
-        duration: nextOpen ? 180 : 120,
-        useNativeDriver: true,
-      }),
-      Animated.spring(menuScale, {
-        toValue: nextOpen ? 1 : 0.96,
-        friction: 8,
-        tension: 80,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [open, menuHeight, menuOpacity, menuScale]);
-
-  const selectOption = useCallback((key) => {
-    // Finish the dropdown close animation before changing the grid order.
-    // This avoids a Fabric/native race between an animated view removal and
-    // the card-grid children being reordered in the same render commit.
-    const closeAnimations = [
-      Animated.timing(menuHeight, {
-        toValue: 0,
-        duration: 180,
-        useNativeDriver: false,
-      }),
-      Animated.timing(menuOpacity, {
-        toValue: 0,
-        duration: 120,
-        useNativeDriver: true,
-      }),
-      Animated.spring(menuScale, {
-        toValue: 0.96,
-        friction: 8,
-        tension: 80,
-        useNativeDriver: true,
-      }),
-    ];
-
-    setOpen(false);
-    Animated.parallel(closeAnimations).start(({ finished }) => {
-      if (finished) setSortBy(key);
-    });
-  }, [menuHeight, menuOpacity, menuScale, setSortBy]);
-
   return (
     <View style={styles.cardSortControls}>
       <Pressable
-        onPress={() => {
-          const nextAscending = !ascending;
-          setAscending(nextAscending);
-          Animated.spring(directionProgress, {
-            toValue: nextAscending ? 0 : 1,
-            friction: 7,
-            tension: 85,
-            useNativeDriver: true,
-          }).start();
-        }}
+        onPress={() => setAscending(!ascending)}
         style={({ pressed }) => [
           styles.cardSortDirection,
-          { backgroundColor: theme.colors.primaryContainer, opacity: pressed ? 0.72 : 1 },
+          {
+            backgroundColor: theme.colors.primaryContainer,
+            opacity: pressed ? 0.72 : 1,
+          },
         ]}
         accessibilityLabel={ascending ? 'Ascending' : 'Descending'}
       >
-        <Animated.View
-          style={[
-            styles.cardSortTriangle,
-            {
-              transform: [
-                { rotate: directionProgress.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] }) },
-              ],
-            },
-          ]}
-        >
+        <View style={styles.cardSortTriangle}>
           <MaterialCommunityIcons
-            name="triangle"
-            size={10}
+            name={ascending ? 'triangle' : 'triangle-down'}
+            size={14}
             color={theme.colors.onPrimaryContainer}
           />
-        </Animated.View>
+        </View>
       </Pressable>
 
       <View style={styles.cardSortMenuWrap}>
         <Pressable
-          onPress={toggleMenu}
+          onPress={() => setOpen((value) => !value)}
           style={({ pressed }) => [
             styles.cardSortCapsule,
-            { backgroundColor: theme.colors.primaryContainer, opacity: pressed ? 0.78 : 1 },
+            {
+              backgroundColor: theme.colors.primaryContainer,
+              opacity: pressed ? 0.78 : 1,
+            },
           ]}
         >
           <Text style={[styles.cardSortText, { color: theme.colors.onSurface }]}>Sort by</Text>
@@ -598,45 +530,49 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
           />
         </Pressable>
 
-        <Animated.View
-          pointerEvents={open ? 'auto' : 'none'}
-          style={[
-            styles.cardSortDropdown,
-            {
-              backgroundColor: theme.colors.surfaceContainerHigh,
-              height: menuHeight,
-              opacity: menuOpacity,
-              transform: [{ scale: menuScale }],
-            },
-          ]}
-        >
-          {options.map((option, index) => (
-            <Pressable
-              key={option.key}
-              onPress={() => selectOption(option.key)}
-              style={({ pressed }) => [
-                styles.cardSortOption,
-                { opacity: pressed ? 0.68 : 1 },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.cardSortOptionText,
-                  {
-                    color: option.key === sortBy
-                      ? theme.colors.primary
-                      : theme.colors.onSurface,
-                  },
+        {open ? (
+          <View
+            style={[
+              styles.cardSortDropdown,
+              { backgroundColor: theme.colors.surfaceContainerHigh },
+            ]}
+          >
+            {options.map((option, index) => (
+              <Pressable
+                key={option.key}
+                onPress={() => {
+                  setOpen(false);
+                  setSortBy(option.key);
+                }}
+                style={({ pressed }) => [
+                  styles.cardSortOption,
+                  { opacity: pressed ? 0.68 : 1 },
                 ]}
               >
-                {option.label}
-              </Text>
-              {index < options.length - 1 ? (
-                <View style={[styles.cardSortDivider, { backgroundColor: theme.colors.outlineVariant }]} />
-              ) : null}
-            </Pressable>
-          ))}
-        </Animated.View>
+                <Text
+                  style={[
+                    styles.cardSortOptionText,
+                    {
+                      color: option.key === sortBy
+                        ? theme.colors.primary
+                        : theme.colors.onSurface,
+                    },
+                  ]}
+                >
+                  {option.label}
+                </Text>
+                {index < options.length - 1 ? (
+                  <View
+                    style={[
+                      styles.cardSortDivider,
+                      { backgroundColor: theme.colors.outlineVariant },
+                    ]}
+                  />
+                ) : null}
+              </Pressable>
+            ))}
+          </View>
+        ) : null}
       </View>
     </View>
   );
