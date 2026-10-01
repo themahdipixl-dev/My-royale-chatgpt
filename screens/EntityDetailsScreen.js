@@ -830,12 +830,29 @@ function sortBadgesByGameCategory(badges) {
 }
 
 function MissingBadgeIcon({ theme, size = 42 }) {
+  const iconSize = Math.max(18, size - 6);
+
   return (
-    <View style={[styles.missingBadgeIcon, { width: size, height: size }]}>
+    <View
+      style={[
+        styles.missingBadgeIcon,
+        {
+          width: size,
+          height: size,
+          overflow: 'hidden',
+        },
+      ]}
+    >
       <MaterialCommunityIcons
-        name="hexagon-outline"
-        size={size}
-        color={theme.colors.onSurfaceVariant}
+        name="hexagon"
+        size={iconSize}
+        color={theme.colors.primaryContainer}
+      />
+      <MaterialCommunityIcons
+        name="crown"
+        size={Math.max(12, Math.round(size * 0.38))}
+        color={theme.colors.onPrimaryContainer}
+        style={styles.missingBadgeCrown}
       />
     </View>
   );
@@ -2243,6 +2260,7 @@ const styles = StyleSheet.create({
   badgeItemInner: { flex: 1, minHeight: 150, borderRadius: 16, padding: 9, alignItems: 'center' },
   badgeImage: { width: 58, height: 58 },
   missingBadgeIcon: { alignItems: 'center', justifyContent: 'center' },
+  missingBadgeCrown: { position: 'absolute' },
   badgeVisual: { alignItems: 'center', justifyContent: 'center' },
   badgeName: { marginTop: 5, fontSize: 10, fontWeight: '700', textAlign: 'center' },
   badgeLevel: { marginTop: 3, fontSize: 9.5, fontWeight: '800', textAlign: 'center' },
