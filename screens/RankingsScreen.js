@@ -1,7 +1,7 @@
 // * screens/RankingsScreen.js — swipe navigation and clan/player detail routing (v78)
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { View, FlatList, StyleSheet, Keyboard, RefreshControl, Animated, BackHandler, PanResponder } from 'react-native';
-import { Text, Button, IconButton, Surface, useTheme } from 'react-native-paper';
+import { Text, IconButton, Surface, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchCountries, fetchPathOfLegendRankings, fetchClanWarRankings, fetchMergeTacticsRankings } from '../api/client';
@@ -140,9 +140,11 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
           clearTimeout(retryTimerRef.current);
           retryTimerRef.current = null;
         }
+        setLoading(false);
       })
       .catch(() => {
-        // Stay silent and retry only while the Rankings screen is still visible.
+        // Keep the loading state active until a request succeeds.
+        // Retry only while Rankings is still the visible section.
         if (!detailEntityRef.current) {
           retryTimerRef.current = setTimeout(() => {
             retryTimerRef.current = null;
@@ -150,9 +152,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
           }, 2000);
         }
       })
-      .finally(() => {
-        if (!detailEntityRef.current) setLoading(false);
-      });
+      .then(undefined, () => {})
   }, [topTab, clanRankingMode]);
 
   useEffect(() => {
@@ -160,13 +160,18 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   }, [selectedLocation, topTab, clanRankingMode, loadData]);
 
   useEffect(() => {
-    return () => {
+    if (detailEntity) {
       if (retryTimerRef.current) {
         clearTimeout(retryTimerRef.current);
         retryTimerRef.current = null;
       }
-    };
-  }, []);
+      setLoading(false);
+      return undefined;
+    }
+
+    loadData(selectedLocation?.id, topTab, clanRankingMode);
+    return undefined;
+  }, [detailEntity]);
 
   useEffect(() => {
     if (detailEntity) return;
