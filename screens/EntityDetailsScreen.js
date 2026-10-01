@@ -886,6 +886,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const [cardCollectionFilter, setCardCollectionFilter] = useState(null);
   const [cardsExpanded, setCardsExpanded] = useState(false);
   const cardsExpandProgress = useRef(new Animated.Value(0)).current;
+  const cardCollectionOffsetY = useRef(0);
   const filterStrokeProgress = useRef({
     evolutions: new Animated.Value(0),
     heroes: new Animated.Value(0),
@@ -1241,18 +1242,34 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     [filteredPlayerCards, cardSortBy, cardSortAscending],
   );
 
-  const visiblePlayerCards = cardsExpanded ? sortedPlayerCards : sortedPlayerCards.slice(0, 4);
+  const normalCardRowCount = Math.ceil(sortedPlayerCards.length / 4);
+  const collapsedCardsHeight = sortedPlayerCards.length > 0
+    ? (sortedPlayerCards.length > 4 ? 169 : 120)
+    : 0;
+  const expandedCardsHeight = normalCardRowCount > 0
+    ? normalCardRowCount * 120 + Math.max(0, normalCardRowCount - 1) * 9
+    : 0;
 
   const toggleCardsExpanded = useCallback(() => {
     const nextExpanded = !cardsExpanded;
+
+    if (!nextExpanded) {
+      requestAnimationFrame(() => {
+        scrollRef.current?.scrollTo({
+          y: Math.max(0, cardCollectionOffsetY.current - 8),
+          animated: true,
+        });
+      });
+    }
+
     setCardsExpanded(nextExpanded);
     Animated.spring(cardsExpandProgress, {
       toValue: nextExpanded ? 1 : 0,
       friction: 8,
-      tension: 70,
-      useNativeDriver: true,
+      tension: 65,
+      useNativeDriver: false,
     }).start();
-  }, [cardsExpanded, cardsExpandProgress]);
+  }, [cardsExpanded, cardsExpandProgress, scrollRef]);
 
   // Tower Cards are intentionally excluded from sorting.
   // Sort controls affect only the normal player-card collection.
@@ -1742,22 +1759,59 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                   animation={filterStrokeProgress}
                 />
               </View>
-              <View style={styles.normalCardsRevealWrap}>
-                <View style={styles.allCardsGrid}>
-                  {visiblePlayerCards.map((card, index) => (
-                    <CardItem key={card?.id ?? ('card-' + String(card?.name ?? index))} card={card} theme={theme} index={index} grid collectionFilter={cardCollectionFilter} />
-                  ))}
-                </View>
+              <View
+                style={styles.normalCardsSection}
+                onLayout={(event) => {
+                  cardCollectionOffsetY.current = event.nativeEvent.layout.y;
+                }}
+              >
+                <Animated.View
+                  style={[
+                    styles.normalCardsRevealWrap,
+                    {
+                      height: cardsExpandProgress.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [collapsedCardsHeight, expandedCardsHeight],
+                      }),
+                    },
+                  ]}
+                >
+                  <View style={styles.allCardsGrid}>
+                    {sortedPlayerCards.map((card, index) => (
+                      <CardItem key={card?.id ?? ('card-' + String(card?.name ?? index))} card={card} theme={theme} index={index} grid collectionFilter={cardCollectionFilter} />
+                    ))}
+                  </View>
+
+                  {sortedPlayerCards.length > 4 ? (
+                    <Animated.View
+                      pointerEvents="none"
+                      style={[
+                        styles.cardsCollapseFade,
+                        {
+                          backgroundColor: theme.colors.surfaceContainer,
+                          opacity: cardsExpandProgress.interpolate({
+                            inputRange: [0, 0.35, 1],
+                            outputRange: [1, 0.75, 0],
+                          }),
+                        },
+                      ]}
+                    >
+                      <View style={[styles.cardsFadeStrip, { opacity: 0.08, backgroundColor: theme.colors.surfaceContainer }]} />
+                      <View style={[styles.cardsFadeStrip, { opacity: 0.22, backgroundColor: theme.colors.surfaceContainer }]} />
+                      <View style={[styles.cardsFadeStrip, { opacity: 0.42, backgroundColor: theme.colors.surfaceContainer }]} />
+                      <View style={[styles.cardsFadeStrip, { opacity: 0.66, backgroundColor: theme.colors.surfaceContainer }]} />
+                      <View style={[styles.cardsFadeStrip, { opacity: 0.88, backgroundColor: theme.colors.surfaceContainer }]} />
+                    </Animated.View>
+                  ) : null}
+                </Animated.View>
+
                 {sortedPlayerCards.length > 4 ? (
                   <Pressable
                     onPress={toggleCardsExpanded}
                     accessibilityLabel={cardsExpanded ? 'Collapse cards' : 'Expand cards'}
                     style={({ pressed }) => [
                       styles.cardsExpandButton,
-                      {
-                        backgroundColor: theme.colors.primaryContainer,
-                        opacity: pressed ? 0.7 : 1,
-                      },
+                      { opacity: pressed ? 0.55 : 1 },
                     ]}
                   >
                     <Animated.View
@@ -1772,8 +1826,8 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                     >
                       <MaterialCommunityIcons
                         name="chevron-down"
-                        size={22}
-                        color={theme.colors.onPrimaryContainer}
+                        size={24}
+                        color={theme.colors.onSurfaceVariant}
                       />
                     </Animated.View>
                   </Pressable>
@@ -1990,8 +2044,11 @@ const styles = StyleSheet.create({
 
   collectionSummary: { flexDirection: 'row', gap: 9, marginBottom: 10 },
   allCardsGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 9, alignItems: 'flex-start' },
-  normalCardsRevealWrap: { overflow: 'hidden' },
-  cardsExpandButton: { alignSelf: 'center', width: 38, height: 30, borderRadius: 15, marginTop: 10, alignItems: 'center', justifyContent: 'center' },
+  normalCardsSection: { width: '100%' },
+  normalCardsRevealWrap: { width: '100%', overflow: 'hidden' },
+  cardsCollapseFade: { position: 'absolute', left: 0, right: 0, top: 129, height: 40, flexDirection: 'column', justifyContent: 'flex-end' },
+  cardsFadeStrip: { width: '100%', height: 8 },
+  cardsExpandButton: { alignSelf: 'center', width: 34, height: 30, marginTop: 14, alignItems: 'center', justifyContent: 'center' },
   badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   viewAllButton: { marginTop: 12, minHeight: 44, borderRadius: 15, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
   viewAllText: { fontSize: 12.5, fontWeight: '800' },
