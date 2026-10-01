@@ -841,40 +841,53 @@ function MissingBadgeIcon({ theme, size = 42 }) {
   );
 }
 
-function BadgeItem({ index = 0, badge, theme }) {
+function BadgeVisual({ item, theme, size = 58 }) {
   const imageCandidates = useMemo(() => {
-    const urls = badge?.iconUrls || {};
+    const urls = item?.iconUrls || {};
     return [urls.large, urls.medium, urls.small].filter(
       (url, candidateIndex, list) => Boolean(url) && list.indexOf(url) === candidateIndex,
     );
-  }, [badge]);
+  }, [item]);
 
   const [imageIndex, setImageIndex] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   useEffect(() => {
     setImageIndex(0);
-  }, [badge]);
+    setImageLoaded(false);
+  }, [item]);
 
   const image = imageCandidates[imageIndex] || null;
+
+  return (
+    <View style={[styles.badgeVisual, { width: size, height: size }]}>
+      {!imageLoaded ? <MissingBadgeIcon theme={theme} size={size} /> : null}
+      {image ? (
+        <RetryImage
+          uri={image}
+          style={[styles.badgeImage, { width: size, height: size }]}
+          resizeMode="contain"
+          onLoad={() => setImageLoaded(true)}
+          onExhausted={() => {
+            setImageLoaded(false);
+            setImageIndex((current) => (
+              current + 1 < imageCandidates.length ? current + 1 : current
+            ));
+          }}
+        />
+      ) : null}
+    </View>
+  );
+}
+
+function BadgeItem({ index = 0, badge, theme }) {
   const progress = number(badge?.progress);
   const target = number(badge?.target);
   const ratio = target > 0 ? Math.min(1, progress / target) : 0;
 
   const content = (
     <View style={[styles.badgeItemInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-      {image ? (
-        <RetryImage
-          uri={image}
-          style={styles.badgeImage}
-          resizeMode="contain"
-          onExhausted={() => {
-            setImageIndex((current) => (
-              current + 1 < imageCandidates.length ? current + 1 : current
-            ));
-          }}
-        />
-      ) : (
-        <MissingBadgeIcon theme={theme} />
-      )}
+      <BadgeVisual item={badge} theme={theme} size={58} />
       <Text numberOfLines={2} style={[styles.badgeName, { color: theme.colors.onSurface }]}>
         {badge?.name || 'Badge'}
       </Text>
@@ -1989,7 +2002,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                       ]}
                     >
                       <View style={[styles.achievementIcon, { backgroundColor: theme.colors.primaryContainer }]}>
-                        <MissingBadgeIcon theme={theme} size={30} />
+                        <BadgeVisual item={achievement} theme={theme} size={30} />
                       </View>
                       <View style={styles.achievementMain}>
                         <Text numberOfLines={1} style={[styles.achievementName, { color: theme.colors.onSurface }]}>
@@ -2230,6 +2243,7 @@ const styles = StyleSheet.create({
   badgeItemInner: { flex: 1, minHeight: 150, borderRadius: 16, padding: 9, alignItems: 'center' },
   badgeImage: { width: 58, height: 58 },
   missingBadgeIcon: { alignItems: 'center', justifyContent: 'center' },
+  badgeVisual: { alignItems: 'center', justifyContent: 'center' },
   badgeName: { marginTop: 5, fontSize: 10, fontWeight: '700', textAlign: 'center' },
   badgeLevel: { marginTop: 3, fontSize: 9.5, fontWeight: '800', textAlign: 'center' },
   badgeTrack: { width: '100%', height: 5, borderRadius: 3, overflow: 'hidden', marginTop: 7 },
