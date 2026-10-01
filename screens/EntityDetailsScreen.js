@@ -121,16 +121,19 @@ function AnimatedDetailItem({ children, index = 0, layoutStyle }) {
   const nodeRef = useRef(null);
   const layout = useRef({ y: 0, h: 1, measured: false }).current;
   const visible = useRef(false);
+  const hasAnimated = useRef(false);
   const checkRef = useRef(null);
   const idRef = useRef({}).current;
 
   const animateIn = useCallback(() => {
+    if (hasAnimated.current) return;
+    hasAnimated.current = true;
     opacity.stopAnimation();
     translateY.stopAnimation();
     scale.stopAnimation();
     opacity.setValue(0);
     translateY.setValue(14);
-    scale.setValue(0.98);
+    scale.setValue(1);
     const delay = Math.min(index, 8) * 24;
     Animated.parallel([
       Animated.timing(opacity, { toValue: 1, duration: 220, delay, isInteraction: false, useNativeDriver: true }),
