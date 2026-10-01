@@ -1402,7 +1402,7 @@ const styles = StyleSheet.create({
   favoriteRow: { flexDirection: 'row', alignItems: 'flex-start' },
   favoriteDetails: { flex: 1, marginLeft: 8 },
   collectionSummary: { flexDirection: 'row', gap: 9, marginBottom: 10 },
-  allCardsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  allCardsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 9, alignItems: 'flex-start' },
   badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   viewAllButton: { marginTop: 12, minHeight: 44, borderRadius: 15, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
   viewAllText: { fontSize: 12.5, fontWeight: '800' },
