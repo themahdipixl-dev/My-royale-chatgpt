@@ -643,8 +643,16 @@ function CardItem({ index = 0, card, theme, compact = false, deck, tower = false
   );
   const cardLayoutStyle = [styles.cardItem, compact && styles.compactCardItem, tower && styles.towerCardItem, grid && index % 4 !== 3 && styles.cardGridGap];
 
+  const rarity = String(card?.rarity ?? '').trim().toLowerCase();
+  const glowColor = {
+    common: '#42A5F5',
+    rare: '#FF9800',
+    epic: '#AB47BC',
+    champion: '#FFD54F',
+  }[rarity] || null;
+
   const cardContent = (
-      <View style={[styles.cardItemInner, compact && styles.compactCardItemInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+      <View style={[styles.cardItemInner, compact && styles.compactCardItemInner, { backgroundColor: theme.colors.surfaceContainerHighest, ...(glowColor ? { borderWidth: 1, borderColor: glowColor, shadowColor: glowColor, shadowOpacity: 0.48, shadowRadius: 5, shadowOffset: { width: 0, height: 0 }, elevation: 4 } : null) }]}>
         <View style={styles.cardVisual}>
           {image ? (
             <Image source={{ uri: image }} style={compact ? styles.compactCardImage : styles.cardImage} resizeMode="contain" />
@@ -1659,7 +1667,7 @@ const styles = StyleSheet.create({
   deckBattleStatLabel: { fontSize: 9.5, fontWeight: '600' },
   deckBattleStatValue: { marginTop: 0, marginLeft: 3, fontSize: 12, fontWeight: '800' },
   cardItem: { width: '23.5%', height: 120 },
-  cardItemInner: { height: 120, borderRadius: 16, padding: 5 },
+  cardItemInner: { height: 120, borderRadius: 16, padding: 5, overflow: 'visible' },
   compactCardItem: { width: '23.5%', height: 120 },
   cardGridGap: { marginRight: '2%' },
   compactCardItemInner: { height: 120, borderRadius: 16, padding: 5 },
