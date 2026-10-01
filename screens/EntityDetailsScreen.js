@@ -479,6 +479,41 @@ function getCurrentDeckBattleStats(battlelog, currentDeck, playerTag) {
   };
 }
 
+function CardCollectionFilterTile({ type, icon, label, value, selected, onPress, theme, animation }) {
+  const progress = animation[type];
+  const borderColor = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['transparent', '#66BB6A'],
+  });
+  const scale = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.025],
+  });
+
+  return (
+    <Pressable onPress={onPress} style={styles.collectionFilterPressable}>
+      <Animated.View
+        style={[
+          styles.collectionFilterTile,
+          {
+            backgroundColor: theme.colors.surfaceContainerHighest,
+            borderColor,
+            transform: [{ scale }],
+          },
+        ]}
+      >
+        <View style={[styles.statIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+          <MaterialCommunityIcons name={icon} size={21} color={theme.colors.onPrimaryContainer} />
+        </View>
+        <View style={styles.statContent}>
+          <Text numberOfLines={1} style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.78} style={[styles.statValue, { color: theme.colors.onSurface }]}>{value}</Text>
+        </View>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
 function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme }) {
   const [open, setOpen] = useState(false);
   const menuProgress = useRef(new Animated.Value(0)).current;
@@ -842,6 +877,11 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const [showCopyDeckModal, setShowCopyDeckModal] = useState(false);
   const [cardSortBy, setCardSortBy] = useState('name');
   const [cardSortAscending, setCardSortAscending] = useState(false);
+  const [cardCollectionFilter, setCardCollectionFilter] = useState(null);
+  const filterStrokeProgress = useRef({
+    evolutions: new Animated.Value(0),
+    heroes: new Animated.Value(0),
+  }).current;
   const copyDeckModalOpacity = useRef(new Animated.Value(0)).current;
   const copyDeckModalScale = useRef(new Animated.Value(0.92)).current;
   const copyDeckModalY = useRef(new Animated.Value(18)).current;
@@ -1086,9 +1126,27 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     return evolutionLevel === 2 || evolutionLevel === 3;
   }).length;
 
+  const filteredPlayerCards = useMemo(() => {
+    if (cardCollectionFilter === 'heroes') {
+      return cardCollections.cards.filter((card) => {
+        const evolutionLevel = Number(card?.evolutionLevel);
+        return evolutionLevel === 2 || evolutionLevel === 3;
+      });
+    }
+
+    if (cardCollectionFilter === 'evolutions') {
+      return cardCollections.cards.filter((card) => {
+        const evolutionLevel = Number(card?.evolutionLevel);
+        return evolutionLevel === 1 || evolutionLevel === 3;
+      });
+    }
+
+    return cardCollections.cards;
+  }, [cardCollections.cards, cardCollectionFilter]);
+
   const sortedPlayerCards = useMemo(
-    () => sortCardList(cardCollections.cards, cardSortBy, cardSortAscending),
-    [cardCollections.cards, cardSortBy, cardSortAscending],
+    () => sortCardList(filteredPlayerCards, cardSortBy, cardSortAscending),
+    [filteredPlayerCards, cardSortBy, cardSortAscending],
   );
 
   // Tower Cards are intentionally excluded from sorting.
@@ -1514,12 +1572,58 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               </View>
               <View style={styles.collectionSummary}>
                 <StatTile icon="check-decagram" label="Max level" value={formatNumber(maxLevelCards)} theme={theme} />
-                <StatTile icon="auto-fix" label="Evolutions" value={formatNumber(evolutionCards)} theme={theme} />
-                <StatTile icon="account-star" label="Heroes" value={formatNumber(heroCards)} theme={theme} />
+                <CardCollectionFilterTile
+                  type="evolutions"
+                  icon="auto-fix"
+                  label="Evolutions"
+                  value={formatNumber(evolutionCards)}
+                  selected={cardCollectionFilter === 'evolutions'}
+                  onPress={() => {
+                    const nextSelected = cardCollectionFilter === 'evolutions' ? null : 'evolutions';
+                    Animated.spring(filterStrokeProgress.evolutions, {
+                      toValue: nextSelected === 'evolutions' ? 1 : 0,
+                      friction: 8,
+                      tension: 100,
+                      useNativeDriver: false,
+                    }).start();
+                    Animated.timing(filterStrokeProgress.heroes, {
+                      toValue: 0,
+                      duration: 180,
+                      useNativeDriver: false,
+                    }).start();
+                    setCardCollectionFilter(nextSelected);
+                  }}
+                  theme={theme}
+                  animation={filterStrokeProgress}
+                />
+                <CardCollectionFilterTile
+                  type="heroes"
+                  icon="account-star"
+                  label="Heroes"
+                  value={formatNumber(heroCards)}
+                  selected={cardCollectionFilter === 'heroes'}
+                  onPress={() => {
+                    const nextSelected = cardCollectionFilter === 'heroes' ? null : 'heroes';
+                    Animated.spring(filterStrokeProgress.heroes, {
+                      toValue: nextSelected === 'heroes' ? 1 : 0,
+                      friction: 8,
+                      tension: 100,
+                      useNativeDriver: false,
+                    }).start();
+                    Animated.timing(filterStrokeProgress.evolutions, {
+                      toValue: 0,
+                      duration: 180,
+                      useNativeDriver: false,
+                    }).start();
+                    setCardCollectionFilter(nextSelected);
+                  }}
+                  theme={theme}
+                  animation={filterStrokeProgress}
+                />
               </View>
               <View style={styles.allCardsGrid}>
                 {sortedPlayerCards.map((card, index) => (
-                  <CardItem key={index} card={card} theme={theme} index={index} grid />
+                  <CardItem key={card?.id ?? ('card-' + String(card?.name ?? index))} card={card} theme={theme} index={index} grid />
                 ))}
               </View>
               {supportCards.length > 0 ? (
@@ -1624,6 +1728,8 @@ const styles = StyleSheet.create({
 
   statGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 4 },
   statTile: { width: '31.5%', minHeight: 52, marginBottom: 7 },
+  collectionFilterPressable: { width: '31.5%', minHeight: 52, marginBottom: 7 },
+  collectionFilterTile: { minHeight: 52, borderRadius: 15, paddingHorizontal: 8, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', borderWidth: 1 },
   statTileInner: { flex: 1, minHeight: 52, borderRadius: 15, paddingHorizontal: 8, paddingVertical: 6, flexDirection: 'row', alignItems: 'center' },
   statIcon: { width: 26, height: 26, borderRadius: 9, alignItems: 'center', justifyContent: 'center', marginRight: 7 },
   statImage: { width: 17, height: 17 },
