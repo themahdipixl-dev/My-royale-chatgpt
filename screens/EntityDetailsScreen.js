@@ -517,9 +517,33 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme })
   }, [open, menuHeight, menuOpacity, menuScale]);
 
   const selectOption = useCallback((key) => {
-    setSortBy(key);
-    toggleMenu();
-  }, [setSortBy, toggleMenu]);
+    // Finish the dropdown close animation before changing the grid order.
+    // This avoids a Fabric/native race between an animated view removal and
+    // the card-grid children being reordered in the same render commit.
+    const closeAnimations = [
+      Animated.timing(menuHeight, {
+        toValue: 0,
+        duration: 180,
+        useNativeDriver: false,
+      }),
+      Animated.timing(menuOpacity, {
+        toValue: 0,
+        duration: 120,
+        useNativeDriver: true,
+      }),
+      Animated.spring(menuScale, {
+        toValue: 0.96,
+        friction: 8,
+        tension: 80,
+        useNativeDriver: true,
+      }),
+    ];
+
+    setOpen(false);
+    Animated.parallel(closeAnimations).start(({ finished }) => {
+      if (finished) setSortBy(key);
+    });
+  }, [menuHeight, menuOpacity, menuScale, setSortBy]);
 
   return (
     <View style={styles.cardSortControls}>
@@ -1458,7 +1482,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               </View>
               <View style={styles.allCardsGrid}>
                 {sortedPlayerCards.map((card, index) => (
-                  <CardItem key={card?.id ?? index} card={card} theme={theme} index={index} grid />
+                  <CardItem key={index} card={card} theme={theme} index={index} grid />
                 ))}
               </View>
               {supportCards.length > 0 ? (
