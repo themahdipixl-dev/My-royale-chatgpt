@@ -1688,3 +1688,6 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 12, lineHeight: 18 },
   bottomSpace: { height: 50 },
 });
+
+
+export default EntityDetailsScreen;
