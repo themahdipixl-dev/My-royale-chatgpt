@@ -711,15 +711,11 @@ function CardItem({ index = 0, card, theme, compact = false, deck, tower = false
     </View>
   );
 
-  // Legendary uses only native-safe Views for its two-color stroke.
-  // Avoid experimental_backgroundImage because it can disappear when a sorted
-  // grid reuses native children during Fabric reconciliation.
+  // Keep the two-tone Legendary frame native-safe while preserving the green/pink split.
   const decoratedCardContent = rarity === 'legendary' ? (
     <View style={styles.legendaryGradientFrame}>
-      <View style={[styles.legendaryStrokeTop, { backgroundColor: '#66BB6A' }]} pointerEvents="none" />
-      <View style={[styles.legendaryStrokeLeft, { backgroundColor: '#66BB6A' }]} pointerEvents="none" />
-      <View style={[styles.legendaryStrokeRight, { backgroundColor: '#EC407A' }]} pointerEvents="none" />
-      <View style={[styles.legendaryStrokeBottom, { backgroundColor: '#EC407A' }]} pointerEvents="none" />
+      <View style={[styles.legendaryGradientLayer, { backgroundColor: '#66BB6A' }]} pointerEvents="none" />
+      <View style={[styles.legendaryGradientLayerPink, { backgroundColor: '#EC407A' }]} pointerEvents="none" />
       <View style={styles.legendaryCardInner}>
         {cardBody}
       </View>
@@ -1715,10 +1711,8 @@ const styles = StyleSheet.create({
   cardItem: { width: '23.5%', height: 120 },
   cardItemInner: { height: 120, borderRadius: 16, padding: 5, overflow: 'visible' },
   legendaryGradientFrame: { position: 'relative', width: '100%', height: 120, borderRadius: 16, overflow: 'hidden' },
-  legendaryStrokeTop: { position: 'absolute', top: 0, left: 0, right: 0, height: 1 },
-  legendaryStrokeLeft: { position: 'absolute', top: 0, left: 0, bottom: 0, width: 1 },
-  legendaryStrokeRight: { position: 'absolute', top: 0, right: 0, bottom: 0, width: 1 },
-  legendaryStrokeBottom: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 1 },
+  legendaryGradientLayer: { position: 'absolute', top: 0, left: 0, width: '72%', height: 1, borderTopLeftRadius: 16 },
+  legendaryGradientLayerPink: { position: 'absolute', top: 0, right: 0, width: '72%', height: 1, borderTopRightRadius: 16 },
   legendaryCardInner: { height: 118, margin: 1, borderRadius: 15 },
   compactCardItem: { width: '23.5%', height: 120 },
   cardGridGap: { marginRight: '2%' },
