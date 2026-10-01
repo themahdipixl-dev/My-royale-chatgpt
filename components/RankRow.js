@@ -38,7 +38,7 @@ export default function RankRow({ item, index, animationKey = 0, onPress, trophy
 
   return (
     <Animated.View style={{ height: ROW_HEIGHT, opacity, transform: [{ translateY }, { scale }] }}>
-      <Pressable onPress={() => onPress?.(item)} android_ripple={{ color: theme.colors.onSurfaceVariant }}><Surface style={[styles.row, { backgroundColor: theme.colors.surfaceContainer, ...(badgeColor ? { borderWidth: 1, borderColor: badgeColor } : null) }]} elevation={0}>
+      <Pressable onPress={() => onPress?.(item)} android_ripple={{ color: theme.colors.onSurfaceVariant }}><Surface style={[styles.row, { backgroundColor: theme.colors.surfaceContainer, borderWidth: 1, borderColor: badgeColor || theme.colors.outlineVariant }]} elevation={0}>
         <View style={[styles.rankBadge, badgeColor && { backgroundColor: badgeColor }]}>
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72} style={[styles.rankText, { color: badgeColor ? '#1A1300' : theme.colors.onSurfaceVariant }]}>{rank}</Text>
         </View>
