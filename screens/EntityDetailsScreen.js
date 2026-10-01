@@ -822,16 +822,16 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   const cardCount = allCards.length;
   const maxLevelCards = allCards.filter((card) => number(card?.level) >= number(card?.maxLevel) && card?.maxLevel).length;
 
-  // Count special forms from the player's own cards only.
-  // evolutionMedium = this player owns the Evolution.
-  // heroMedium = this player owns the Hero.
-  // If both exist on the same card, count one of each.
-  const evolutionCards = playerCards.filter(
-    (card) => Boolean(card?.iconUrls?.evolutionMedium),
-  ).length;
-  const heroCards = playerCards.filter(
-    (card) => Boolean(card?.iconUrls?.heroMedium),
-  ).length;
+  // Player API ownership bit field:
+  // 1 = Evolution, 2 = Hero, 3 = both Evolution + Hero.
+  const evolutionCards = playerCards.filter((card) => {
+    const evolutionLevel = Number(card?.evolutionLevel);
+    return evolutionLevel === 1 || evolutionLevel === 3;
+  }).length;
+  const heroCards = playerCards.filter((card) => {
+    const evolutionLevel = Number(card?.evolutionLevel);
+    return evolutionLevel === 2 || evolutionLevel === 3;
+  }).length;
 
 
   const title = isClan
