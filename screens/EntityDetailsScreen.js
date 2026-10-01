@@ -999,6 +999,15 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     };
   }, [isClan, tag]);
 
+  const loadBattlelog = useCallback(() => {
+    if (isClan || !tag) return;
+    setBattleLoading(true);
+    fetchPlayerBattlelog(tag)
+      .then((items) => setBattlelog(Array.isArray(items) ? items : []))
+      .catch(() => setBattlelog([]))
+      .finally(() => setBattleLoading(false));
+  }, [isClan, tag]);
+
   const refreshProgress = useRef(new Animated.Value(0)).current;
   const refreshRotate = useRef(new Animated.Value(0)).current;
 
@@ -1057,14 +1066,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     }
   }, [isClan, tag, refreshing, refreshProgress, refreshRotate, loadBattlelog]);
 
-  const loadBattlelog = useCallback(() => {
-    if (isClan || !tag) return;
-    setBattleLoading(true);
-    fetchPlayerBattlelog(tag)
-      .then((items) => setBattlelog(Array.isArray(items) ? items : []))
-      .catch(() => setBattlelog([]))
-      .finally(() => setBattleLoading(false));
-  }, [isClan, tag]);
+
 
   useEffect(() => {
     loadBattlelog();
