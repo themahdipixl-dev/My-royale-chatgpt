@@ -1010,7 +1010,9 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
 
             <AnimatedSection index={6} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
               <View style={styles.currentDeckHeader}>
-                <SectionTitle icon="cards" title="Current deck" theme={theme} noBottomMargin />
+                <View style={styles.currentDeckHeaderTitle}>
+                  <SectionTitle icon="cards" title="Current deck" theme={theme} noBottomMargin />
+                </View>
                 <Pressable
                   onPress={() => {
                     if (currentDeck.length !== 8) return;
@@ -1211,8 +1213,9 @@ const styles = StyleSheet.create({
   sectionSubtitle: { marginLeft: 6, justifyContent: 'center' },
   sectionSubtitleLine: { fontSize: 8.5, lineHeight: 9, fontWeight: '600' },
   sectionRight: { marginLeft: 8, fontSize: 11 },
-  currentDeckHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 13 },
-  copyDeckButton: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', marginLeft: 8 },
+  currentDeckHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 13, width: '100%' },
+  currentDeckHeaderTitle: { flex: 1, minWidth: 0 },
+  copyDeckButton: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', marginLeft: 8, flexShrink: 0 },
 
   performanceNumbers: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   bigPercent: { fontSize: 28, fontWeight: '900' },
@@ -1246,7 +1249,7 @@ const styles = StyleSheet.create({
   clanName: { fontSize: 16, fontWeight: '800' },
   clanTag: { marginTop: 3, fontSize: 12, fontWeight: '700' },
 
-  deckGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 11, rowGap: 9, alignItems: 'flex-start' },
+  deckGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 9, alignItems: 'flex-start' },
   subSectionTitleRow: { position: 'relative', flexDirection: 'row', alignItems: 'center', marginTop: 15, marginBottom: 8 },
   subSectionTitle: { fontSize: 12, fontWeight: '700' },
   towerCardNoteInline: { marginTop: -4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', alignSelf: 'center', gap: 4 },
@@ -1261,9 +1264,9 @@ const styles = StyleSheet.create({
   deckBattleStatText: { flex: 1, marginLeft: 6, minWidth: 0, flexDirection: 'row', alignItems: 'center' },
   deckBattleStatLabel: { fontSize: 9.5, fontWeight: '600' },
   deckBattleStatValue: { marginTop: 0, marginLeft: 3, fontSize: 12, fontWeight: '800' },
-  cardItem: { width: '22.2%', height: 120 },
+  cardItem: { width: '23.5%', height: 120 },
   cardItemInner: { height: 120, borderRadius: 16, padding: 5 },
-  compactCardItem: { width: '22.2%', height: 120 },
+  compactCardItem: { width: '23.5%', height: 120 },
   compactCardItemInner: { height: 120, borderRadius: 16, padding: 5 },
   cardImage: { width: '100%', height: 82 },
   compactCardImage: { width: '100%', height: 84 },
