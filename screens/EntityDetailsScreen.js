@@ -1802,15 +1802,19 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                       ]}
                     >
                       <View style={styles.cardsFadeGradient}>
-                        {Array.from({ length: 18 }, (_, fadeIndex) => (
-                          <View
-                            key={fadeIndex}
-                            style={[
-                              styles.cardsFadeStrip,
-                              { opacity: 0.015 + (fadeIndex / 17) * 0.105 },
-                            ]}
-                          />
-                        ))}
+                        {Array.from({ length: 42 }, (_, fadeIndex) => {
+                          const t = fadeIndex / 41;
+                          const eased = t * t * (3 - 2 * t);
+                          return (
+                            <View
+                              key={fadeIndex}
+                              style={[
+                                styles.cardsFadeStrip,
+                                { backgroundColor: theme.colors.surfaceContainer, opacity: 0.006 + eased * 0.075 },
+                              ]}
+                            />
+                          );
+                        })}
                       </View>
                     </Animated.View>
                   ) : null}
@@ -2057,9 +2061,9 @@ const styles = StyleSheet.create({
   allCardsGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 9, alignItems: 'flex-start' },
   normalCardsSection: { width: '100%' },
   normalCardsRevealWrap: { width: '100%', overflow: 'hidden' },
-  cardsCollapseFade: { position: 'absolute', left: 0, right: 0, top: 86, height: 83, overflow: 'hidden' },
+  cardsCollapseFade: { position: 'absolute', left: 0, right: 0, top: 72, height: 97, overflow: 'hidden' },
   cardsFadeGradient: { flex: 1, flexDirection: 'column', justifyContent: 'flex-end' },
-  cardsFadeStrip: { flex: 1, width: '100%', backgroundColor: 'rgba(0,0,0,1)' },
+  cardsFadeStrip: { flex: 1, width: '100%' },
   cardsExpandButton: { alignSelf: 'center', width: 34, height: 30, marginTop: 14, alignItems: 'center', justifyContent: 'center' },
   badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   viewAllButton: { marginTop: 12, minHeight: 44, borderRadius: 15, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
