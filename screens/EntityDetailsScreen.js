@@ -796,18 +796,28 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
   );
   const badges = Array.isArray(data.badges) ? data.badges : [];
 
-  const allCards = useMemo(() => {
+  const cardCollections = useMemo(() => {
     const cards = Array.isArray(data.cards) ? data.cards : [];
     const supportCards = Array.isArray(data.supportCards) ? data.supportCards : [];
-    const seen = new Set();
-    return [...cards, ...supportCards].filter((card) => {
-      const key = card?.id ?? card?.name;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
+
+    const dedupe = (items) => {
+      const seen = new Set();
+      return items.filter((card) => {
+        const key = card?.id ?? card?.name;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    };
+
+    return {
+      cards: dedupe(cards),
+      supportCards: dedupe(supportCards),
+    };
   }, [data.cards, data.supportCards]);
 
+  const allCards = [...cardCollections.cards, ...cardCollections.supportCards];
+  const supportCards = cardCollections.supportCards;
   const cardCount = allCards.length;
   const maxLevelCards = allCards.filter((card) => number(card?.level) >= number(card?.maxLevel) && card?.maxLevel).length;
   const evolvedCards = allCards.filter((card) => number(card?.evolutionLevel) > 0).length;
@@ -1222,8 +1232,22 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                 <StatTile icon="auto-fix" label="Evolved" value={formatNumber(evolvedCards)} theme={theme} />
               </View>
               <View style={styles.allCardsGrid}>
-                {allCards.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} index={index} grid />)}
+                {cardCollections.cards.map((card, index) => (
+                  <CardItem key={card?.id ?? index} card={card} theme={theme} index={index} grid />
+                ))}
               </View>
+              {supportCards.length > 0 ? (
+                <>
+                  <View style={styles.collectionSubSectionTitle}>
+                    <Text style={[styles.subSectionTitle, { color: theme.colors.onSurface }]}>Tower Cards</Text>
+                  </View>
+                  <View style={styles.allCardsGrid}>
+                    {supportCards.map((card, index) => (
+                      <CardItem key={card?.id ?? ('support-' + index)} card={card} theme={theme} index={index} grid />
+                    ))}
+                  </View>
+                </>
+              ) : null
             </Surface></AnimatedSection>
 
             <AnimatedSection index={9} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
@@ -1376,6 +1400,7 @@ const styles = StyleSheet.create({
 
   deckGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 9, alignItems: 'flex-start' },
   subSectionTitleRow: { position: 'relative', flexDirection: 'row', alignItems: 'center', marginTop: 15, marginBottom: 8 },
+  collectionSubSectionTitle: { marginTop: 15, marginBottom: 8 },
   subSectionTitle: { fontSize: 12, fontWeight: '700' },
   towerCardNoteInline: { marginTop: -4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', alignSelf: 'center', gap: 4 },
   towerCardNoteText: { fontSize: 8.5, lineHeight: 12, textAlign: 'center' },
