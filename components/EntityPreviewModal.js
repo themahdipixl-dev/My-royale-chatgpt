@@ -1,5 +1,5 @@
 // components/EntityPreviewModal.js
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, View, Image, ActivityIndicator } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Button, IconButton, Text, useTheme } from 'react-native-paper';
@@ -327,61 +327,6 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
       }
     };
   }, [visible, entity, isClan, loadPlayerData]);
-
-  useEffect(() => {
-    if (playerRetryTimerRef.current) {
-      clearTimeout(playerRetryTimerRef.current);
-      playerRetryTimerRef.current = null;
-    }
-
-    if (!visible || !entity || isClan) {
-      setPlayerLoading(false);
-      return undefined;
-    }
-
-    const tag = firstValue(entity.tag, entity.playerTag);
-    if (!tag) {
-      setPlayerLoading(false);
-      return undefined;
-    }
-
-    let cancelled = false;
-    setPlayerLoading(true);
-    setPlayerData(null);
-
-    const requestPlayer = () => {
-      if (cancelled || !visible) return;
-
-      fetchPlayer(tag)
-        .then((player) => {
-          if (cancelled) return;
-          setPlayerData(player);
-          setPlayerLoading(false);
-          if (playerRetryTimerRef.current) {
-            clearTimeout(playerRetryTimerRef.current);
-            playerRetryTimerRef.current = null;
-          }
-        })
-        .catch(() => {
-          if (cancelled || !visible) return;
-          // Keep the popup in its loading state and retry while it is open.
-          playerRetryTimerRef.current = setTimeout(() => {
-            playerRetryTimerRef.current = null;
-            requestPlayer();
-          }, 2000);
-        });
-    };
-
-    requestPlayer();
-
-    return () => {
-      cancelled = true;
-      if (playerRetryTimerRef.current) {
-        clearTimeout(playerRetryTimerRef.current);
-        playerRetryTimerRef.current = null;
-      }
-    };
-  }, [visible, entity, isClan]);
 
   useEffect(() => {
     if (visible && entity) {
