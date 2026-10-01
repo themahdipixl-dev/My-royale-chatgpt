@@ -1247,7 +1247,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                     ))}
                   </View>
                 </>
-              ) : null
+              ) : null}
             </Surface></AnimatedSection>
 
             <AnimatedSection index={9} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer }]}>
