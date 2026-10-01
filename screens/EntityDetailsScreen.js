@@ -912,6 +912,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const [cardSortBy, setCardSortBy] = useState('name');
   const [cardSortAscending, setCardSortAscending] = useState(false);
   const [cardSortMenuRequest, setCardSortMenuRequest] = useState(0);
+  const [cardSortMenuRequest, setCardSortMenuRequest] = useState(0);
   const [cardCollectionFilter, setCardCollectionFilter] = useState(null);
   const [cardsExpanded, setCardsExpanded] = useState(false);
   const cardsExpandProgress = useRef(new Animated.Value(0)).current;
