@@ -678,10 +678,35 @@ function CardItem({ index = 0, card, theme, compact = false, deck, tower = false
   );
 
   const decoratedCardContent = rarity === 'legendary' ? (
-    <View style={styles.legendaryGlowWrap}>
-      <View pointerEvents="none" style={[styles.legendaryGlowHalf, styles.legendaryGlowGreen]} />
-      <View pointerEvents="none" style={[styles.legendaryGlowHalf, styles.legendaryGlowPink]} />
-      {cardContent}
+    <View style={styles.legendaryGradientFrame}>
+      <View pointerEvents="none" style={styles.legendaryGradientStroke} />
+      <View style={[
+        styles.cardItemInner,
+        compact && styles.compactCardItemInner,
+        styles.legendaryCardInner,
+        { backgroundColor: theme.colors.surfaceContainerHighest },
+      ]}>
+        <View style={styles.cardVisual}>
+          {image ? (
+            <Image source={{ uri: image }} style={compact ? styles.compactCardImage : styles.cardImage} resizeMode="contain" />
+          ) : (
+            <View style={[styles.cardImageFallback, { backgroundColor: theme.colors.primaryContainer }]}>
+              <MaterialCommunityIcons name="cards-outline" size={28} color={theme.colors.onPrimaryContainer} />
+            </View>
+          )}
+          <View style={styles.cardOverlayMeta}>
+            <View style={[styles.cardMetaPill, { backgroundColor: theme.colors.primaryContainer }]}>
+              <Text style={[styles.cardLevel, { color: theme.colors.onPrimaryContainer }]}>L {getDisplayCardLevel(card) ?? '—'}</Text>
+            </View>
+            {card?.elixirCost !== undefined ? (
+              <View style={[styles.cardMetaPill, { backgroundColor: theme.colors.primaryContainer }]}>
+                <MaterialCommunityIcons name="water" size={9} color={theme.colors.onPrimaryContainer} />
+                <Text style={[styles.cardElixir, { color: theme.colors.onPrimaryContainer }]}>{card.elixirCost}</Text>
+              </View>
+            ) : null}
+          </View>
+        </View>
+      </View>
     </View>
   ) : cardContent;
 
@@ -1676,10 +1701,13 @@ const styles = StyleSheet.create({
   deckBattleStatValue: { marginTop: 0, marginLeft: 3, fontSize: 12, fontWeight: '800' },
   cardItem: { width: '23.5%', height: 120 },
   cardItemInner: { height: 120, borderRadius: 16, padding: 5, overflow: 'visible' },
-  legendaryGlowWrap: { position: 'relative', width: '100%', height: '100%' },
-  legendaryGlowHalf: { position: 'absolute', top: 0, bottom: 0, width: '54%', borderWidth: 1, borderRadius: 16 },
-  legendaryGlowGreen: { left: 0, borderColor: '#66BB6A', shadowColor: '#66BB6A', shadowOpacity: 0.42, shadowRadius: 5, shadowOffset: { width: 0, height: 0 }, elevation: 3 },
-  legendaryGlowPink: { right: 0, borderColor: '#EC407A', shadowColor: '#EC407A', shadowOpacity: 0.42, shadowRadius: 5, shadowOffset: { width: 0, height: 0 }, elevation: 3 },
+  legendaryGradientFrame: { position: 'relative', width: '100%', height: 120, borderRadius: 16, overflow: 'hidden' },
+  legendaryGradientStroke: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 16,
+    experimental_backgroundImage: 'linear-gradient(135deg, #66BB6A 0%, #EC407A 100%)',
+  },
+  legendaryCardInner: { height: 118, margin: 1, borderRadius: 15, padding: 5 },
   compactCardItem: { width: '23.5%', height: 120 },
   cardGridGap: { marginRight: '2%' },
   compactCardItemInner: { height: 120, borderRadius: 16, padding: 5 },
