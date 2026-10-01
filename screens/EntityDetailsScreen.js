@@ -1038,11 +1038,15 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (showAllBadges) {
+        setShowAllBadges(false);
+        return true;
+      }
       onBack?.();
       return true;
     });
     return () => subscription.remove();
-  }, [onBack]);
+  }, [onBack, showAllBadges]);
 
   useEffect(() => {
     if (isClan || !tag) {
@@ -1325,36 +1329,6 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     ? firstValue(data.name, data.clan?.name, 'Clan')
     : firstValue(data.name, entity?.name, 'Player');
   const headerTitle = isClan ? 'Clan Details' : 'Player Details';
-
-  if (showAllBadges && !isClan) {
-    return (
-      <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
-        <View style={styles.header}>
-          <IconButton icon="arrow-left" size={24} onPress={() => setShowAllBadges(false)} style={styles.back} />
-          <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>
-            Badges & achievements
-          </Text>
-          <Text style={[styles.sectionRight, { color: theme.colors.onSurfaceVariant, marginRight: 8 }]}>
-            {badges.length}
-          </Text>
-        </View>
-
-        <FlatList
-          data={badges}
-          keyExtractor={(badge, index) => String(badge?.name || badge?.id || index)}
-          numColumns={3}
-          renderItem={({ item }) => <BadgeItem badge={item} theme={theme} />}
-          contentContainerStyle={styles.badgesPageContent}
-          columnWrapperStyle={styles.badgesPageRow}
-          showsVerticalScrollIndicator={false}
-          initialNumToRender={9}
-          maxToRenderPerBatch={9}
-          windowSize={5}
-          removeClippedSubviews
-        />
-      </SafeAreaView>
-    );
-  }
 
   if (isClan) {
     return (
@@ -1953,7 +1927,44 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
           </DetailAnimationContext.Provider>
         )}
       </View>
-    </SafeAreaView>
+        <Modal
+          visible={showAllBadges && !isClan}
+          animationType="slide"
+          onRequestClose={() => setShowAllBadges(false)}
+          presentationStyle="fullScreen"
+        >
+          <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={['top']}>
+            <View style={styles.header}>
+              <IconButton
+                icon="arrow-left"
+                size={24}
+                onPress={() => setShowAllBadges(false)}
+                style={styles.back}
+              />
+              <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.colors.onSurface }]}>
+                Badges & achievements
+              </Text>
+              <Text style={[styles.sectionRight, { color: theme.colors.onSurfaceVariant, marginRight: 8 }]}>
+                {badges.length}
+              </Text>
+            </View>
+
+            <FlatList
+              data={badges}
+              keyExtractor={(badge, index) => String(badge?.name || badge?.id || index)}
+              numColumns={3}
+              renderItem={({ item }) => <BadgeItem badge={item} theme={theme} />}
+              contentContainerStyle={styles.badgesPageContent}
+              columnWrapperStyle={styles.badgesPageRow}
+              showsVerticalScrollIndicator={false}
+              initialNumToRender={9}
+              maxToRenderPerBatch={9}
+              windowSize={5}
+              removeClippedSubviews
+            />
+          </SafeAreaView>
+        </Modal>
+      </SafeAreaView>
   );
 }
 
