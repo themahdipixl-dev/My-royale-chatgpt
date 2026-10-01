@@ -261,30 +261,63 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   const [modalVisible, setModalVisible] = useState(false);
   const [playerData, setPlayerData] = useState(null);
   const [playerLoading, setPlayerLoading] = useState(false);
+  const playerRetryTimerRef = useRef(null);
 
   const isClan = type === 'clan';
 
   useEffect(() => {
-    if (!visible || !entity || isClan) return;
+    if (playerRetryTimerRef.current) {
+      clearTimeout(playerRetryTimerRef.current);
+      playerRetryTimerRef.current = null;
+    }
+
+    if (!visible || !entity || isClan) {
+      setPlayerLoading(false);
+      return undefined;
+    }
 
     const tag = firstValue(entity.tag, entity.playerTag);
-    if (!tag) return;
+    if (!tag) {
+      setPlayerLoading(false);
+      return undefined;
+    }
 
     let cancelled = false;
     setPlayerLoading(true);
     setPlayerData(null);
-    fetchPlayer(tag).then((player) => {
-      if (cancelled) return;
-      setPlayerData(player);
-    }).catch(() => {
-      if (!cancelled) {
-        setPlayerData(null);
-      }
-    }).finally(() => {
-      if (!cancelled) setPlayerLoading(false);
-    });
 
-    return () => { cancelled = true; };
+    const requestPlayer = () => {
+      if (cancelled || !visible) return;
+
+      fetchPlayer(tag)
+        .then((player) => {
+          if (cancelled) return;
+          setPlayerData(player);
+          setPlayerLoading(false);
+          if (playerRetryTimerRef.current) {
+            clearTimeout(playerRetryTimerRef.current);
+            playerRetryTimerRef.current = null;
+          }
+        })
+        .catch(() => {
+          if (cancelled || !visible) return;
+          // Keep the popup in its loading state and retry while it is open.
+          playerRetryTimerRef.current = setTimeout(() => {
+            playerRetryTimerRef.current = null;
+            requestPlayer();
+          }, 2000);
+        });
+    };
+
+    requestPlayer();
+
+    return () => {
+      cancelled = true;
+      if (playerRetryTimerRef.current) {
+        clearTimeout(playerRetryTimerRef.current);
+        playerRetryTimerRef.current = null;
+      }
+    };
   }, [visible, entity, isClan]);
 
   useEffect(() => {
