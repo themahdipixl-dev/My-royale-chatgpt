@@ -954,16 +954,39 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     extrapolate: 'clamp',
   });
 
-  useEffect(() => {
+  const playEntranceAnimation = useCallback(() => {
+    entrance.stopAnimation();
+    entranceY.stopAnimation();
+    entranceScale.stopAnimation();
+
     entrance.setValue(0);
     entranceY.setValue(18);
     entranceScale.setValue(0.97);
+
     Animated.parallel([
-      Animated.timing(entrance, { toValue: 1, duration: 260, useNativeDriver: true }),
-      Animated.spring(entranceY, { toValue: 0, friction: 8, tension: 55, useNativeDriver: true }),
-      Animated.spring(entranceScale, { toValue: 1, friction: 9, tension: 55, useNativeDriver: true }),
+      Animated.timing(entrance, {
+        toValue: 1,
+        duration: 280,
+        useNativeDriver: true,
+      }),
+      Animated.spring(entranceY, {
+        toValue: 0,
+        friction: 8,
+        tension: 55,
+        useNativeDriver: true,
+      }),
+      Animated.spring(entranceScale, {
+        toValue: 1,
+        friction: 9,
+        tension: 55,
+        useNativeDriver: true,
+      }),
     ]).start();
   }, [entrance, entranceY, entranceScale]);
+
+  useEffect(() => {
+    playEntranceAnimation();
+  }, [playEntranceAnimation]);
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -1042,6 +1065,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
           setPlayer(freshPlayer);
           setError(null);
           latestError = null;
+          requestAnimationFrame(() => playEntranceAnimation());
           break;
         } catch (err) {
           latestError = err;
@@ -1064,7 +1088,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
         useNativeDriver: true,
       }).start(() => setRefreshing(false));
     }
-  }, [isClan, tag, refreshing, refreshProgress, refreshRotate, loadBattlelog]);
+  }, [isClan, tag, refreshing, refreshProgress, refreshRotate, loadBattlelog, playEntranceAnimation]);
 
 
 
@@ -1337,6 +1361,10 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               ref={scrollRef}
               onScroll={detailsScrollHandler}
               scrollEventThrottle={16}
+              style={{
+                opacity: entrance,
+                transform: [{ translateY: entranceY }, { scale: entranceScale }],
+              }}
               contentContainerStyle={styles.content}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
