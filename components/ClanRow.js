@@ -36,7 +36,7 @@ export default function ClanRow({ item, index, animationKey = 0, onPress }) {
 
   return (
     <Animated.View style={{ height: CLAN_ROW_HEIGHT, opacity, transform: [{ translateY }, { scale }] }}>
-      <Pressable onPress={() => onPress?.(item)} android_ripple={{ color: theme.colors.onSurfaceVariant }}><Surface style={[styles.row, { backgroundColor: theme.colors.surfaceContainer }]} elevation={0}>
+      <Pressable onPress={() => onPress?.(item)} android_ripple={{ color: theme.colors.onSurfaceVariant }}><Surface style={[styles.row, { backgroundColor: theme.colors.surfaceContainer, ...(rank <= 3 ? { borderWidth: 1, borderColor: ['#F5B942', '#B8C2D1', '#CD8B4F'][rank - 1] } : null) }]} elevation={0}>
         <View style={[styles.rankBadge, rank <= 3 && { backgroundColor: ['#F5B942', '#B8C2D1', '#CD8B4F'][rank - 1] }]}>
           <Text style={[styles.rankText, { color: rank <= 3 ? '#1A1300' : theme.colors.onSurfaceVariant }]}>{rank}</Text>
         </View>
