@@ -348,6 +348,14 @@ function resolveCurrentDeckImage(card, index, deck) {
 }
 
 
+  const CARD_RARITY_ORDER = {
+    common: 1,
+    rare: 2,
+    epic: 3,
+    legendary: 4,
+    champion: 5,
+  };
+
 const CARD_LEVEL_OFFSETS = {
   common: 0,
   rare: 2,
@@ -958,14 +966,6 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
     const evolutionLevel = Number(card?.evolutionLevel);
     return evolutionLevel === 2 || evolutionLevel === 3;
   }).length;
-
-  const CARD_RARITY_ORDER = {
-    common: 1,
-    rare: 2,
-    epic: 3,
-    legendary: 4,
-    champion: 5,
-  };
 
   const sortCards = useCallback((cards) => {
     const items = Array.isArray(cards) ? [...cards] : [];
