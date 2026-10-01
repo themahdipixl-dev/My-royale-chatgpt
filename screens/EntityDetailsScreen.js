@@ -8,7 +8,6 @@ import {
   FlatList,
   Image,
   Linking,
-  Dimensions,
   Pressable,
   ScrollView,
   RefreshControl,
@@ -518,11 +517,9 @@ function CardCollectionFilterTile({ type, icon, label, value, selected, onPress,
   );
 }
 
-function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme, openRequest = 0 }) {
+function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme }) {
   const [open, setOpen] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const menuProgress = useRef(new Animated.Value(0)).current;
-  const capsuleRef = useRef(null);
 
   const options = [
     { key: 'name', label: 'By name' },
@@ -531,47 +528,39 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme, o
     { key: 'elixir', label: 'By elixir' },
   ];
 
-  const openMenu = useCallback(() => {
-    capsuleRef.current?.measureInWindow((x, y, width, height) => {
-      setMenuPosition({ x, y, width, height });
-    });
-    setOpen(true);
-    menuProgress.setValue(0);
-    Animated.spring(menuProgress, {
-      toValue: 1,
-      friction: 8,
-      tension: 90,
-      useNativeDriver: true,
-    }).start();
-  }, [menuProgress]);
+  const toggleMenu = () => {
+    const nextOpen = !open;
+    if (nextOpen) {
+      setOpen(true);
+      menuProgress.setValue(0);
+      Animated.spring(menuProgress, {
+        toValue: 1,
+        friction: 8,
+        tension: 90,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(menuProgress, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (finished) setOpen(false);
+      });
+    }
+  };
 
-  const closeMenu = useCallback((callback) => {
+  const selectOption = (key) => {
     Animated.timing(menuProgress, {
       toValue: 0,
-      duration: 150,
+      duration: 160,
       useNativeDriver: true,
     }).start(({ finished }) => {
       if (finished) {
         setOpen(false);
-        callback?.();
+        setSortBy(key);
       }
     });
-  }, [menuProgress]);
-
-  const toggleMenu = () => {
-    if (open) {
-      closeMenu();
-      return;
-    }
-    openMenu();
-  };
-
-  useEffect(() => {
-    if (openRequest > 0) openMenu();
-  }, [openRequest, openMenu]);
-
-  const selectOption = (key) => {
-    closeMenu(() => setSortBy(key));
   };
 
   const selectedOption = options.find((option) => option.key === sortBy);
@@ -579,11 +568,23 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme, o
 
   return (
     <View style={styles.cardSortControls}>
+      {open ? (
+        <Pressable
+          onPress={() => {
+            Animated.timing(menuProgress, {
+              toValue: 0,
+              duration: 150,
+              useNativeDriver: true,
+            }).start(({ finished }) => {
+              if (finished) setOpen(false);
+            });
+          }}
+          style={styles.cardSortDismissArea}
+        />
+      ) : null}
+
       <Pressable
-        onPress={() => {
-          setAscending(!ascending);
-          openMenu();
-        }}
+        onPress={() => setAscending(!ascending)}
         style={({ pressed }) => [
           styles.cardSortDirection,
           {
@@ -604,7 +605,6 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme, o
 
       <View style={styles.cardSortMenuWrap}>
         <Pressable
-          ref={capsuleRef}
           onPress={toggleMenu}
           style={({ pressed }) => [
             styles.cardSortCapsule,
@@ -614,93 +614,77 @@ function CardSortControls({ sortBy, setSortBy, ascending, setAscending, theme, o
             },
           ]}
         >
-          <Text
-            numberOfLines={1}
-            style={[styles.cardSortText, { color: theme.colors.onSurface }]}
-          >
+          <Text style={[styles.cardSortText, { color: theme.colors.onPrimaryContainer }]} numberOfLines={1}>
             {selectedLabel}
           </Text>
           <MaterialCommunityIcons
             name={open ? 'chevron-up' : 'chevron-down'}
-            size={17}
-            color={theme.colors.onSurfaceVariant}
+            size={15}
+            color={theme.colors.onPrimaryContainer}
           />
         </Pressable>
 
-        <Modal
-          visible={open}
-          transparent
-          animationType="none"
-          statusBarTranslucent
-          onRequestClose={closeMenu}
-        >
-          <View style={styles.cardSortModalRoot}>
-            <Pressable style={StyleSheet.absoluteFillObject} onPress={closeMenu} />
-            <Animated.View
-              style={[
-                styles.cardSortDropdown,
-                {
-                  position: 'absolute',
-                  top: menuPosition.y + menuPosition.height + 6,
-                  right: Math.max(8, Dimensions.get('window').width - (menuPosition.x + menuPosition.width)),
-                  backgroundColor: theme.colors.surfaceContainerHigh,
-                  opacity: menuProgress,
-                  transform: [
+        {open ? (
+          <Animated.View
+            style={[
+              styles.cardSortDropdown,
+              {
+                backgroundColor: theme.colors.surfaceContainerHigh,
+                opacity: menuProgress,
+                transform: [
+                  {
+                    translateY: menuProgress.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-7, 0],
+                    }),
+                  },
+                  {
+                    scale: menuProgress.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.97, 1],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            {options.map((option, index) => (
+              <Pressable
+                key={option.key}
+                onPress={() => selectOption(option.key)}
+                style={({ pressed }) => [
+                  styles.cardSortOption,
+                  { opacity: pressed ? 0.68 : 1 },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.cardSortOptionText,
                     {
-                      translateY: menuProgress.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [-7, 0],
-                      }),
+                      color: option.key === sortBy
+                        ? theme.colors.primary
+                        : theme.colors.onSurface,
                     },
-                    {
-                      scale: menuProgress.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0.97, 1],
-                      }),
-                    },
-                  ],
-                },
-              ]}
-            >
-              {options.map((option, index) => (
-                <Pressable
-                  key={option.key}
-                  onPress={() => selectOption(option.key)}
-                  style={({ pressed }) => [
-                    styles.cardSortOption,
-                    { opacity: pressed ? 0.68 : 1 },
                   ]}
                 >
-                  <Text
+                  {option.label}
+                </Text>
+                {index < options.length - 1 ? (
+                  <View
                     style={[
-                      styles.cardSortOptionText,
-                      {
-                        color: option.key === sortBy
-                          ? theme.colors.primary
-                          : theme.colors.onSurface,
-                      },
+                      styles.cardSortDivider,
+                      { backgroundColor: theme.colors.outlineVariant },
                     ]}
-                  >
-                    {option.label}
-                  </Text>
-                  {index < options.length - 1 ? (
-                    <View
-                      style={[
-                        styles.cardSortDivider,
-                        { backgroundColor: theme.colors.outlineVariant },
-                      ]}
-                    />
-                  ) : null}
-                </Pressable>
-              ))}
-            </Animated.View>
-          </View>
-        </Modal>
+                  />
+                ) : null}
+              </Pressable>
+            ))}
+          </Animated.View>
+        ) : null}
       </View>
     </View>
   );
 }
-
 function CardItem({ index = 0, card, theme, compact = false, deck, tower = false, grid = false, collectionFilter = null }) {
   const image = deck
     ? resolveCurrentDeckImage(card, index, deck)
@@ -911,7 +895,6 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const [showCopyDeckModal, setShowCopyDeckModal] = useState(false);
   const [cardSortBy, setCardSortBy] = useState('name');
   const [cardSortAscending, setCardSortAscending] = useState(false);
-  const [cardSortMenuRequest, setCardSortMenuRequest] = useState(0);
 
   const [cardCollectionFilter, setCardCollectionFilter] = useState(null);
   const [cardsExpanded, setCardsExpanded] = useState(false);
@@ -1745,7 +1728,6 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                   setSortBy={setCardSortBy}
                   ascending={cardSortAscending}
                   setAscending={setCardSortAscending}
-                  openRequest={cardSortMenuRequest}
                   theme={theme}
                 />
               </View>
@@ -1758,7 +1740,6 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                   value={formatNumber(evolutionCards)}
                   selected={cardCollectionFilter === 'evolutions'}
                   onPress={() => {
-                    setCardSortMenuRequest((value) => value + 1);
                     const nextSelected = cardCollectionFilter === 'evolutions' ? null : 'evolutions';
                     Animated.spring(filterStrokeProgress.evolutions, {
                       toValue: nextSelected === 'evolutions' ? 1 : 0,
@@ -2080,7 +2061,7 @@ const styles = StyleSheet.create({
   cardSortDirection: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' },
   cardSortTriangle: { position: 'absolute', top: 9, left: 9, width: 14, height: 14, alignItems: 'center', justifyContent: 'center' },
   cardSortMenuWrap: { position: 'relative', zIndex: 20 },
-  cardSortModalRoot: { flex: 1 },
+  cardSortDismissArea: { position: 'absolute', left: -1000, right: -1000, top: -1000, bottom: -1000, zIndex: 0 },
   cardSortCapsule: { minWidth: 82, height: 32, paddingHorizontal: 11, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 5 },
   cardSortText: { fontSize: 11, fontWeight: '800' },
   cardSortDropdown: { position: 'absolute', top: 38, right: 0, width: 132, borderRadius: 17, overflow: 'hidden', elevation: 8, zIndex: 30 },
