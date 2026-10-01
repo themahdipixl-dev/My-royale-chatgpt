@@ -1764,7 +1764,6 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                   value={formatNumber(heroCards)}
                   selected={cardCollectionFilter === 'heroes'}
                   onPress={() => {
-                    setCardSortMenuRequest((value) => value + 1);
                     const nextSelected = cardCollectionFilter === 'heroes' ? null : 'heroes';
                     Animated.spring(filterStrokeProgress.heroes, {
                       toValue: nextSelected === 'heroes' ? 1 : 0,
