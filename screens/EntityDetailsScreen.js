@@ -468,12 +468,12 @@ function getCurrentDeckBattleStats(battlelog, currentDeck, playerTag) {
   };
 }
 
-function CardItem({ index = 0, card, theme, compact = false, deck, tower = false }) {
+function CardItem({ index = 0, card, theme, compact = false, deck, tower = false, grid = false }) {
   const image = deck ? resolveCurrentDeckImage(card, index, deck) : (
     card?.iconUrls?.medium || card?.iconUrls?.evolutionMedium || card?.iconUrls?.heroMedium
   );
   return (
-    <AnimatedDetailItem index={index} layoutStyle={[styles.cardItem, compact && styles.compactCardItem, tower && styles.towerCardItem]}>
+    <AnimatedDetailItem index={index} layoutStyle={[styles.cardItem, compact && styles.compactCardItem, tower && styles.towerCardItem, grid && index % 4 !== 3 && styles.cardGridGap]}>
       <View style={[styles.cardItemInner, compact && styles.compactCardItemInner, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
         <View style={styles.cardVisual}>
           {image ? (
@@ -1094,7 +1094,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                 </Pressable>
               </View>
               <View style={styles.deckGrid}>
-                {currentDeck.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact deck={currentDeck} index={index} />)}
+                {currentDeck.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} compact deck={currentDeck} index={index} grid />)}
               </View>
               {currentDeckSupport.length > 0 ? (
                 <>
@@ -1219,7 +1219,7 @@ export default function EntityDetailsScreen({ entity, type = 'player', onBack })
                 <StatTile icon="auto-fix" label="Evolved" value={formatNumber(evolvedCards)} theme={theme} />
               </View>
               <View style={styles.allCardsGrid}>
-                {allCards.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} />)}
+                {allCards.map((card, index) => <CardItem key={card?.id ?? index} card={card} theme={theme} index={index} grid />)}
               </View>
             </Surface></AnimatedSection>
 
@@ -1371,7 +1371,7 @@ const styles = StyleSheet.create({
   clanName: { fontSize: 16, fontWeight: '800' },
   clanTag: { marginTop: 3, fontSize: 12, fontWeight: '700' },
 
-  deckGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 9, alignItems: 'flex-start' },
+  deckGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 9, alignItems: 'flex-start' },
   subSectionTitleRow: { position: 'relative', flexDirection: 'row', alignItems: 'center', marginTop: 15, marginBottom: 8 },
   subSectionTitle: { fontSize: 12, fontWeight: '700' },
   towerCardNoteInline: { marginTop: -4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', alignSelf: 'center', gap: 4 },
@@ -1389,6 +1389,7 @@ const styles = StyleSheet.create({
   cardItem: { width: '23.5%', height: 120 },
   cardItemInner: { height: 120, borderRadius: 16, padding: 5 },
   compactCardItem: { width: '23.5%', height: 120 },
+  cardGridGap: { marginRight: '2%' },
   compactCardItemInner: { height: 120, borderRadius: 16, padding: 5 },
   cardImage: { width: '100%', height: 82 },
   compactCardImage: { width: '100%', height: 84 },
@@ -1402,7 +1403,7 @@ const styles = StyleSheet.create({
   favoriteRow: { flexDirection: 'row', alignItems: 'flex-start' },
   favoriteDetails: { flex: 1, marginLeft: 8 },
   collectionSummary: { flexDirection: 'row', gap: 9, marginBottom: 10 },
-  allCardsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 9, alignItems: 'flex-start' },
+  allCardsGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 9, alignItems: 'flex-start' },
   badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   viewAllButton: { marginTop: 12, minHeight: 44, borderRadius: 15, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
   viewAllText: { fontSize: 12.5, fontWeight: '800' },
