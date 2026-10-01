@@ -884,6 +884,8 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const [cardSortBy, setCardSortBy] = useState('name');
   const [cardSortAscending, setCardSortAscending] = useState(false);
   const [cardCollectionFilter, setCardCollectionFilter] = useState(null);
+  const [cardsExpanded, setCardsExpanded] = useState(false);
+  const cardsExpandProgress = useRef(new Animated.Value(0)).current;
   const filterStrokeProgress = useRef({
     evolutions: new Animated.Value(0),
     heroes: new Animated.Value(0),
@@ -1238,6 +1240,19 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     () => sortCardList(filteredPlayerCards, cardSortBy, cardSortAscending),
     [filteredPlayerCards, cardSortBy, cardSortAscending],
   );
+
+  const visiblePlayerCards = cardsExpanded ? sortedPlayerCards : sortedPlayerCards.slice(0, 4);
+
+  const toggleCardsExpanded = useCallback(() => {
+    const nextExpanded = !cardsExpanded;
+    setCardsExpanded(nextExpanded);
+    Animated.spring(cardsExpandProgress, {
+      toValue: nextExpanded ? 1 : 0,
+      friction: 8,
+      tension: 70,
+      useNativeDriver: true,
+    }).start();
+  }, [cardsExpanded, cardsExpandProgress]);
 
   // Tower Cards are intentionally excluded from sorting.
   // Sort controls affect only the normal player-card collection.
@@ -1727,10 +1742,42 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                   animation={filterStrokeProgress}
                 />
               </View>
-              <View style={styles.allCardsGrid}>
-                {sortedPlayerCards.map((card, index) => (
-                  <CardItem key={card?.id ?? ('card-' + String(card?.name ?? index))} card={card} theme={theme} index={index} grid collectionFilter={cardCollectionFilter} />
-                ))}
+              <View style={styles.normalCardsRevealWrap}>
+                <View style={styles.allCardsGrid}>
+                  {visiblePlayerCards.map((card, index) => (
+                    <CardItem key={card?.id ?? ('card-' + String(card?.name ?? index))} card={card} theme={theme} index={index} grid collectionFilter={cardCollectionFilter} />
+                  ))}
+                </View>
+                {sortedPlayerCards.length > 4 ? (
+                  <Pressable
+                    onPress={toggleCardsExpanded}
+                    accessibilityLabel={cardsExpanded ? 'Collapse cards' : 'Expand cards'}
+                    style={({ pressed }) => [
+                      styles.cardsExpandButton,
+                      {
+                        backgroundColor: theme.colors.primaryContainer,
+                        opacity: pressed ? 0.7 : 1,
+                      },
+                    ]}
+                  >
+                    <Animated.View
+                      style={{
+                        transform: [{
+                          rotate: cardsExpandProgress.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: ['0deg', '180deg'],
+                          }),
+                        }],
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name="chevron-down"
+                        size={22}
+                        color={theme.colors.onPrimaryContainer}
+                      />
+                    </Animated.View>
+                  </Pressable>
+                ) : null}
               </View>
               {supportCards.length > 0 ? (
                 <>
@@ -1943,6 +1990,8 @@ const styles = StyleSheet.create({
 
   collectionSummary: { flexDirection: 'row', gap: 9, marginBottom: 10 },
   allCardsGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 9, alignItems: 'flex-start' },
+  normalCardsRevealWrap: { overflow: 'hidden' },
+  cardsExpandButton: { alignSelf: 'center', width: 38, height: 30, borderRadius: 15, marginTop: 10, alignItems: 'center', justifyContent: 'center' },
   badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   viewAllButton: { marginTop: 12, minHeight: 44, borderRadius: 15, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
   viewAllText: { fontSize: 12.5, fontWeight: '800' },
