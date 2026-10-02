@@ -1382,7 +1382,10 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const [error, setError] = useState(null);
   const [showAllBadges, setShowAllBadges] = useState(false);
   const [activeBadgeKey, setActiveBadgeKey] = useState(null);
-  const [showCopyDeckModal, setShowCopyDeckModal] = useState(false);\n  const [copyDeckTarget, setCopyDeckTarget] = useState(null);\n  const [expandedBattles, setExpandedBattles] = useState({});\n  const [savedBattleDecks, setSavedBattleDecks] = useState({});
+  const [showCopyDeckModal, setShowCopyDeckModal] = useState(false);
+  const [copyDeckTarget, setCopyDeckTarget] = useState(null);
+  const [expandedBattles, setExpandedBattles] = useState({});
+  const [savedBattleDecks, setSavedBattleDecks] = useState({});
   const [cardSortBy, setCardSortBy] = useState('name');
   const [cardSortAscending, setCardSortAscending] = useState(false);
 
