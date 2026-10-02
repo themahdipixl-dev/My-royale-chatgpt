@@ -831,7 +831,7 @@ function sortBadgesByGameCategory(badges) {
 }
 
 function MissingBadgeIcon({ theme, size = 42 }) {
-  const iconSize = Math.max(18, size - 6);
+  const iconSize = Math.max(18, Math.round(size * 0.84));
 
   return (
     <View
@@ -2354,7 +2354,7 @@ const styles = StyleSheet.create({
   badgeItemActive: { zIndex: 11 },
   badgeItemInner: { width: '100%', height: '100%', borderRadius: 16, padding: 4, alignItems: 'center', justifyContent: 'center', overflow: 'visible' },
   badgeImage: { width: 96, height: 96 },
-  missingBadgeIcon: { alignItems: 'center', justifyContent: 'center', transform: [{ translateY: 12 }] },
+  missingBadgeIcon: { position: 'absolute', left: 0, top: 0, alignItems: 'center', justifyContent: 'center' },
   missingBadgeCrown: { position: 'absolute' },
   badgeVisual: { alignItems: 'center', justifyContent: 'center' },
   badgeInfoPopup: { position: 'absolute', left: -6, right: -6, top: 94, minHeight: 78, borderRadius: 14, borderWidth: 1, paddingHorizontal: 9, paddingVertical: 8, alignItems: 'center', justifyContent: 'center', elevation: 8, zIndex: 20 },
