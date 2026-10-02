@@ -24,6 +24,7 @@ import { getClanBadgeImage } from '../utils/clanBadges';
 import { getPlayerLeagueImage } from '../utils/playerLeagueassets';
 import RetryImage from '../components/RetryImage';
 const pointIcon = require('../assets/Point-icon.png');
+const loadedBadgeImageUris = new Set();
 
 function firstValue(...values) {
   return values.find((value) => value !== undefined && value !== null && value !== '') ?? null;
@@ -868,12 +869,10 @@ function BadgeVisual({ item, theme, size = 58 }) {
 
   const [imageIndex, setImageIndex] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const loadedUrisRef = useRef(new Set());
-
   useEffect(() => {
     setImageIndex(0);
     const firstUri = imageCandidates[0] || null;
-    setImageLoaded(Boolean(firstUri && loadedUrisRef.current.has(firstUri)));
+    setImageLoaded(Boolean(firstUri && loadedBadgeImageUris.has(firstUri)));
   }, [item, imageCandidates]);
 
   const image = imageCandidates[imageIndex] || null;
@@ -887,7 +886,7 @@ function BadgeVisual({ item, theme, size = 58 }) {
           style={[styles.badgeImage, { width: size, height: size }]}
           resizeMode="contain"
           onLoad={() => {
-            loadedUrisRef.current.add(image);
+            loadedBadgeImageUris.add(image);
             setImageLoaded(true);
           }}
           onExhausted={() => {
