@@ -2512,7 +2512,7 @@ const styles = StyleSheet.create({
   achievementsFadeGradient: { flex: 1, width: '100%' },
   achievementsExpandButton: { alignSelf: 'center', width: 34, height: 30, marginTop: 14, alignItems: 'center', justifyContent: 'center' },
   achievementRow: { minHeight: 58, height: 58, borderRadius: 16, padding: 9, flexDirection: 'row', alignItems: 'center' },
-  achievementIcon: { width: 52, height: 52, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+  achievementIcon: { width: 52, height: 52, borderRadius: 15, alignItems: 'center', justifyContent: 'center', marginLeft: -5 },
   achievementMain: { flex: 1, minWidth: 0, marginLeft: 9 },
   achievementName: { fontSize: 12.5, fontWeight: '800' },
   achievementInfo: { marginTop: 3, fontSize: 9.5 },
