@@ -1020,37 +1020,313 @@ function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, activeB
   );
 }
 
-function BattleRow({ battle, theme, index }) {
+function formatBattleMode(battle) {
+  const raw = firstValue(
+    battle?.gameMode?.name,
+    battle?.gameMode?.id,
+    battle?.type,
+    battle?.arena?.name,
+    'Battle',
+  );
+  const normalized = String(raw).trim().toLowerCase();
+  if (normalized === 'team vs team' || normalized === 'teamvsteam' || normalized === '2v2') return '2v2';
+  if (normalized === 'ladder' || normalized === 'trophyroad') return 'Ladder';
+  if (normalized === 'ranked' || normalized.includes('ranked')) return 'Ranked';
+  if (normalized === 'friendly' || normalized.includes('friendly')) return 'Friendly';
+  return formatGameDisplayName(raw, 'Battle');
+}
+
+function formatBattleAge(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return formatDate(value);
+  const diff = Math.max(0, Date.now() - date.getTime());
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ${minutes % 60}m ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ${hours % 24}h ago`;
+  return date.toLocaleDateString();
+}
+
+function getBattleDeck(player) {
+  return Array.isArray(player?.cards) ? player.cards.slice(0, 8) : [];
+}
+
+function getBattleTowerCard(player) {
+  const candidates = [
+    ...(Array.isArray(player?.supportCards) ? player.supportCards : []),
+    ...(Array.isArray(player?.towerCards) ? player.towerCards : []),
+  ];
+  return candidates[0] || null;
+}
+
+function getBattleTrophyChange(player) {
+  const value = firstValue(player?.trophyChange, player?.trophiesChange, player?.trophyDelta);
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function getBattleTrophies(player) {
+  const direct = firstValue(player?.trophies, player?.currentTrophies, player?.startingTrophies);
+  const parsed = Number(direct);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function BattleCardImage({ card, theme, size = 42 }) {
+  const image = firstValue(
+    card?.iconUrls?.medium,
+    card?.iconUrls?.small,
+    card?.iconUrls?.large,
+    card?.iconUrl,
+  );
+
+  return (
+    <View
+      style={[
+        styles.battleCard,
+        {
+          width: size,
+          height: Math.round(size * 1.22),
+          borderColor: theme.colors.outlineVariant,
+          backgroundColor: theme.colors.surfaceContainer,
+        },
+      ]}
+    >
+      {image ? (
+        <RetryImage uri={image} style={styles.battleCardImage} resizeMode="contain" />
+      ) : (
+        <MaterialCommunityIcons name="cards-outline" size={Math.round(size * 0.48)} color={theme.colors.onSurfaceVariant} />
+      )}
+    </View>
+  );
+}
+
+function BattleDeck({ player, theme, mirrored = false, onCopy, onSave, saved }) {
+  const deck = getBattleDeck(player);
+  const towerCard = getBattleTowerCard(player);
+  const average = getDeckAverages(deck).avgElixir;
+  const cards = Array.from({ length: 8 }, (_, index) => deck[index] || null);
+
+  return (
+    <View style={[styles.battleSide, mirrored && styles.battleSideMirrored]}>
+      <View style={styles.battleCardsGrid}>
+        {cards.map((card, index) => (
+          <BattleCardImage key={card?.id ?? card?.name ?? index} card={card} theme={theme} size={36} />
+        ))}
+      </View>
+
+      <View style={[styles.battleDeckTools, mirrored && styles.battleDeckToolsMirrored]}>
+        {towerCard ? (
+          <BattleCardImage card={towerCard} theme={theme} size={36} />
+        ) : (
+          <View style={[styles.battleToolButton, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
+            <MaterialCommunityIcons name="shield-outline" size={18} color={theme.colors.onSurfaceVariant} />
+          </View>
+        )}
+
+        <Pressable
+          onPress={onCopy}
+          disabled={deck.length !== 8}
+          style={({ pressed }) => [
+            styles.battleToolButton,
+            {
+              backgroundColor: theme.colors.surfaceContainer,
+              borderColor: theme.colors.outlineVariant,
+              opacity: deck.length === 8 ? (pressed ? 0.55 : 1) : 0.4,
+            },
+          ]}
+          accessibilityLabel="Copy battle deck"
+        >
+          <MaterialCommunityIcons name="view-grid-outline" size={18} color={theme.colors.onSurfaceVariant} />
+        </Pressable>
+
+        <Pressable
+          onPress={onSave}
+          disabled={deck.length !== 8}
+          style={({ pressed }) => [
+            styles.battleToolButton,
+            {
+              backgroundColor: saved ? theme.colors.primaryContainer : theme.colors.surfaceContainer,
+              borderColor: saved ? theme.colors.primary : theme.colors.outlineVariant,
+              opacity: deck.length === 8 ? (pressed ? 0.55 : 1) : 0.4,
+            },
+          ]}
+          accessibilityLabel={saved ? 'Remove saved battle deck' : 'Save battle deck'}
+        >
+          <MaterialCommunityIcons
+            name={saved ? 'bookmark' : 'bookmark-outline'}
+            size={18}
+            color={saved ? theme.colors.onPrimaryContainer : theme.colors.onSurfaceVariant}
+          />
+        </Pressable>
+
+        <View style={[styles.battleElixirPill, { backgroundColor: theme.colors.primaryContainer }]}>
+          <MaterialCommunityIcons name="water" size={14} color={theme.colors.onPrimaryContainer} />
+          <Text style={[styles.battleElixirText, { color: theme.colors.onPrimaryContainer }]}>{average}</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSaveDeck, savedLeft, savedRight }) {
   const team = Array.isArray(battle?.team) ? battle.team : [];
   const opponent = Array.isArray(battle?.opponent) ? battle.opponent : [];
   const teamCrowns = team.reduce((sum, p) => sum + number(p?.crowns), 0);
   const opponentCrowns = opponent.reduce((sum, p) => sum + number(p?.crowns), 0);
   const won = teamCrowns > opponentCrowns;
   const draw = teamCrowns === opponentCrowns;
-  const mode = firstValue(battle?.gameMode?.name, battle?.gameMode?.id, battle?.type, battle?.arena?.name, 'Battle');
+  const mode = formatBattleMode(battle);
   const date = firstValue(battle?.battleTime, battle?.createdDate, battle?.date);
+  const leftPlayer = team[0] || {};
+  const rightPlayer = opponent[0] || {};
+  const leftChange = getBattleTrophyChange(leftPlayer);
+  const rightChange = getBattleTrophyChange(rightPlayer);
+  const leftTrophies = getBattleTrophies(leftPlayer);
+  const rightTrophies = getBattleTrophies(rightPlayer);
+  const hasTrophyInfo = leftTrophies !== null || rightTrophies !== null || leftChange !== null || rightChange !== null;
+  const resultText = `${teamCrowns} : ${opponentCrowns}`;
+  const battleKey = `${date || 'battle'}-${index}`;
+
+  const renderTrophy = (trophies, change, side) => {
+    if (trophies === null && change === null) return null;
+    const positive = Number(change) > 0;
+    const negative = Number(change) < 0;
+    const accent = positive ? '#35D07F' : negative ? '#FF5C67' : theme.colors.onSurfaceVariant;
+
+    return (
+      <View style={[styles.battleTrophyCluster, side === 'right' && styles.battleTrophyClusterRight]}>
+        {trophies !== null ? (
+          <View style={[styles.battleTrophyValue, { backgroundColor: theme.colors.surfaceContainer }]}>
+            <Image source={pointIcon} style={styles.battleTrophyIcon} resizeMode="contain" />
+            <Text style={[styles.battleTrophyText, { color: theme.colors.onSurface }]}>{formatNumber(trophies)}</Text>
+          </View>
+        ) : null}
+        {change !== null ? (
+          <View style={[styles.battleTrophyChange, { borderColor: accent, backgroundColor: theme.colors.surfaceContainer }]}>
+            <Text style={[styles.battleTrophyChangeText, { color: accent }]}>
+              {change > 0 ? '+' : ''}{formatNumber(change)}
+            </Text>
+          </View>
+        ) : null}
+      </View>
+    );
+  };
 
   return (
     <AnimatedDetailItem index={index}>
-      <View style={[styles.battleRow, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-      <View style={[styles.resultIcon, {
-        backgroundColor: draw ? theme.colors.surfaceContainer : won ? theme.colors.primaryContainer : theme.colors.errorContainer,
-      }]}>
-        <MaterialCommunityIcons
-          name={draw ? 'minus' : won ? 'check' : 'close'}
-          size={18}
-          color={draw ? theme.colors.onSurfaceVariant : won ? theme.colors.onPrimaryContainer : theme.colors.onErrorContainer}
-        />
-      </View>
-      <View style={styles.battleMain}>
-        <Text numberOfLines={1} style={[styles.battleMode, { color: theme.colors.onSurface }]}>{mode}</Text>
-        <Text numberOfLines={1} style={[styles.battleDate, { color: theme.colors.onSurfaceVariant }]}>
-          {date ? formatDate(date) : `Battle ${index + 1}`}
-        </Text>
-      </View>
-      <Text style={[styles.battleScore, { color: theme.colors.onSurface }]}>
-        {teamCrowns} — {opponentCrowns}
-      </Text>
+      <View
+        style={[
+          styles.battleRow,
+          expanded && styles.battleRowExpanded,
+          {
+            backgroundColor: theme.colors.surfaceContainerHighest,
+            borderColor: theme.colors.outlineVariant,
+          },
+        ]}
+      >
+        <View style={styles.battleHeader}>
+          {expanded && hasTrophyInfo ? renderTrophy(leftTrophies, leftChange, 'left') : null}
+
+          <View style={styles.battlePlayerBlock}>
+            <Text numberOfLines={1} style={[styles.battlePlayerName, { color: theme.colors.onSurface }]}>
+              {firstValue(leftPlayer?.name, 'Player')}
+            </Text>
+            <Text numberOfLines={1} style={[styles.battlePlayerClan, { color: theme.colors.onSurfaceVariant }]}>
+              {firstValue(leftPlayer?.clan?.name, leftPlayer?.clan?.tag, '—')}
+            </Text>
+          </View>
+
+          <View style={styles.battleCenterHeader}>
+            <Text numberOfLines={1} style={[styles.battleMode, { color: theme.colors.onSurface }]}>{mode}</Text>
+            <Text style={[styles.battleScore, { color: theme.colors.onSurface }]}>{resultText}</Text>
+          </View>
+
+          <View style={[styles.battlePlayerBlock, styles.battlePlayerBlockRight]}>
+            <Text numberOfLines={1} style={[styles.battlePlayerName, { color: theme.colors.onSurface }]}>
+              {firstValue(rightPlayer?.name, 'Player')}
+            </Text>
+            <Text numberOfLines={1} style={[styles.battlePlayerClan, { color: theme.colors.onSurfaceVariant }]}>
+              {firstValue(rightPlayer?.clan?.name, rightPlayer?.clan?.tag, '—')}
+            </Text>
+          </View>
+
+          {expanded && hasTrophyInfo ? renderTrophy(rightTrophies, rightChange, 'right') : null}
+        </View>
+
+        {expanded ? (
+          <>
+            <View style={styles.battleExpandedDeckRow}>
+              <BattleDeck
+                player={leftPlayer}
+                theme={theme}
+                onCopy={() => onCopyDeck(getBattleDeck(leftPlayer), battleKey + '-left')}
+                onSave={() => onSaveDeck(battleKey + '-left')}
+                saved={savedLeft}
+              />
+              <View style={styles.battleExpandedDivider}>
+                <View style={[styles.battleResultBadge, {
+                  backgroundColor: draw
+                    ? theme.colors.surfaceContainer
+                    : won
+                      ? theme.colors.primaryContainer
+                      : theme.colors.errorContainer,
+                }]}>
+                  <Text style={[styles.battleResultBadgeText, {
+                    color: draw
+                      ? theme.colors.onSurfaceVariant
+                      : won
+                        ? theme.colors.onPrimaryContainer
+                        : theme.colors.onErrorContainer,
+                  }]}>{resultText}</Text>
+                </View>
+              </View>
+              <BattleDeck
+                player={rightPlayer}
+                theme={theme}
+                mirrored
+                onCopy={() => onCopyDeck(getBattleDeck(rightPlayer), battleKey + '-right')}
+                onSave={() => onSaveDeck(battleKey + '-right')}
+                saved={savedRight}
+              />
+            </View>
+
+            <View style={styles.battleFooter}>
+              <Text style={[styles.battleDate, { color: theme.colors.onSurfaceVariant }]}>
+                {formatBattleAge(date)}
+              </Text>
+              <Text style={[styles.battleTypeHint, { color: theme.colors.onSurfaceVariant }]}>
+                {formatGameDisplayName(firstValue(battle?.gameMode?.name, battle?.type, ''), mode)}
+              </Text>
+            </View>
+          </>
+        ) : hasTrophyInfo ? (
+          <View style={styles.battleCollapsedMeta}>
+            {renderTrophy(leftTrophies, leftChange, 'left')}
+            <View style={styles.battleCollapsedResult}>
+              <Text style={[styles.battleCollapsedResultText, { color: theme.colors.onSurface }]}>{resultText}</Text>
+            </View>
+            {renderTrophy(rightTrophies, rightChange, 'right')}
+          </View>
+        ) : null}
+
+        <Pressable
+          onPress={onToggle}
+          style={({ pressed }) => [
+            styles.battleChevronButton,
+            { opacity: pressed ? 0.5 : 1 },
+          ]}
+          accessibilityLabel={expanded ? 'Collapse battle details' : 'Expand battle details'}
+        >
+          <MaterialCommunityIcons
+            name={expanded ? 'chevron-up' : 'chevron-down'}
+            size={22}
+            color={theme.colors.onSurfaceVariant}
+          />
+        </Pressable>
       </View>
     </AnimatedDetailItem>
   );
@@ -1106,7 +1382,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const [error, setError] = useState(null);
   const [showAllBadges, setShowAllBadges] = useState(false);
   const [activeBadgeKey, setActiveBadgeKey] = useState(null);
-  const [showCopyDeckModal, setShowCopyDeckModal] = useState(false);
+  const [showCopyDeckModal, setShowCopyDeckModal] = useState(false);\n  const [copyDeckTarget, setCopyDeckTarget] = useState(null);\n  const [expandedBattles, setExpandedBattles] = useState({});\n  const [savedBattleDecks, setSavedBattleDecks] = useState({});
   const [cardSortBy, setCardSortBy] = useState('name');
   const [cardSortAscending, setCardSortAscending] = useState(false);
 
@@ -1348,8 +1624,9 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     await Clipboard.setStringAsync(String(clanTag));
   }, [data.clan?.tag]);
 
-  const openCopyDeckModal = useCallback(() => {
-    if (currentDeck.length !== 8) return;
+  const openCopyDeckModal = useCallback((deck = currentDeck) => {
+    if (!Array.isArray(deck) || deck.length !== 8) return;
+    setCopyDeckTarget(deck);
     setShowCopyDeckModal(true);
     copyDeckModalOpacity.setValue(0);
     copyDeckModalScale.setValue(0.92);
@@ -1367,14 +1644,30 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
       Animated.timing(copyDeckModalScale, { toValue: 0.94, duration: 150, useNativeDriver: true }),
       Animated.timing(copyDeckModalY, { toValue: 12, duration: 150, useNativeDriver: true }),
     ]).start(({ finished }) => {
-      if (finished) setShowCopyDeckModal(false);
+      if (finished) {
+        setShowCopyDeckModal(false);
+        setCopyDeckTarget(null);
+      }
     });
   }, [copyDeckModalOpacity, copyDeckModalScale, copyDeckModalY]);
 
   const confirmCopyDeck = useCallback(() => {
+    const deck = Array.isArray(copyDeckTarget) ? copyDeckTarget : currentDeck;
     closeCopyDeckModal();
-    setTimeout(() => openCurrentDeckInClashRoyale(currentDeck), 165);
-  }, [closeCopyDeckModal, currentDeck]);
+    setTimeout(() => openCurrentDeckInClashRoyale(deck), 165);
+  }, [closeCopyDeckModal, copyDeckTarget, currentDeck]);
+
+  const toggleBattleExpanded = useCallback((key) => {
+    setExpandedBattles((current) => ({ ...current, [key]: !current[key] }));
+  }, []);
+
+  const toggleSavedBattleDeck = useCallback((key) => {
+    setSavedBattleDecks((current) => ({ ...current, [key]: !current[key] }));
+  }, []);
+
+  const openBattleDeckCopy = useCallback((deck) => {
+    openCopyDeckModal(deck);
+  }, [openCopyDeckModal]);
   const wins = number(data.wins);
   const losses = number(data.losses);
   const battles = number(data.battleCount) || wins + losses;
@@ -2268,9 +2561,23 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               ) : battlelog.length === 0 ? (
                 <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No battle log available.</Text>
               ) : (
-                battlelog.map((battle, index) => (
-                  <BattleRow key={battle?.battleTime || index} battle={battle} theme={theme} index={index} />
-                ))
+                battlelog.map((battle, index) => {
+                  const battleKey = `${battle?.battleTime || battle?.createdDate || battle?.date || 'battle'}-${index}`;
+                  return (
+                    <BattleRow
+                      key={battleKey}
+                      battle={battle}
+                      theme={theme}
+                      index={index}
+                      expanded={Boolean(expandedBattles[battleKey])}
+                      onToggle={() => toggleBattleExpanded(battleKey)}
+                      onCopyDeck={openBattleDeckCopy}
+                      onSaveDeck={toggleSavedBattleDeck}
+                      savedLeft={Boolean(savedBattleDecks[`${battleKey}-left`])}
+                      savedRight={Boolean(savedBattleDecks[`${battleKey}-right`])}
+                    />
+                  );
+                })
               )}
             </Surface></AnimatedSection>
 
@@ -2519,12 +2826,43 @@ const styles = StyleSheet.create({
   achievementStars: { marginLeft: 8, flexDirection: 'row', alignItems: 'center', minWidth: 30, justifyContent: 'flex-end' },
   achievementStarsText: { marginLeft: 2, fontSize: 11, fontWeight: '800' },
   battleLoading: { paddingVertical: 20, alignItems: 'center' },
-  battleRow: { minHeight: 58, borderRadius: 16, padding: 9, marginBottom: 7, flexDirection: 'row', alignItems: 'center' },
-  resultIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  battleMain: { flex: 1, marginLeft: 9 },
-  battleMode: { fontSize: 12.5, fontWeight: '700' },
-  battleDate: { marginTop: 3, fontSize: 10 },
-  battleScore: { marginLeft: 8, fontSize: 13, fontWeight: '900' },
+  battleRow: { minHeight: 104, borderRadius: 18, paddingHorizontal: 10, paddingTop: 12, paddingBottom: 4, marginBottom: 8, borderWidth: 1 },
+  battleRowExpanded: { minHeight: 250, paddingTop: 12 },
+  battleHeader: { width: '100%', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', minHeight: 48 },
+  battlePlayerBlock: { flex: 1, minWidth: 0, alignItems: 'flex-start' },
+  battlePlayerBlockRight: { alignItems: 'flex-end' },
+  battlePlayerName: { maxWidth: '100%', fontSize: 13.5, fontWeight: '800' },
+  battlePlayerClan: { marginTop: 3, maxWidth: '100%', fontSize: 10.5, fontWeight: '600' },
+  battleCenterHeader: { width: 72, alignItems: 'center', justifyContent: 'flex-start', paddingHorizontal: 4 },
+  battleMode: { fontSize: 12, fontWeight: '800', textAlign: 'center' },
+  battleScore: { marginTop: 5, fontSize: 16, fontWeight: '900' },
+  battleTrophyCluster: { width: 82, flexDirection: 'row', alignItems: 'center', gap: 4, marginRight: 6 },
+  battleTrophyClusterRight: { justifyContent: 'flex-end', marginRight: 0, marginLeft: 6 },
+  battleTrophyValue: { minHeight: 26, borderRadius: 9, paddingHorizontal: 6, flexDirection: 'row', alignItems: 'center' },
+  battleTrophyIcon: { width: 15, height: 15, marginRight: 3 },
+  battleTrophyText: { fontSize: 10.5, fontWeight: '900' },
+  battleTrophyChange: { minHeight: 26, minWidth: 34, borderRadius: 8, borderWidth: 1.2, paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center' },
+  battleTrophyChangeText: { fontSize: 10.5, fontWeight: '900' },
+  battleCollapsedMeta: { width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 3 },
+  battleCollapsedResult: { alignItems: 'center', justifyContent: 'center', flex: 1 },
+  battleCollapsedResultText: { fontSize: 14, fontWeight: '900' },
+  battleExpandedDeckRow: { width: '100%', flexDirection: 'row', alignItems: 'center', marginTop: 7 },
+  battleSide: { flex: 1, minWidth: 0 },
+  battleSideMirrored: { alignItems: 'flex-end' },
+  battleCardsGrid: { width: '100%', flexDirection: 'row', flexWrap: 'wrap', gap: 4, justifyContent: 'flex-start' },
+  battleDeckTools: { width: '100%', flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 7 },
+  battleDeckToolsMirrored: { justifyContent: 'flex-end' },
+  battleToolButton: { width: 34, height: 34, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  battleElixirPill: { minWidth: 48, height: 34, borderRadius: 11, paddingHorizontal: 7, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginLeft: 1 },
+  battleElixirText: { marginLeft: 3, fontSize: 13, fontWeight: '900' },
+  battleCard: { borderRadius: 7, borderWidth: 1, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+  battleCardImage: { width: '100%', height: '100%' },
+  battleExpandedDivider: { width: 42, alignItems: 'center', justifyContent: 'center' },
+  battleResultBadge: { minWidth: 36, minHeight: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
+  battleResultBadgeText: { fontSize: 13, fontWeight: '900' },
+  battleFooter: { width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 9, paddingHorizontal: 2 },
+  battleTypeHint: { fontSize: 9.5, fontWeight: '600' },
+  battleChevronButton: { width: 34, height: 25, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', marginTop: 2 },
 
   emptyText: { fontSize: 12, lineHeight: 18 },
   bottomSpace: { height: 50 },
