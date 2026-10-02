@@ -830,7 +830,7 @@ function sortBadgesByGameCategory(badges) {
   return items;
 }
 
-function MissingBadgeIcon({ theme, size = 42 }) {
+function MissingBadgeIcon({ theme, size = 42, crownColor }) {
   const iconSize = Math.max(18, Math.round(size * 0.84));
 
   return (
@@ -852,14 +852,14 @@ function MissingBadgeIcon({ theme, size = 42 }) {
       <MaterialCommunityIcons
         name="crown"
         size={Math.max(12, Math.round(size * 0.38))}
-        color={theme.colors.primaryContainer}
+        color={crownColor || theme.colors.primaryContainer}
         style={styles.missingBadgeCrown}
       />
     </View>
   );
 }
 
-function BadgeVisual({ item, theme, size = 58 }) {
+function BadgeVisual({ item, theme, size = 58, crownColor }) {
   const imageCandidates = useMemo(() => {
     const urls = item?.iconUrls || {};
     return [urls.large, urls.medium, urls.small].filter(
@@ -879,7 +879,7 @@ function BadgeVisual({ item, theme, size = 58 }) {
 
   return (
     <View style={[styles.badgeVisual, { width: size, height: size }]}>
-      {!imageLoaded ? <MissingBadgeIcon theme={theme} size={size} /> : null}
+      {!imageLoaded ? <MissingBadgeIcon theme={theme} size={size} crownColor={crownColor} /> : null}
       {image ? (
         <RetryImage
           uri={image}
@@ -1090,6 +1090,9 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const cardsExpandProgress = useRef(new Animated.Value(0)).current;
   const cardCollectionOffsetY = useRef(0);
   const cardCollectionContentY = useRef(0);
+  const [achievementsExpanded, setAchievementsExpanded] = useState(false);
+  const achievementsExpandProgress = useRef(new Animated.Value(0)).current;
+  const achievementContentY = useRef(0);
   const filterStrokeProgress = useRef({
     evolutions: new Animated.Value(0),
     heroes: new Animated.Value(0),
@@ -1478,6 +1481,36 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
       useNativeDriver: false,
     }).start();
   }, [cardsExpanded, cardsExpandProgress, scrollRef]);
+
+  const achievementRowHeight = 58;
+  const achievementRowGap = 7;
+  const achievementCollapsedHeight = achievements.length > 2
+    ? achievementRowHeight * 2 + achievementRowGap * 2 + achievementRowHeight / 2
+    : achievements.length * achievementRowHeight + Math.max(0, achievements.length - 1) * achievementRowGap;
+  const achievementExpandedHeight = achievements.length > 0
+    ? achievements.length * achievementRowHeight + Math.max(0, achievements.length - 1) * achievementRowGap
+    : 0;
+
+  const toggleAchievementsExpanded = useCallback(() => {
+    const nextExpanded = !achievementsExpanded;
+
+    if (!nextExpanded) {
+      requestAnimationFrame(() => {
+        scrollRef.current?.scrollTo({
+          y: Math.max(0, achievementContentY.current - 6),
+          animated: true,
+        });
+      });
+    }
+
+    setAchievementsExpanded(nextExpanded);
+    Animated.spring(achievementsExpandProgress, {
+      toValue: nextExpanded ? 1 : 0,
+      friction: 8,
+      tension: 65,
+      useNativeDriver: false,
+    }).start();
+  }, [achievementsExpanded, achievementsExpandProgress, scrollRef]);
 
   // Tower Cards are intentionally excluded from sorting.
   // Sort controls affect only the normal player-card collection.
@@ -2079,43 +2112,127 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               )}
             </Surface></AnimatedSection>
 
-            <AnimatedSection index={10} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
-              <SectionTitle icon="trophy-outline" title="Achievements" right={`${achievements.length}`} theme={theme} />
-              {achievements.length === 0 ? (
-                <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No achievement data.</Text>
-              ) : (
-                <View style={styles.achievementsList}>
-                  {achievements.map((achievement, index) => (
-                    <View
-                      key={achievement?.name || index}
+            <AnimatedSection
+              index={10}
+              register={registerAnimatedSection}
+              onLayout={(event) => {
+                achievementContentY.current = event.nativeEvent.layout.y;
+              }}
+            >
+              <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
+                <SectionTitle icon="trophy-outline" title="Achievements" right={${achievements.length}} theme={theme} />
+                {achievements.length === 0 ? (
+                  <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No achievement data.</Text>
+                ) : (
+                  <>
+                    <Animated.View
                       style={[
-                        styles.achievementRow,
-                        { backgroundColor: theme.colors.surfaceContainerHighest },
-                        index < achievements.length - 1 && { marginBottom: 7 },
+                        styles.achievementsRevealWrap,
+                        {
+                          height: achievementsExpandProgress.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [achievementCollapsedHeight, achievementExpandedHeight],
+                          }),
+                        },
                       ]}
                     >
-                      <View style={[styles.achievementIcon, { backgroundColor: theme.colors.primaryContainer }]}>
-                        <BadgeVisual item={achievement} theme={theme} size={46} />
+                      <View style={styles.achievementsList}>
+                        {achievements.map((achievement, index) => (
+                          <View
+                            key={achievement?.name || index}
+                            style={[
+                              styles.achievementRow,
+                              { backgroundColor: theme.colors.surfaceContainerHighest },
+                              index < achievements.length - 1 && { marginBottom: achievementRowGap },
+                            ]}
+                          >
+                            <View style={[styles.achievementIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+                              <BadgeVisual
+                                item={achievement}
+                                theme={theme}
+                                size={46}
+                                crownColor={theme.colors.onSurface}
+                              />
+                            </View>
+                            <View style={styles.achievementMain}>
+                              <Text numberOfLines={1} style={[styles.achievementName, { color: theme.colors.onSurface }]}>
+                                {achievement?.name || 'Achievement'}
+                              </Text>
+                              <Text numberOfLines={1} style={[styles.achievementInfo, { color: theme.colors.onSurfaceVariant }]}>
+                                {achievement?.info || 'Achievement progress'}
+                              </Text>
+                            </View>
+                            <View style={styles.achievementStars}>
+                              <MaterialCommunityIcons name="star" size={14} color={theme.colors.primary} />
+                              <Text style={[styles.achievementStarsText, { color: theme.colors.onSurface }]}>
+                                {number(achievement?.stars)}
+                              </Text>
+                            </View>
+                          </View>
+                        ))}
                       </View>
-                      <View style={styles.achievementMain}>
-                        <Text numberOfLines={1} style={[styles.achievementName, { color: theme.colors.onSurface }]}>
-                          {achievement?.name || 'Achievement'}
-                        </Text>
-                        <Text numberOfLines={1} style={[styles.achievementInfo, { color: theme.colors.onSurfaceVariant }]}>
-                          {achievement?.info || 'Achievement progress'}
-                        </Text>
-                      </View>
-                      <View style={styles.achievementStars}>
-                        <MaterialCommunityIcons name="star" size={14} color={theme.colors.primary} />
-                        <Text style={[styles.achievementStarsText, { color: theme.colors.onSurface }]}>
-                          {number(achievement?.stars)}
-                        </Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </Surface></AnimatedSection>
+
+                      {achievements.length > 2 ? (
+                        <Animated.View
+                          pointerEvents="none"
+                          style={[
+                            styles.achievementsCollapseFade,
+                            {
+                              opacity: achievementsExpandProgress.interpolate({
+                                inputRange: [0, 0.4, 1],
+                                outputRange: [1, 0.55, 0],
+                              }),
+                            },
+                          ]}
+                        >
+                          <LinearGradient
+                            colors={[
+                              'transparent',
+                              'rgba(0,0,0,0.025)',
+                              'rgba(0,0,0,0.10)',
+                              theme.colors.surfaceContainer,
+                            ]}
+                            locations={[0, 0.38, 0.68, 1]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 0, y: 1 }}
+                            dither
+                            style={styles.achievementsFadeGradient}
+                          />
+                        </Animated.View>
+                      ) : null}
+                    </Animated.View>
+
+                    {achievements.length > 2 ? (
+                      <Pressable
+                        onPress={toggleAchievementsExpanded}
+                        accessibilityLabel={achievementsExpanded ? 'Collapse achievements' : 'Expand achievements'}
+                        style={({ pressed }) => [
+                          styles.achievementsExpandButton,
+                          { opacity: pressed ? 0.55 : 1 },
+                        ]}
+                      >
+                        <Animated.View
+                          style={{
+                            transform: [{
+                              rotate: achievementsExpandProgress.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: ['0deg', '180deg'],
+                              }),
+                            }],
+                          }}
+                        >
+                          <MaterialCommunityIcons
+                            name="chevron-down"
+                            size={24}
+                            color={theme.colors.onSurfaceVariant}
+                          />
+                        </Animated.View>
+                      </Pressable>
+                    ) : null}
+                  </>
+                )}
+              </Surface>
+            </AnimatedSection>
 
             <AnimatedSection index={11} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
               <SectionTitle icon="sword-cross" title="Battle log" right={battlelog.length ? `${battlelog.length} battles` : undefined} theme={theme} />
@@ -2365,7 +2482,11 @@ const styles = StyleSheet.create({
   badgeProgress: { marginTop: 3, fontSize: 8.5 },
 
   achievementsList: { width: '100%' },
-  achievementRow: { minHeight: 58, borderRadius: 16, padding: 9, flexDirection: 'row', alignItems: 'center' },
+  achievementsRevealWrap: { width: '100%', overflow: 'hidden' },
+  achievementsCollapseFade: { position: 'absolute', left: 0, right: 0, top: 123, height: 36, overflow: 'hidden' },
+  achievementsFadeGradient: { flex: 1, width: '100%' },
+  achievementsExpandButton: { alignSelf: 'center', width: 34, height: 30, marginTop: 14, alignItems: 'center', justifyContent: 'center' },
+  achievementRow: { minHeight: 58, height: 58, borderRadius: 16, padding: 9, flexDirection: 'row', alignItems: 'center' },
   achievementIcon: { width: 52, height: 52, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
   achievementMain: { flex: 1, minWidth: 0, marginLeft: 9 },
   achievementName: { fontSize: 12.5, fontWeight: '800' },
