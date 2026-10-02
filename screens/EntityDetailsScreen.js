@@ -851,7 +851,7 @@ function MissingBadgeIcon({ theme, size = 42 }) {
       <MaterialCommunityIcons
         name="crown"
         size={Math.max(12, Math.round(size * 0.38))}
-        color={theme.colors.onPrimaryContainer}
+        color={theme.colors.primaryContainer}
         style={styles.missingBadgeCrown}
       />
     </View>
@@ -868,11 +868,13 @@ function BadgeVisual({ item, theme, size = 58 }) {
 
   const [imageIndex, setImageIndex] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const loadedUrisRef = useRef(new Set());
 
   useEffect(() => {
     setImageIndex(0);
-    setImageLoaded(false);
-  }, [item]);
+    const firstUri = imageCandidates[0] || null;
+    setImageLoaded(Boolean(firstUri && loadedUrisRef.current.has(firstUri)));
+  }, [item, imageCandidates]);
 
   const image = imageCandidates[imageIndex] || null;
 
@@ -884,7 +886,10 @@ function BadgeVisual({ item, theme, size = 58 }) {
           uri={image}
           style={[styles.badgeImage, { width: size, height: size }]}
           resizeMode="contain"
-          onLoad={() => setImageLoaded(true)}
+          onLoad={() => {
+            loadedUrisRef.current.add(image);
+            setImageLoaded(true);
+          }}
           onExhausted={() => {
             setImageLoaded(false);
             setImageIndex((current) => (
@@ -2350,7 +2355,7 @@ const styles = StyleSheet.create({
   badgeItemActive: { zIndex: 11 },
   badgeItemInner: { width: '100%', height: '100%', borderRadius: 16, padding: 4, alignItems: 'center', justifyContent: 'center', overflow: 'visible' },
   badgeImage: { width: 96, height: 96 },
-  missingBadgeIcon: { alignItems: 'center', justifyContent: 'center', transform: [{ translateY: 5 }] },
+  missingBadgeIcon: { alignItems: 'center', justifyContent: 'center', transform: [{ translateY: 12 }] },
   missingBadgeCrown: { position: 'absolute' },
   badgeVisual: { alignItems: 'center', justifyContent: 'center' },
   badgeInfoPopup: { position: 'absolute', left: -6, right: -6, top: 94, minHeight: 78, borderRadius: 14, borderWidth: 1, paddingHorizontal: 9, paddingVertical: 8, alignItems: 'center', justifyContent: 'center', elevation: 8, zIndex: 20 },
