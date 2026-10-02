@@ -2120,7 +2120,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               }}
             >
               <Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
-                <SectionTitle icon="trophy-outline" title="Achievements" right={${achievements.length}} theme={theme} />
+                <SectionTitle icon="trophy-outline" title="Achievements" right={`${achievements.length}`} theme={theme} />
                 {achievements.length === 0 ? (
                   <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No achievement data.</Text>
                 ) : (
