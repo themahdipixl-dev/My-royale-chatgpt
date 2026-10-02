@@ -1639,7 +1639,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
       Animated.spring(copyDeckModalScale, { toValue: 1, friction: 8, tension: 75, useNativeDriver: true }),
       Animated.spring(copyDeckModalY, { toValue: 0, friction: 8, tension: 70, useNativeDriver: true }),
     ]).start();
-  }, [currentDeck.length, copyDeckModalOpacity, copyDeckModalScale, copyDeckModalY]);
+  }, [currentDeck, copyDeckModalOpacity, copyDeckModalScale, copyDeckModalY]);
 
   const closeCopyDeckModal = useCallback(() => {
     Animated.parallel([
