@@ -35,6 +35,31 @@ function number(value) {
   return Number.isFinite(n) ? n : 0;
 }
 
+function formatGameDisplayName(value, fallback = '') {
+  if (value === undefined || value === null || value === '') return fallback;
+  let name = String(value).trim();
+  if (!name) return fallback;
+
+  name = name
+    .replace(/[_-]+/g, ' ')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/([A-Za-z])([0-9]+)/g, '$1 $2')
+    .replace(/([0-9]+)([A-Za-z])/g, '$1 $2')
+    .replace(/\\s+/g, ' ')
+    .trim();
+
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => {
+      if (/^[0-9]+(?:v[0-9]+)?$/i.test(word)) return word.toLowerCase().replace(/v/g, 'v');
+      if (/^[A-Z0-9]{2,}$/.test(word)) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(' ');
+}
+
 function formatNumber(value) {
   if (value === undefined || value === null || value === '') return '—';
   const n = Number(value);
@@ -959,7 +984,7 @@ function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, activeB
             ]}
           >
             <Text numberOfLines={2} style={[styles.badgePopupName, { color: theme.colors.onSurface }]}>
-              {badge?.name || 'Badge'}
+              {formatGameDisplayName(badge?.name, 'Badge')}
             </Text>
             <Text style={[styles.badgePopupLevel, { color: theme.colors.primary }]}>
               {badge?.level != null
@@ -2156,7 +2181,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                             </View>
                             <View style={styles.achievementMain}>
                               <Text numberOfLines={1} style={[styles.achievementName, { color: theme.colors.onSurface }]}>
-                                {achievement?.name || 'Achievement'}
+                                {formatGameDisplayName(achievement?.name, 'Achievement')}
                               </Text>
                               <Text numberOfLines={1} style={[styles.achievementInfo, { color: theme.colors.onSurfaceVariant }]}>
                                 {achievement?.info || 'Achievement progress'}
