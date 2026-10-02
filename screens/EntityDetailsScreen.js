@@ -844,7 +844,7 @@ function MissingBadgeIcon({ theme, size = 42 }) {
       ]}
     >
       <MaterialCommunityIcons
-        name="hexagon"
+        name="hexagon-outline"
         size={iconSize}
         color={theme.colors.primaryContainer}
       />
@@ -2155,11 +2155,26 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               </Text>
             </View>
 
+            {activeBadgeKey ? (
+              <Pressable
+                style={styles.badgesPopupDismiss}
+                onPress={() => setActiveBadgeKey(null)}
+              />
+            ) : null}
             <FlatList
               data={badges}
               keyExtractor={(badge, index) => String(badge?.name || badge?.id || index)}
               numColumns={3}
-              renderItem={({ item }) => <BadgeItem badge={item} theme={theme} />}
+              renderItem={({ item, index }) => (
+                <BadgeItem
+                  badge={item}
+                  theme={theme}
+                  index={index}
+                  playerDetailsGrid
+                  activeBadgeKey={activeBadgeKey}
+                  onToggleBadgePopup={setActiveBadgeKey}
+                />
+              )}
               contentContainerStyle={styles.badgesPageContent}
               columnWrapperStyle={styles.badgesPageRow}
               showsVerticalScrollIndicator={false}
@@ -2323,19 +2338,19 @@ const styles = StyleSheet.create({
   cardsFadeGradient: { flex: 1, width: '100%' },
   cardsExpandButton: { alignSelf: 'center', width: 34, height: 30, marginTop: 14, alignItems: 'center', justifyContent: 'center' },
   badgesGrid: { position: 'relative', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 8 },
-  badgesPopupDismiss: { ...StyleSheet.absoluteFillObject, zIndex: 1 },
+  badgesPopupDismiss: { ...StyleSheet.absoluteFillObject, zIndex: 0 },
   badgeItemPopupActive: { zIndex: 10 },
   badgePressable: { width: '100%', height: '100%' },
   viewAllButton: { marginTop: 12, minHeight: 44, borderRadius: 15, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
   viewAllText: { fontSize: 12.5, fontWeight: '800' },
   badgesPageContent: { padding: 14, paddingBottom: 36 },
   badgesPageRow: { gap: 8, marginBottom: 8 },
-  badgeItem: { width: '31.5%', aspectRatio: 1 },
-  badgeItemPlayerDetails: { width: '31.5%', aspectRatio: 1 },
+  badgeItem: { width: '31.5%', aspectRatio: 1, zIndex: 1 },
+  badgeItemPlayerDetails: { width: '31.5%', aspectRatio: 1, zIndex: 1 },
   badgeItemActive: { zIndex: 11 },
   badgeItemInner: { width: '100%', height: '100%', borderRadius: 16, padding: 4, alignItems: 'center', justifyContent: 'center', overflow: 'visible' },
   badgeImage: { width: 96, height: 96 },
-  missingBadgeIcon: { alignItems: 'center', justifyContent: 'center' },
+  missingBadgeIcon: { alignItems: 'center', justifyContent: 'center', transform: [{ translateY: 5 }] },
   missingBadgeCrown: { position: 'absolute' },
   badgeVisual: { alignItems: 'center', justifyContent: 'center' },
   badgeInfoPopup: { position: 'absolute', left: -6, right: -6, top: 94, minHeight: 78, borderRadius: 14, borderWidth: 1, paddingHorizontal: 9, paddingVertical: 8, alignItems: 'center', justifyContent: 'center', elevation: 8, zIndex: 20 },
