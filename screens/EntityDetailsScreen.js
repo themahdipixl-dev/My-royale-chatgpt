@@ -936,12 +936,12 @@ function BadgeVisual({ item, theme, size = 58, crownColor }) {
   );
 }
 
-function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, activeBadgeKey = null, onToggleBadgePopup }) {
+function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, compact = false, activeBadgeKey = null, onToggleBadgePopup }) {
   const progress = number(badge?.progress);
   const target = number(badge?.target);
   const ratio = target > 0 ? Math.min(1, progress / target) : 0;
   const badgeKey = String(badge?.name || badge?.id || index);
-  const popupVisible = playerDetailsGrid && activeBadgeKey === badgeKey;
+  const popupVisible = (playerDetailsGrid || compact) && activeBadgeKey === badgeKey;
   const popupOpacity = useRef(new Animated.Value(0)).current;
   const [popupMounted, setPopupMounted] = useState(false);
 
@@ -973,19 +973,20 @@ function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, activeB
   const content = (
     <Pressable
       onPress={() => onToggleBadgePopup?.(popupVisible ? null : badgeKey)}
-      style={styles.badgePressable}
+      style={compact ? styles.heroBadgePressable : styles.badgePressable}
+      hitSlop={5}
     >
-      <View style={[
+      <View style={compact ? styles.heroBadgeVisual : [
         styles.badgeItemInner,
         { backgroundColor: theme.colors.surfaceContainerHighest },
         popupVisible && styles.badgeItemActive,
       ]}>
-        <BadgeVisual item={badge} theme={theme} size={96} />
+        <BadgeVisual item={badge} theme={theme} size={compact ? 46 : 96} />
 
         {popupMounted ? (
           <Animated.View
             style={[
-              styles.badgeInfoPopup,
+              compact ? styles.heroBadgeInfoPopup : styles.badgeInfoPopup,
               {
                 backgroundColor: theme.colors.surfaceContainerHighest,
                 borderColor: theme.colors.outlineVariant,
@@ -1021,7 +1022,7 @@ function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, activeB
     <AnimatedDetailItem
       index={index}
       layoutStyle={[
-        playerDetailsGrid ? styles.badgeItemPlayerDetails : styles.badgeItem,
+        compact ? styles.heroBadgeSlot : (playerDetailsGrid ? styles.badgeItemPlayerDetails : styles.badgeItem),
         popupVisible && styles.badgeItemPopupActive,
       ]}
     >
@@ -2050,35 +2051,19 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                     <Text style={[styles.heroBestValue, { color: theme.colors.onSurface }]}>{formatNumber(displayedBestTrophies)}</Text>
                   </View>
                 </View>
-              </View>
-
-              <View style={styles.heroBadgesHeader}>
-                <Text style={[styles.heroBadgesTitle, { color: theme.colors.onSurface }]}>Featured Badges</Text>
-                <Text style={[styles.heroBadgesHint, { color: theme.colors.onSurfaceVariant }]}>Top 3</Text>
-              </View>
-              <View style={styles.heroBadgesRow}>
                 {badges.slice(0, 3).map((badge, index) => (
-                  <View
+                  <BadgeItem
                     key={String(badge?.name || badge?.id || index)}
-                    style={[styles.heroBadgeCard, { backgroundColor: theme.colors.surfaceContainerHighest, borderColor: theme.colors.outlineVariant }]}
-                  >
-                    <BadgeVisual
-                      item={badge}
-                      theme={theme}
-                      size={70}
-                      crownColor={theme.colors.primary}
-                    />
-                    <Text numberOfLines={1} style={[styles.heroBadgeName, { color: theme.colors.onSurface }]}>
-                      {badge?.name || 'Badge'}
-                    </Text>
-                    {number(badge?.level) > 0 ? (
-                      <Text style={[styles.heroBadgeLevel, { color: theme.colors.onSurfaceVariant }]}>
-                        Lv. {formatNumber(badge.level)}
-                      </Text>
-                    ) : null}
-                  </View>
+                    index={index}
+                    badge={badge}
+                    theme={theme}
+                    compact
+                    activeBadgeKey={activeBadgeKey}
+                    onToggleBadgePopup={setActiveBadgeKey}
+                  />
                 ))}
               </View>
+
             </Surface></AnimatedSection>
 
             <View style={styles.statGrid}>
@@ -2868,20 +2853,17 @@ const styles = StyleSheet.create({
   heroTagPressable: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', gap: 5, marginTop: 3, paddingVertical: 1 },
   heroTag: { fontSize: 13, fontWeight: '800' },
   heroSub: { marginTop: 5, fontSize: 11.5 },
-  heroStats: { flexDirection: 'row', marginTop: 15, gap: 9 },
-  heroTrophy: { flex: 1, minHeight: 66, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 11, borderRadius: 18 },
-  heroBest: { flex: 1, minHeight: 66, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 11, borderRadius: 18 },
-  heroPointIcon: { width: 26, height: 26, marginRight: 7 },
-  heroStatLabel: { fontSize: 10 },
-  heroTrophyValue: { marginTop: 2, fontSize: 19, fontWeight: '900' },
-  heroBestValue: { marginTop: 2, fontSize: 19, fontWeight: '900' },
-  heroBadgesHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 15, marginBottom: 7 },
-  heroBadgesTitle: { fontSize: 11.5, fontWeight: '900' },
-  heroBadgesHint: { fontSize: 8.5, fontWeight: '800' },
-  heroBadgesRow: { flexDirection: 'row', gap: 7 },
-  heroBadgeCard: { flex: 1, minWidth: 0, minHeight: 103, borderRadius: 17, borderWidth: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5, paddingVertical: 6 },
-  heroBadgeName: { width: '100%', marginTop: 3, fontSize: 8.5, fontWeight: '800', textAlign: 'center' },
-  heroBadgeLevel: { marginTop: 1, fontSize: 7.5, fontWeight: '700' },
+  heroStats: { flexDirection: 'row', alignItems: 'center', marginTop: 15, gap: 6 },
+  heroTrophy: { flex: 1, minWidth: 0, minHeight: 62, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, borderRadius: 17 },
+  heroBest: { flex: 1, minWidth: 0, minHeight: 62, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, borderRadius: 17 },
+  heroPointIcon: { width: 24, height: 24, marginRight: 6 },
+  heroStatLabel: { fontSize: 9 },
+  heroTrophyValue: { marginTop: 1, fontSize: 17, fontWeight: '900' },
+  heroBestValue: { marginTop: 1, fontSize: 17, fontWeight: '900' },
+  heroBadgeSlot: { width: 46, height: 62, zIndex: 20 },
+  heroBadgePressable: { width: 46, height: 62, alignItems: 'center', justifyContent: 'center' },
+  heroBadgeVisual: { width: 46, height: 62, alignItems: 'center', justifyContent: 'center', overflow: 'visible' },
+  heroBadgeInfoPopup: { position: 'absolute', top: 54, left: -42, width: 130, minHeight: 76, borderRadius: 14, borderWidth: 1, paddingHorizontal: 9, paddingVertical: 8, alignItems: 'center', justifyContent: 'center', elevation: 8, zIndex: 50 },
 
   statGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 4 },
   statTile: { width: '31.5%', minHeight: 52, marginBottom: 7 },
