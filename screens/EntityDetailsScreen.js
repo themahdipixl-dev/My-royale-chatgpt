@@ -1256,7 +1256,7 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
   };
 
   const innerCard = (
-    <View style={[styles.battleRowInner, expanded && styles.battleRowInnerExpanded, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+    <View style={[styles.battleRowInner, !expanded && styles.battleRowInnerCollapsed, expanded && styles.battleRowInnerExpanded, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
       <View style={[styles.battleHeader, expanded && styles.battleHeaderExpanded]}>
         <View style={styles.battlePlayerBlock}>
           {hasTrophyInfo ? renderTrophy(leftTrophies, leftChange, "left") : null}
@@ -1331,6 +1331,7 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
 
       <Pressable onPress={onToggle} style={({ pressed }) => [
         styles.battleChevronButton,
+        !expanded && styles.battleChevronButtonCollapsed,
         { opacity: pressed ? 0.5 : 1 },
       ]} accessibilityLabel={expanded ? "Collapse battle details" : "Expand battle details"}>
         <MaterialCommunityIcons name={expanded ? "chevron-up" : "chevron-down"} size={22} color={theme.colors.onSurfaceVariant} />
@@ -2970,6 +2971,7 @@ const styles = StyleSheet.create({
   battleLoading: { paddingVertical: 20, alignItems: 'center' },
   battleRowGradient: { width: "100%", borderRadius: 18, padding: 1.2, marginBottom: 8 },
   battleRowInner: { minHeight: 0, borderRadius: 17, paddingHorizontal: 10, paddingTop: 7, paddingBottom: 2, overflow: "hidden" },
+  battleRowInnerCollapsed: { height: 112, paddingTop: 12, paddingBottom: 0, position: "relative" },
   battleRowInnerExpanded: { minHeight: 250, paddingTop: 10 },
   battleHeader: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 58 },
   battleHeaderExpanded: { minHeight: 58 },
@@ -2987,8 +2989,8 @@ const styles = StyleSheet.create({
   battleTrophyText: { fontSize: 10, fontWeight: "900" },
   battleTrophyChange: { minHeight: 25, minWidth: 34, borderRadius: 8, borderWidth: 1.2, paddingHorizontal: 5, alignItems: "center", justifyContent: "center" },
   battleTrophyChangeText: { fontSize: 10, fontWeight: "900" },
-  battleCollapsedMeta: { width: "100%", alignItems: "center", justifyContent: "center", marginTop: 6 },
-  battleCollapsedTimeRow: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", marginTop: 4, paddingHorizontal: 2 },
+  battleCollapsedMeta: { position: "absolute", left: 0, right: 0, bottom: 26, alignItems: "center", justifyContent: "center" },
+  battleCollapsedTimeRow: { position: "absolute", left: 10, right: 10, bottom: 5, flexDirection: "row", alignItems: "center", justifyContent: "flex-start", paddingHorizontal: 2 },
   battleCollapsedTime: { fontSize: 9.5, fontWeight: "700" },
   battleExpandedDeckRow: { width: "100%", flexDirection: "row", alignItems: "flex-start", marginTop: 9 },
   battleSide: { flex: 1, minWidth: 0 },
@@ -3008,6 +3010,7 @@ const styles = StyleSheet.create({
   battleFooter: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", marginTop: 9, paddingHorizontal: 2 },
   battleDate: { fontSize: 9.5, fontWeight: "700" },
   battleChevronButton: { width: 34, height: 25, alignSelf: "center", alignItems: "center", justifyContent: "center", marginTop: 2 },
+  battleChevronButtonCollapsed: { position: "absolute", right: 6, bottom: 1, marginTop: 0 },
 
 
   emptyText: { fontSize: 12, lineHeight: 18 },
