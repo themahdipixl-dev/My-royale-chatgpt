@@ -1870,13 +1870,14 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     const nextExpanded = !battleLogExpanded;
 
     LayoutAnimation.configureNext({
-      duration: 360,
+      duration: 420,
       create: {
         type: LayoutAnimation.Types.easeOut,
         property: LayoutAnimation.Properties.opacity,
       },
       update: {
-        type: LayoutAnimation.Types.easeInEaseOut,
+        type: LayoutAnimation.Types.spring,
+        springDamping: 0.82,
       },
       delete: {
         type: LayoutAnimation.Types.easeIn,
@@ -1885,10 +1886,14 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     });
 
     setBattleLogExpanded(nextExpanded);
-    Animated.timing(battleLogExpandProgress, {
+    battleLogExpandProgress.stopAnimation();
+    Animated.spring(battleLogExpandProgress, {
       toValue: nextExpanded ? 1 : 0,
-      duration: 280,
-      useNativeDriver: true,
+      stiffness: 210,
+      damping: 24,
+      mass: 0.8,
+      overshootClamping: true,
+      useNativeDriver: false,
     }).start();
   }, [battleLogExpanded, battleLogExpandProgress]);
 
@@ -2655,10 +2660,21 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                 <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No battle log available.</Text>
               ) : (
                 <>
-                  <View
+                  <Animated.View
                     style={[
                       styles.battleLogRevealWrap,
-                      !battleLogExpanded && styles.battleLogCollapsedWrap,
+                      {
+                        maxHeight: battleLogExpandProgress.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [158, 12000],
+                          extrapolate: 'clamp',
+                        }),
+                        opacity: battleLogExpandProgress.interpolate({
+                          inputRange: [0, 0.16, 1],
+                          outputRange: [0.98, 1, 1],
+                          extrapolate: 'clamp',
+                        }),
+                      },
                     ]}
                   >
                     {battlelog.map((battle, index) => {
@@ -2695,7 +2711,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                         />
                       </View>
                     ) : null}
-                  </View>
+                  </Animated.View>
                   {battlelog.length > 1 ? (
                     <Pressable
                       onPress={toggleBattleLogExpanded}
@@ -2707,12 +2723,20 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                     >
                       <Animated.View
                         style={{
-                          transform: [{
-                            rotate: battleLogExpandProgress.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: ['0deg', '180deg'],
-                            }),
-                          }],
+                          transform: [
+                            {
+                              rotate: battleLogExpandProgress.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: ['0deg', '180deg'],
+                              }),
+                            },
+                            {
+                              scale: battleLogExpandProgress.interpolate({
+                                inputRange: [0, 0.5, 1],
+                                outputRange: [0.88, 1.04, 1],
+                              }),
+                            },
+                          ],
                         }}
                       >
                         <MaterialCommunityIcons
