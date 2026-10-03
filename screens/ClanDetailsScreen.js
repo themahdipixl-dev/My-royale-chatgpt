@@ -36,22 +36,45 @@ function SectionTitle({ icon, title, right, theme }) {
 function MemberRow({ member, index, theme, onPress }) {
   const badge = getClanBadgeImage(member?.badgeId);
   const role = member?.role ? String(member.role).replace(/^./, c => c.toUpperCase()) : 'Member';
-  return <Pressable onPress={onPress} android_ripple={{ color: theme.colors.primaryContainer }} style={({ pressed }) => [{ opacity: pressed ? 0.72 : 1 }]}>\n    <Animated.View style={[styles.memberRow, { backgroundColor: theme.colors.surfaceContainerHighest, borderColor: theme.colors.outlineVariant, opacity: 1 }]}>
-    <View style={[styles.memberRank, { backgroundColor: index < 3 ? theme.colors.primaryContainer : theme.colors.surfaceContainer }]}>
-      <Text style={[styles.memberRankText, { color: theme.colors.onSurface }]}>{index + 1}</Text>
-    </View>
-    <View style={[styles.memberBadge, { backgroundColor: theme.colors.primaryContainer }]}>
-      {badge ? <RetryImage uri={badge} style={styles.memberBadgeImage} resizeMode="contain" /> : <MaterialCommunityIcons name="account-outline" size={19} color={theme.colors.onPrimaryContainer} />}
-    </View>
-    <View style={styles.memberMain}>
-      <Text numberOfLines={1} style={[styles.memberName, { color: theme.colors.onSurface }]}>{member?.name || 'Unknown'}</Text>
-      <Text numberOfLines={1} style={[styles.memberRole, { color: theme.colors.onSurfaceVariant }]}>{role}</Text>
-    </View>
-    <View style={styles.memberScore}>
-      <MaterialCommunityIcons name="trophy-outline" size={13} color={theme.colors.primary} />
-      <Text style={[styles.memberScoreText, { color: theme.colors.onSurface }]}>{formatNumber(firstValue(member?.trophies, member?.clanRank, member?.donations))}</Text>
-    </View>
-  </Animated.View>;
+  return (
+    <Pressable
+      onPress={onPress}
+      android_ripple={{ color: theme.colors.primaryContainer }}
+      style={({ pressed }) => [{ opacity: pressed ? 0.72 : 1 }]}
+    >
+      <Animated.View
+        style={[
+          styles.memberRow,
+          {
+            backgroundColor: theme.colors.surfaceContainerHighest,
+            borderColor: theme.colors.outlineVariant,
+            opacity: 1,
+          },
+        ]}
+      >
+        <View style={[styles.memberRank, { backgroundColor: index < 3 ? theme.colors.primaryContainer : theme.colors.surfaceContainer }]}>
+          <Text style={[styles.memberRankText, { color: theme.colors.onSurface }]}>{index + 1}</Text>
+        </View>
+        <View style={[styles.memberBadge, { backgroundColor: theme.colors.primaryContainer }]}>
+          {badge ? (
+            <RetryImage uri={badge} style={styles.memberBadgeImage} resizeMode="contain" />
+          ) : (
+            <MaterialCommunityIcons name="account-outline" size={19} color={theme.colors.onPrimaryContainer} />
+          )}
+        </View>
+        <View style={styles.memberMain}>
+          <Text numberOfLines={1} style={[styles.memberName, { color: theme.colors.onSurface }]}>{member?.name || 'Unknown'}</Text>
+          <Text numberOfLines={1} style={[styles.memberRole, { color: theme.colors.onSurfaceVariant }]}>{role}</Text>
+        </View>
+        <View style={styles.memberScore}>
+          <MaterialCommunityIcons name="trophy-outline" size={13} color={theme.colors.primary} />
+          <Text style={[styles.memberScoreText, { color: theme.colors.onSurface }]}>
+            {formatNumber(firstValue(member?.trophies, member?.clanRank, member?.donations))}
+          </Text>
+        </View>
+      </Animated.View>
+    </Pressable>
+  );
 }
 
 export default function ClanDetailsScreen({ entity, onBack, onPlayerPress }) {
