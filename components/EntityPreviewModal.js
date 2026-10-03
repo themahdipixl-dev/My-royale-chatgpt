@@ -754,7 +754,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   );
 }
 
-const popupHeight = 334;
+const popupHeight = 314;
 
 const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -818,7 +818,7 @@ const styles = StyleSheet.create({
   playerErrorContainer: { position: 'absolute', left: 18, right: 18, bottom: 8, alignItems: 'center' },
   playerErrorText: { textAlign: 'center', fontSize: 12 },
   retryButton: { marginTop: 8, borderRadius: 18, minHeight: 36 },
-  clanBody: { flex: 1, justifyContent: 'flex-start', gap: 10, paddingTop: 2 },
+  clanBody: { flex: 1, justifyContent: 'flex-start', gap: 8, paddingTop: 2 },
   primaryStats: { flexDirection: 'row', gap: 8, marginTop: 0 },
   primaryStat: { flex: 1, minHeight: 68, borderRadius: 15, paddingHorizontal: 9, backgroundColor: 'rgba(127,127,127,0.10)', flexDirection: 'row', alignItems: 'center', borderWidth: 1 },
   primaryStatIcon: { width: 22, height: 22 },
@@ -829,8 +829,8 @@ const styles = StyleSheet.create({
   memberMax: { fontSize: 11, fontWeight: '800', marginLeft: 3 },
   clanMetricGrid: { flexDirection: 'row', gap: 7, marginTop: 0 },
   clanMetricTile: { flex: 1, minWidth: 0, minHeight: 72, borderRadius: 16, paddingHorizontal: 3, paddingVertical: 7 },
-  clanMetricContent: { flexDirection: 'column', alignItems: 'center', justifyContent: 'center' },
-  clanMetricText: { marginLeft: 0, alignItems: 'center', justifyContent: 'center', width: '100%' },
+  clanMetricContent: { flex: 1, width: '100%', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' },
+  clanMetricText: { marginLeft: 0, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', width: '100%' },
   clanDescriptionCard: { minHeight: 58, maxHeight: 72, borderRadius: 15, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 7, flexDirection: 'row', alignItems: 'flex-start' },
   clanDescriptionIcon: { width: 28, height: 28, borderRadius: 9, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   clanDescriptionText: { flex: 1, minWidth: 0, marginLeft: 7, fontSize: 9.5, lineHeight: 14, fontWeight: '600' },
