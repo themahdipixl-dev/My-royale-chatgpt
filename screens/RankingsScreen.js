@@ -317,7 +317,14 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
 
   if (detailEntity) {
     return detailType === 'clan'
-      ? <ClanDetailsScreen entity={detailEntity} onBack={() => setDetailEntity(null)} />
+      ? <ClanDetailsScreen
+          entity={detailEntity}
+          onBack={() => setDetailEntity(null)}
+          onPlayerPress={(player) => {
+            setDetailType('player');
+            setDetailEntity(player);
+          }}
+        />
       : <EntityDetailsScreen entity={detailEntity} type={detailType} onBack={() => setDetailEntity(null)} />;
   }
 
