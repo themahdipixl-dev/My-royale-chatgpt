@@ -3035,7 +3035,7 @@ const styles = StyleSheet.create({
   battleTowerTool: { width: 36, height: 44, alignItems: "center", justifyContent: "center" },
   battleToolButton: { width: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center" },
   battleElixirPill: { width: 38, height: 30, borderRadius: 15, paddingHorizontal: 4, alignItems: "center", justifyContent: "center", flexDirection: "row", backgroundColor: "#6C4BD6", overflow: "hidden" },
-  battleElixirText: { marginLeft: 2, fontSize: 11, fontWeight: "900" },
+  battleElixirText: { marginLeft: 0, fontSize: 11, fontWeight: "900" },
   battleCard: { overflow: "hidden", alignItems: "center", justifyContent: "center" },
   battleCardImage: { width: "100%", height: "100%", transform: [{ scale: 1.16 }] },
   battleExpandedDivider: { width: 24, alignItems: "center", justifyContent: "center", paddingTop: 38 },
