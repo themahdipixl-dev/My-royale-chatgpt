@@ -3003,7 +3003,7 @@ const styles = StyleSheet.create({
   battleExpandedDeckRow: { width: "100%", flexDirection: "row", alignItems: "flex-start", marginTop: 9 },
   battleSide: { flex: 1, minWidth: 0 },
   battleSideMirrored: { alignItems: "flex-end" },
-  battleCardsGrid: { width: "100%", flexDirection: "row", flexWrap: "wrap", gap: 0, justifyContent: "flex-start" },
+  battleCardsGrid: { width: "100%", flexDirection: "row", flexWrap: "wrap", gap: -2, justifyContent: "flex-start" },
   battleDeckTools: { width: 134, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 2, marginTop: 7 },
   battleDeckToolsMirrored: { alignSelf: "flex-end", flexDirection: "row-reverse", justifyContent: "flex-start" },
   battleTowerTool: { width: 36, height: 44, alignItems: "center", justifyContent: "center" },
