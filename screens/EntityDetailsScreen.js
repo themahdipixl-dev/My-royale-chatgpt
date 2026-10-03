@@ -1063,7 +1063,9 @@ function getBattlePlayedAt(battle) {
 
   const normalized = String(raw).trim().replace(
     /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(?:\.(\d+))?Z?$/,
-    '$1-$2-$3T$4:$5:$6.7Z',
+    function (_, year, month, day, hour, minute, second, fraction) {
+      return year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':' + second + '.' + (fraction || '000') + 'Z';
+    },
   );
   const date = new Date(normalized);
   return Number.isNaN(date.getTime()) ? null : date;
