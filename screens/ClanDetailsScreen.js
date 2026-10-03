@@ -77,7 +77,7 @@ function MemberRow({ member, index, theme, onPress }) {
   );
 }
 
-export default function ClanDetailsScreen({ entity, onBack, onPlayerPress }) {
+export default function ClanDetailsScreen({ entity, onBack, onPlayerPress, initialScrollY = 0 }) {
   const theme = useTheme();
   const tag = firstValue(entity?.tag, entity?.clan?.tag);
   const [clan, setClan] = useState(entity || null);
@@ -87,6 +87,8 @@ export default function ClanDetailsScreen({ entity, onBack, onPlayerPress }) {
   const [error, setError] = useState(null);
   const [membersExpanded, setMembersExpanded] = useState(false);
   const entrance = useRef(new Animated.Value(0)).current;
+  const scrollRef = useRef(null);
+  const scrollYRef = useRef(initialScrollY || 0);
 
   const load = useCallback(async (isRefresh = false) => {
     if (!tag) { setError('Clan tag is missing.'); setLoading(false); return; }
@@ -176,7 +178,7 @@ export default function ClanDetailsScreen({ entity, onBack, onPlayerPress }) {
           {members.length ? (
             <>
               <View style={[styles.membersRevealWrap, { maxHeight: membersExpanded ? 10000 : 250 }]}>
-                {members.map((member,index) => <MemberRow key={member?.tag || member?.name || index} member={member} index={index} theme={theme} onPress={() => member?.tag && onPlayerPress?.(member)} />)}
+                {members.map((member,index) => <MemberRow key={member?.tag || member?.name || index} member={member} index={index} theme={theme} onPress={() => member?.tag && onPlayerPress?.(member, scrollYRef.current)} />)}
                 {!membersExpanded ? (
                   <LinearGradient
                     pointerEvents="none"
