@@ -1869,33 +1869,9 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const toggleBattleLogExpanded = useCallback(() => {
     const nextExpanded = !battleLogExpanded;
 
-    LayoutAnimation.configureNext({
-      duration: 420,
-      create: {
-        type: LayoutAnimation.Types.easeOut,
-        property: LayoutAnimation.Properties.opacity,
-      },
-      update: {
-        type: LayoutAnimation.Types.spring,
-        springDamping: 0.82,
-      },
-      delete: {
-        type: LayoutAnimation.Types.easeIn,
-        property: LayoutAnimation.Properties.opacity,
-      },
-    });
-
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setBattleLogExpanded(nextExpanded);
-    battleLogExpandProgress.stopAnimation();
-    Animated.spring(battleLogExpandProgress, {
-      toValue: nextExpanded ? 1 : 0,
-      stiffness: 210,
-      damping: 24,
-      mass: 0.8,
-      overshootClamping: true,
-      useNativeDriver: false,
-    }).start();
-  }, [battleLogExpanded, battleLogExpandProgress]);
+  }, [battleLogExpanded]);
 
   const toggleAchievementsExpanded = useCallback(() => {
     const nextExpanded = !achievementsExpanded;
