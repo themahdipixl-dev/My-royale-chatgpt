@@ -824,7 +824,6 @@ const styles = StyleSheet.create({
   statText: { flex: 1, marginLeft: 7, minWidth: 0 },
   statLabel: { fontSize: 9, fontWeight: '600' },
   statValue: { fontSize: 16, fontWeight: '800', marginTop: 1 },
-  secondaryRow: { flexDirection: 'row', gap: 5, marginTop: 7, height: 58 },
   clanMetricGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 1 },
   clanDescriptionCard: { minHeight: 54, maxHeight: 72, borderRadius: 15, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 7, flexDirection: 'row', alignItems: 'flex-start' },
   clanDescriptionIcon: { width: 28, height: 28, borderRadius: 9, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
@@ -833,5 +832,4 @@ const styles = StyleSheet.create({
   clanFooterItem: { flex: 1, minWidth: 0, minHeight: 43, borderRadius: 14, borderWidth: 1, paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center' },
   clanFooterLabel: { flex: 1, minWidth: 0, marginLeft: 6, fontSize: 7.5, fontWeight: '600' },
   clanFooterValue: { marginLeft: 5, fontSize: 9.5, fontWeight: '900' },
-  detailLine: { minHeight: 46, borderRadius: 15, paddingHorizontal: 10, marginTop: 7, flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: 'rgba(127,127,127,0.10)', borderWidth: 1 },
 });
