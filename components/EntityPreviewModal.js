@@ -533,7 +533,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                     <MaterialCommunityIcons name="account-multiple" size={21} color={theme.colors.primary} />
                     <View style={styles.statText}>
                       <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Members</Text>
-                      <AnimatedCounterText value={members !== null ? formatNumber(members) : '—'} style={[styles.statValue, { color: theme.colors.onSurface }]} />
+                      <View style={styles.memberValueRow}><AnimatedCounterText value={members !== null ? formatNumber(members) : '—'} style={[styles.statValue, { color: theme.colors.onSurface }]} /><Text style={[styles.memberMax, { color: theme.colors.onSurfaceVariant }]}>/ 50</Text></View>
                     </View>
                   </View>
                 </View>
@@ -754,7 +754,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   );
 }
 
-const popupHeight = 410;
+const popupHeight = 334;
 
 const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -820,20 +820,22 @@ const styles = StyleSheet.create({
   retryButton: { marginTop: 8, borderRadius: 18, minHeight: 36 },
   clanBody: { flex: 1, justifyContent: 'flex-start', gap: 10, paddingTop: 2 },
   primaryStats: { flexDirection: 'row', gap: 8, marginTop: 0 },
-  primaryStat: { flex: 1, minHeight: 72, borderRadius: 15, paddingHorizontal: 9, backgroundColor: 'rgba(127,127,127,0.10)', flexDirection: 'row', alignItems: 'center', borderWidth: 1 },
+  primaryStat: { flex: 1, minHeight: 68, borderRadius: 15, paddingHorizontal: 9, backgroundColor: 'rgba(127,127,127,0.10)', flexDirection: 'row', alignItems: 'center', borderWidth: 1 },
   primaryStatIcon: { width: 22, height: 22 },
   statText: { flex: 1, marginLeft: 7, minWidth: 0 },
   statLabel: { fontSize: 9, fontWeight: '600' },
-  statValue: { fontSize: 16, fontWeight: '800', marginTop: 1 },
+  statValue: { fontSize: 22, fontWeight: '900', marginTop: 1, letterSpacing: -0.4 },
+  memberValueRow: { flexDirection: 'row', alignItems: 'baseline', marginTop: 1 },
+  memberMax: { fontSize: 11, fontWeight: '800', marginLeft: 3 },
   clanMetricGrid: { flexDirection: 'row', gap: 7, marginTop: 0 },
-  clanMetricTile: { flex: 1, minWidth: 0, minHeight: 62, borderRadius: 16, paddingHorizontal: 3, paddingVertical: 6 },
+  clanMetricTile: { flex: 1, minWidth: 0, minHeight: 72, borderRadius: 16, paddingHorizontal: 3, paddingVertical: 7 },
   clanMetricContent: { flexDirection: 'column', alignItems: 'center', justifyContent: 'center' },
   clanMetricText: { marginLeft: 0, alignItems: 'center', justifyContent: 'center', width: '100%' },
   clanDescriptionCard: { minHeight: 58, maxHeight: 72, borderRadius: 15, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 7, flexDirection: 'row', alignItems: 'flex-start' },
   clanDescriptionIcon: { width: 28, height: 28, borderRadius: 9, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   clanDescriptionText: { flex: 1, minWidth: 0, marginLeft: 7, fontSize: 9.5, lineHeight: 14, fontWeight: '600' },
   clanFooterRow: { flexDirection: 'row', gap: 6 },
-  clanFooterItem: { flex: 1, minWidth: 0, minHeight: 48, borderRadius: 14, borderWidth: 1, paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center' },
+  clanFooterItem: { flex: 1, minWidth: 0, minHeight: 46, borderRadius: 14, borderWidth: 1, paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center' },
   clanFooterLabel: { flex: 1, minWidth: 0, marginLeft: 6, fontSize: 7.5, fontWeight: '600' },
   clanFooterValue: { marginLeft: 5, fontSize: 9.5, fontWeight: '900' },
 });
