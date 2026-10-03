@@ -2637,7 +2637,10 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                       {
                         maxHeight: battleLogExpandProgress.interpolate({
                           inputRange: [0, 1],
-                          outputRange: [158, Math.max(158, battlelog.length * 120 + Math.max(0, battlelog.length - 1) * 8 + 30)],
+                          outputRange: [
+  Math.min(158, battlelog.length * 100 + Math.max(0, battlelog.length - 1) * 8),
+  Math.max(158, battlelog.length * 100 + Math.max(0, battlelog.length - 1) * 8 + Object.values(expandedBattles).filter(Boolean).length * 158 + 30),
+],
                         }),
                       },
                     ]}
@@ -2953,14 +2956,14 @@ const styles = StyleSheet.create({
   achievementStars: { marginLeft: 8, flexDirection: 'row', alignItems: 'center', minWidth: 30, justifyContent: 'flex-end' },
   achievementStarsText: { marginLeft: 2, fontSize: 11, fontWeight: '800' },
   battleLogRevealWrap: { width: "100%", overflow: "hidden" },
-  battleLogCollapseFade: { position: "absolute", left: 0, right: 0, top: 112, height: 46, overflow: "hidden" },
+  battleLogCollapseFade: { position: "absolute", left: 0, right: 0, height: 46, overflow: "hidden" },
   battleLogFadeGradient: { flex: 1, width: "100%" },
   battleLogExpandButton: { alignSelf: "center", width: 34, height: 30, marginTop: 8, alignItems: "center", justifyContent: "center" },
   battleLoading: { paddingVertical: 20, alignItems: 'center' },
   battleRowGradient: { width: "100%", borderRadius: 18, padding: 1.2, marginBottom: 8 },
-  battleRowInner: { minHeight: 104, borderRadius: 17, paddingHorizontal: 10, paddingTop: 10, paddingBottom: 4, overflow: "hidden" },
+  battleRowInner: { minHeight: 92, borderRadius: 17, paddingHorizontal: 10, paddingTop: 7, paddingBottom: 2, overflow: "hidden" },
   battleRowInnerExpanded: { minHeight: 250, paddingTop: 10 },
-  battleHeader: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 66 },
+  battleHeader: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 58 },
   battlePlayerBlock: { flex: 1, minWidth: 0, alignItems: "flex-start" },
   battlePlayerBlockRight: { alignItems: "flex-end" },
   battlePlayerName: { maxWidth: "100%", marginTop: 4, fontSize: 12.5, fontWeight: "800" },
