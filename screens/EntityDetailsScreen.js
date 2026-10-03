@@ -1070,9 +1070,43 @@ function getBattleTrophyChange(player) {
 }
 
 function getBattleTrophies(player) {
-  const direct = firstValue(player?.trophies, player?.currentTrophies, player?.startingTrophies);
+  const direct = firstValue(player?.trophies, player?.currentTrophies, player?.startingTrophies, player?.startTrophies);
   const parsed = Number(direct);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function getBattleModeImage(battle) {
+  return firstValue(
+    battle?.gameMode?.iconUrls?.medium,
+    battle?.gameMode?.iconUrls?.small,
+    battle?.gameMode?.iconUrl,
+    battle?.mode?.iconUrls?.medium,
+    battle?.mode?.iconUrls?.small,
+    battle?.mode?.iconUrl,
+  );
+}
+
+function getExplicitBattleCardKind(card) {
+  const rawKind = firstValue(card?.cardType, card?.cardKind, card?.variant, card?.form, card?.typeName);
+  if (typeof rawKind === 'string') {
+    const kind = rawKind.toLowerCase();
+    if (kind.includes('hero')) return 'hero';
+    if (kind.includes('evolution') || kind.includes('evo')) return 'evolution';
+    if (kind.includes('normal') || kind.includes('standard') || kind === 'card') return 'normal';
+  }
+  if (card?.isHero === true || card?.hero === true || Number(card?.heroLevel) > 0) return 'hero';
+  if (card?.isEvolution === true || card?.evolution === true || Number(card?.evolutionLevel) > 0) return 'evolution';
+  return null;
+}
+
+function resolveBattleCardImage(card, index, deck) {
+  if (!card) return null;
+  const explicitKind = getExplicitBattleCardKind(card);
+  const urls = card?.iconUrls || {};
+  if (explicitKind === 'hero') return firstValue(urls.heroMedium, urls.medium, urls.small, card?.iconUrl);
+  if (explicitKind === 'evolution') return firstValue(urls.evolutionMedium, urls.medium, urls.small, card?.iconUrl);
+  if (explicitKind === 'normal') return firstValue(urls.medium, urls.small, urls.large, card?.iconUrl);
+  return resolveCurrentDeckImage(card, index, deck);
 }
 
 function BattleCardImage({ card, theme, size = 42 }) {
