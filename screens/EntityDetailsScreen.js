@@ -1109,26 +1109,10 @@ function resolveBattleCardImage(card, index, deck) {
   return resolveCurrentDeckImage(card, index, deck);
 }
 
-function BattleCardImage({ card, theme, size = 42 }) {
-  const image = firstValue(
-    card?.iconUrls?.medium,
-    card?.iconUrls?.small,
-    card?.iconUrls?.large,
-    card?.iconUrl,
-  );
-
+function BattleCardImage({ card, theme, size = 42, index = 0, deck = [] }) {
+  const image = resolveBattleCardImage(card, index, deck);
   return (
-    <View
-      style={[
-        styles.battleCard,
-        {
-          width: size,
-          height: Math.round(size * 1.22),
-          borderColor: theme.colors.outlineVariant,
-          backgroundColor: theme.colors.surfaceContainer,
-        },
-      ]}
-    >
+    <View style={[styles.battleCard, { width: size, height: Math.round(size * 1.22) }]}>
       {image ? (
         <RetryImage uri={image} style={styles.battleCardImage} resizeMode="contain" />
       ) : (
@@ -1148,57 +1132,42 @@ function BattleDeck({ player, theme, mirrored = false, onCopy, onSave, saved }) 
     <View style={[styles.battleSide, mirrored && styles.battleSideMirrored]}>
       <View style={styles.battleCardsGrid}>
         {cards.map((card, index) => (
-          <BattleCardImage key={card?.id ?? card?.name ?? index} card={card} theme={theme} size={36} />
+          <BattleCardImage
+            key={card?.id ?? card?.name ?? index}
+            card={card}
+            theme={theme}
+            size={30}
+            index={index}
+            deck={deck}
+          />
         ))}
       </View>
-
       <View style={[styles.battleDeckTools, mirrored && styles.battleDeckToolsMirrored]}>
-        {towerCard ? (
-          <BattleCardImage card={towerCard} theme={theme} size={36} />
-        ) : (
-          <View style={[styles.battleToolButton, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
-            <MaterialCommunityIcons name="shield-outline" size={18} color={theme.colors.onSurfaceVariant} />
-          </View>
-        )}
-
-        <Pressable
-          onPress={onCopy}
-          disabled={deck.length !== 8}
-          style={({ pressed }) => [
-            styles.battleToolButton,
-            {
-              backgroundColor: theme.colors.surfaceContainer,
-              borderColor: theme.colors.outlineVariant,
-              opacity: deck.length === 8 ? (pressed ? 0.55 : 1) : 0.4,
-            },
-          ]}
-          accessibilityLabel="Copy battle deck"
-        >
-          <MaterialCommunityIcons name="view-grid-outline" size={18} color={theme.colors.onSurfaceVariant} />
+        <View style={styles.battleTowerTool}>
+          {towerCard ? (
+            <BattleCardImage card={towerCard} theme={theme} size={30} />
+          ) : (
+            <MaterialCommunityIcons name="shield-outline" size={20} color={theme.colors.onSurfaceVariant} />
+          )}
+        </View>
+        <Pressable onPress={onCopy} disabled={deck.length !== 8} style={({ pressed }) => [
+          styles.battleToolButton,
+          { opacity: deck.length === 8 ? (pressed ? 0.55 : 1) : 0.4 },
+        ]} accessibilityLabel="Copy battle deck">
+          <MaterialCommunityIcons name="content-copy" size={17} color={theme.colors.onSurfaceVariant} />
         </Pressable>
-
-        <Pressable
-          onPress={onSave}
-          disabled={deck.length !== 8}
-          style={({ pressed }) => [
-            styles.battleToolButton,
-            {
-              backgroundColor: saved ? theme.colors.primaryContainer : theme.colors.surfaceContainer,
-              borderColor: saved ? theme.colors.primary : theme.colors.outlineVariant,
-              opacity: deck.length === 8 ? (pressed ? 0.55 : 1) : 0.4,
-            },
-          ]}
-          accessibilityLabel={saved ? 'Remove saved battle deck' : 'Save battle deck'}
-        >
+        <Pressable onPress={onSave} disabled={deck.length !== 8} style={({ pressed }) => [
+          styles.battleToolButton,
+          { opacity: deck.length === 8 ? (pressed ? 0.55 : 1) : 0.4 },
+        ]} accessibilityLabel={saved ? "Remove saved battle deck" : "Save battle deck"}>
           <MaterialCommunityIcons
-            name={saved ? 'bookmark' : 'bookmark-outline'}
-            size={18}
-            color={saved ? theme.colors.onPrimaryContainer : theme.colors.onSurfaceVariant}
+            name={saved ? "bookmark" : "bookmark-outline"}
+            size={17}
+            color={saved ? theme.colors.primary : theme.colors.onSurfaceVariant}
           />
         </Pressable>
-
-        <View style={[styles.battleElixirPill, { backgroundColor: theme.colors.primaryContainer }]}>
-          <MaterialCommunityIcons name="water" size={14} color={theme.colors.onPrimaryContainer} />
+        <View style={styles.battleElixirPill}>
+          <MaterialCommunityIcons name="water" size={13} color={theme.colors.onPrimaryContainer} />
           <Text style={[styles.battleElixirText, { color: theme.colors.onPrimaryContainer }]}>{average}</Text>
         </View>
       </View>
@@ -1209,12 +1178,13 @@ function BattleDeck({ player, theme, mirrored = false, onCopy, onSave, saved }) 
 function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSaveDeck, savedLeft, savedRight }) {
   const team = Array.isArray(battle?.team) ? battle.team : [];
   const opponent = Array.isArray(battle?.opponent) ? battle.opponent : [];
-  const teamCrowns = team.reduce((sum, p) => sum + number(p?.crowns), 0);
-  const opponentCrowns = opponent.reduce((sum, p) => sum + number(p?.crowns), 0);
+  const teamCrowns = team.reduce((sum, p) => sum + number(p?.crowns ?? p?.crownsEarned), 0);
+  const opponentCrowns = opponent.reduce((sum, p) => sum + number(p?.crowns ?? p?.crownsEarned), 0);
   const won = teamCrowns > opponentCrowns;
   const draw = teamCrowns === opponentCrowns;
   const mode = formatBattleMode(battle);
-  const date = firstValue(battle?.battleTime, battle?.createdDate, battle?.date);
+  const modeImage = getBattleModeImage(battle);
+  const date = firstValue(battle?.battleTime, battle?.createdDate, battle?.date, battle?.utcTime);
   const leftPlayer = team[0] || {};
   const rightPlayer = opponent[0] || {};
   const leftChange = getBattleTrophyChange(leftPlayer);
@@ -1222,27 +1192,29 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
   const leftTrophies = getBattleTrophies(leftPlayer);
   const rightTrophies = getBattleTrophies(rightPlayer);
   const hasTrophyInfo = leftTrophies !== null || rightTrophies !== null || leftChange !== null || rightChange !== null;
-  const resultText = `${teamCrowns} : ${opponentCrowns}`;
-  const battleKey = `${date || 'battle'}-${index}`;
+  const resultText = String(teamCrowns) + " : " + String(opponentCrowns);
+  const battleKey = String(date || "battle") + "-" + String(index);
+
+  const leftAccent = teamCrowns > opponentCrowns ? "#35D07F" : teamCrowns < opponentCrowns ? "#FF5C67" : theme.colors.primary;
+  const rightAccent = opponentCrowns > teamCrowns ? "#35D07F" : opponentCrowns < teamCrowns ? "#FF5C67" : theme.colors.primary;
 
   const renderTrophy = (trophies, change, side) => {
     if (trophies === null && change === null) return null;
     const positive = Number(change) > 0;
     const negative = Number(change) < 0;
-    const accent = positive ? '#35D07F' : negative ? '#FF5C67' : theme.colors.onSurfaceVariant;
-
+    const accent = positive ? "#35D07F" : negative ? "#FF5C67" : theme.colors.onSurfaceVariant;
     return (
-      <View style={[styles.battleTrophyCluster, side === 'right' && styles.battleTrophyClusterRight]}>
+      <View style={[styles.battleTrophyCluster, side === "right" && styles.battleTrophyClusterRight]}>
         {trophies !== null ? (
-          <View style={[styles.battleTrophyValue, { backgroundColor: theme.colors.surfaceContainer }]}>
+          <View style={[styles.battleTrophyValue, { borderColor: accent }]}>
             <Image source={pointIcon} style={styles.battleTrophyIcon} resizeMode="contain" />
             <Text style={[styles.battleTrophyText, { color: theme.colors.onSurface }]}>{formatNumber(trophies)}</Text>
           </View>
         ) : null}
         {change !== null ? (
-          <View style={[styles.battleTrophyChange, { borderColor: accent, backgroundColor: theme.colors.surfaceContainer }]}>
+          <View style={[styles.battleTrophyChange, { borderColor: accent }]}>
             <Text style={[styles.battleTrophyChangeText, { color: accent }]}>
-              {change > 0 ? '+' : ''}{formatNumber(change)}
+              {change > 0 ? "+" : ""}{formatNumber(change)}
             </Text>
           </View>
         ) : null}
@@ -1250,118 +1222,93 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
     );
   };
 
-  return (
-    <AnimatedDetailItem index={index}>
-      <View
-        style={[
-          styles.battleRow,
-          expanded && styles.battleRowExpanded,
-          {
-            backgroundColor: theme.colors.surfaceContainerHighest,
-            borderColor: theme.colors.outlineVariant,
-          },
-        ]}
-      >
-        <View style={styles.battleHeader}>
-          {expanded && hasTrophyInfo ? renderTrophy(leftTrophies, leftChange, 'left') : null}
-
-          <View style={styles.battlePlayerBlock}>
-            <Text numberOfLines={1} style={[styles.battlePlayerName, { color: theme.colors.onSurface }]}>
-              {firstValue(leftPlayer?.name, 'Player')}
-            </Text>
-            <Text numberOfLines={1} style={[styles.battlePlayerClan, { color: theme.colors.onSurfaceVariant }]}>
-              {firstValue(leftPlayer?.clan?.name, leftPlayer?.clan?.tag, '—')}
-            </Text>
-          </View>
-
-          <View style={styles.battleCenterHeader}>
-            <Text numberOfLines={1} style={[styles.battleMode, { color: theme.colors.onSurface }]}>{mode}</Text>
-            <Text style={[styles.battleScore, { color: theme.colors.onSurface }]}>{resultText}</Text>
-          </View>
-
-          <View style={[styles.battlePlayerBlock, styles.battlePlayerBlockRight]}>
-            <Text numberOfLines={1} style={[styles.battlePlayerName, { color: theme.colors.onSurface }]}>
-              {firstValue(rightPlayer?.name, 'Player')}
-            </Text>
-            <Text numberOfLines={1} style={[styles.battlePlayerClan, { color: theme.colors.onSurfaceVariant }]}>
-              {firstValue(rightPlayer?.clan?.name, rightPlayer?.clan?.tag, '—')}
-            </Text>
-          </View>
-
-          {expanded && hasTrophyInfo ? renderTrophy(rightTrophies, rightChange, 'right') : null}
+  const innerCard = (
+    <View style={[styles.battleRowInner, expanded && styles.battleRowInnerExpanded, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+      <View style={styles.battleHeader}>
+        <View style={styles.battlePlayerBlock}>
+          {hasTrophyInfo ? renderTrophy(leftTrophies, leftChange, "left") : null}
+          <Text numberOfLines={1} style={[styles.battlePlayerName, { color: theme.colors.onSurface }]}>
+            {firstValue(leftPlayer?.name, "Player")}
+          </Text>
+          <Text numberOfLines={1} style={[styles.battlePlayerClan, { color: theme.colors.onSurfaceVariant }]}>
+            {firstValue(leftPlayer?.clan?.name, leftPlayer?.clan?.tag, "—")}
+          </Text>
         </View>
 
-        {expanded ? (
-          <>
-            <View style={styles.battleExpandedDeckRow}>
-              <BattleDeck
-                player={leftPlayer}
-                theme={theme}
-                onCopy={() => onCopyDeck(getBattleDeck(leftPlayer), battleKey + '-left')}
-                onSave={() => onSaveDeck(battleKey + '-left')}
-                saved={savedLeft}
-              />
-              <View style={styles.battleExpandedDivider}>
-                <View style={[styles.battleResultBadge, {
-                  backgroundColor: draw
-                    ? theme.colors.surfaceContainer
-                    : won
-                      ? theme.colors.primaryContainer
-                      : theme.colors.errorContainer,
-                }]}>
-                  <Text style={[styles.battleResultBadgeText, {
-                    color: draw
-                      ? theme.colors.onSurfaceVariant
-                      : won
-                        ? theme.colors.onPrimaryContainer
-                        : theme.colors.onErrorContainer,
-                  }]}>{resultText}</Text>
-                </View>
-              </View>
-              <BattleDeck
-                player={rightPlayer}
-                theme={theme}
-                mirrored
-                onCopy={() => onCopyDeck(getBattleDeck(rightPlayer), battleKey + '-right')}
-                onSave={() => onSaveDeck(battleKey + '-right')}
-                saved={savedRight}
-              />
-            </View>
+        <View style={styles.battleCenterHeader}>
+          {modeImage ? (
+            <RetryImage uri={modeImage} style={styles.battleModeImage} resizeMode="contain" />
+          ) : (
+            <MaterialCommunityIcons name="gamepad-variant-outline" size={23} color={theme.colors.primary} />
+          )}
+          <Text numberOfLines={1} style={[styles.battleRankedLabel, { color: theme.colors.onSurface }]}>Ranked</Text>
+          <Text style={[styles.battleScore, { color: theme.colors.onSurface }]}>{resultText}</Text>
+        </View>
 
-            <View style={styles.battleFooter}>
-              <Text style={[styles.battleDate, { color: theme.colors.onSurfaceVariant }]}>
-                {formatBattleAge(date)}
-              </Text>
-              <Text style={[styles.battleTypeHint, { color: theme.colors.onSurfaceVariant }]}>
-                {formatGameDisplayName(firstValue(battle?.gameMode?.name, battle?.type, ''), mode)}
-              </Text>
-            </View>
-          </>
-        ) : hasTrophyInfo ? (
-          <View style={styles.battleCollapsedMeta}>
-            {renderTrophy(leftTrophies, leftChange, 'left')}
-            <View style={styles.battleCollapsedResult}>
-              <Text style={[styles.battleCollapsedResultText, { color: theme.colors.onSurface }]}>{resultText}</Text>
-            </View>
-            {renderTrophy(rightTrophies, rightChange, 'right')}
-          </View>
-        ) : null}
-
-        <Pressable
-          onPress={onToggle}
-          style={({ pressed }) => [
-            styles.battleChevronButton,
-            { opacity: pressed ? 0.5 : 1 },
-          ]}
-          accessibilityLabel={expanded ? 'Collapse battle details' : 'Expand battle details'}
-        >
-          <MaterialCommunityIcons
-            name={expanded ? 'chevron-up' : 'chevron-down'}
-            size={22}
-            color={theme.colors.onSurfaceVariant}
-          />
-        </Pressable>
+        <View style={[styles.battlePlayerBlock, styles.battlePlayerBlockRight]}>
+          {hasTrophyInfo ? renderTrophy(rightTrophies, rightChange, "right") : null}
+          <Text numberOfLines={1} style={[styles.battlePlayerName, { color: theme.colors.onSurface }]}>
+            {firstValue(rightPlayer?.name, "Player")}
+          </Text>
+          <Text numberOfLines={1} style={[styles.battlePlayerClan, { color: theme.colors.onSurfaceVariant }]}>
+            {firstValue(rightPlayer?.clan?.name, rightPlayer?.clan?.tag, "—")}
+          </Text>
+        </View>
       </View>
+
+      {!expanded ? (
+        <View style={styles.battleCollapsedMeta}>
+          <Text style={[styles.battleCollapsedTime, { color: theme.colors.onSurfaceVariant }]}>{formatBattleAge(date)}</Text>
+          <View style={[styles.battleCollapsedResult, { backgroundColor: draw ? theme.colors.surfaceContainer : won ? "#35D07F" : "#FF5C67" }]}>
+            <Text style={styles.battleCollapsedResultText}>{resultText}</Text>
+          </View>
+          <Text style={[styles.battleCollapsedMode, { color: theme.colors.onSurfaceVariant }]}>{mode}</Text>
+        </View>
+      ) : (
+        <>
+          <View style={styles.battleExpandedDeckRow}>
+            <BattleDeck
+              player={leftPlayer}
+              theme={theme}
+              onCopy={() => onCopyDeck(getBattleDeck(leftPlayer), battleKey + "-left")}
+              onSave={() => onSaveDeck(battleKey + "-left")}
+              saved={savedLeft}
+            />
+            <View style={styles.battleExpandedDivider}>
+              <View style={[styles.battleResultBadge, { backgroundColor: draw ? theme.colors.surfaceContainer : won ? "#35D07F" : "#FF5C67" }]}>
+                <Text style={styles.battleResultBadgeText}>{resultText}</Text>
+              </View>
+            </View>
+            <BattleDeck
+              player={rightPlayer}
+              theme={theme}
+              mirrored
+              onCopy={() => onCopyDeck(getBattleDeck(rightPlayer), battleKey + "-right")}
+              onSave={() => onSaveDeck(battleKey + "-right")}
+              saved={savedRight}
+            />
+          </View>
+          <View style={styles.battleFooter}>
+            <Text style={[styles.battleDate, { color: theme.colors.onSurfaceVariant }]}>{formatBattleAge(date)}</Text>
+            <Text style={[styles.battleTypeHint, { color: theme.colors.onSurfaceVariant }]}>{mode}</Text>
+          </View>
+        </>
+      )}
+
+      <Pressable onPress={onToggle} style={({ pressed }) => [
+        styles.battleChevronButton,
+        { opacity: pressed ? 0.5 : 1 },
+      ]} accessibilityLabel={expanded ? "Collapse battle details" : "Expand battle details"}>
+        <MaterialCommunityIcons name={expanded ? "chevron-up" : "chevron-down"} size={22} color={theme.colors.onSurfaceVariant} />
+      </Pressable>
+    </View>
+  );
+
+  return (
+    <AnimatedDetailItem index={index}>
+      <LinearGradient colors={[leftAccent, rightAccent]} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.battleRowGradient}>
+        {innerCard}
+      </LinearGradient>
     </AnimatedDetailItem>
   );
 }
