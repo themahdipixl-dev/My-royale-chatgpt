@@ -88,3 +88,11 @@ export async function fetchMergeTacticsRankings(limit = 500) {
   const data = await getJson(`/api/leaderboard/${MERGE_TACTICS_LEADERBOARD_ID}?limit=${limit}`);
   return getItems(data);
 }
+export async function fetchClan(tag) {
+  return getJson(`/api/clan/${encodeTag(tag)}`);
+}
+
+export async function fetchClanMembers(tag) {
+  const data = await getJson(`/api/clan/${encodeTag(tag)}/members`);
+  return getItems(data);
+}
