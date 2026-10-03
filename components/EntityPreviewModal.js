@@ -397,10 +397,13 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   const clanBadgeImage = getClanBadgeImage(firstValue(playerData?.clan?.badgeId, entity.clan?.badgeId));
   const entityBadgeImage = getClanBadgeImage(entity.badgeId ?? entity.clan?.badgeId);
   const members = firstValue(entity.members, entity.memberCount, entity.membersCount);
+  const clanScore = firstValue(entity.clanScore, entity.clanWarTrophies, entity.score, entity.trophies, entity.rating, entity.points);
+  const clanWarTrophies = firstValue(entity.clanWarTrophies, entity.clanWarTrophiesCurrent, entity.warTrophies);
+  const requiredTrophies = firstValue(entity.requiredTrophies, entity.requiredTrophiesForJoin);
+  const donationsPerWeek = firstValue(entity.donationsPerWeek, entity.donations, entity.weeklyDonations);
+  const clanDescription = firstValue(entity.description, entity.clanDescription);
 
-  const score = isClan
-    ? firstValue(entity.clanScore, entity.clanWarTrophies, entity.score, entity.trophies, entity.rating, entity.points)
-    : firstValue(entity.trophies, entity.score, entity.rating, entity.eloRating, entity.points);
+  const score = isClan ? clanScore : firstValue(entity.trophies, entity.score, entity.rating, entity.eloRating, entity.points);
 
   const league = firstValue(
     typeof entity.league === 'string' ? entity.league : entity.league?.name,
@@ -518,28 +521,49 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
             {isClan ? (
               <View style={styles.clanBody}>
                 <View style={styles.primaryStats}>
-                  <View style={[styles.primaryStat, { borderColor: theme.colors.outlineVariant }]}>
+                  <View style={[styles.primaryStat, { backgroundColor: theme.colors.primaryContainer, borderColor: theme.colors.primary + '55' }]}>
                     <Image source={pointIcon} style={styles.primaryStatIcon} resizeMode="contain" />
                     <View style={styles.statText}>
-                      <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Clan score</Text>
-                      <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>{formatNumber(score)}</Text>
+                      <Text style={[styles.statLabel, { color: theme.colors.onPrimaryContainer }]}>Clan score</Text>
+                      <AnimatedCounterText value={formatNumber(score)} style={[styles.statValue, { color: theme.colors.onPrimaryContainer }]} />
                     </View>
                   </View>
-                  <View style={styles.primaryStat}>
+                  <View style={[styles.primaryStat, { borderColor: theme.colors.outlineVariant }]}>
                     <MaterialCommunityIcons name="account-multiple" size={21} color={theme.colors.primary} />
                     <View style={styles.statText}>
                       <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Members</Text>
-                      <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>{members !== null ? formatNumber(members) : '—'}</Text>
+                      <AnimatedCounterText value={members !== null ? formatNumber(members) : '—'} style={[styles.statValue, { color: theme.colors.onSurface }]} />
                     </View>
                   </View>
                 </View>
-                <View style={styles.secondaryRow}>
-                  <InfoTile icon="shield-star-outline" label="War league" value={league || '—'} theme={theme} />
-                  <InfoTile icon="earth" label="Country" value={country || '—'} theme={theme} />
+
+                <View style={styles.clanMetricGrid}>
+                  <InfoTile icon="sword-cross" label="War trophies" value={clanWarTrophies !== null ? formatNumber(clanWarTrophies) : '—'} theme={theme} variant="compact" delay={180} />
+                  <InfoTile icon="trophy-outline" label="Required trophies" value={requiredTrophies !== null ? formatNumber(requiredTrophies) : '—'} theme={theme} variant="compact" delay={230} />
+                  <InfoTile icon="shield-star-outline" label="War league" value={league || '—'} theme={theme} variant="compact" delay={280} />
+                  <InfoTile icon="earth" label="Country" value={country || '—'} theme={theme} variant="compact" delay={330} />
                 </View>
-                <View style={[styles.detailLine, { borderColor: theme.colors.outlineVariant }]}>
-                  <MaterialCommunityIcons name="account-group" size={18} color={theme.colors.primary} />
-                  <Text style={[styles.detailValue, { color: theme.colors.onSurface }]} numberOfLines={1}>{clanName || '—'}</Text>
+
+                {clanDescription ? (
+                  <View style={[styles.clanDescriptionCard, { backgroundColor: theme.colors.surfaceContainerHighest, borderColor: theme.colors.outlineVariant }]}>
+                    <View style={[styles.clanDescriptionIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+                      <MaterialCommunityIcons name="text-box-outline" size={16} color={theme.colors.onPrimaryContainer} />
+                    </View>
+                    <Text numberOfLines={3} style={[styles.clanDescriptionText, { color: theme.colors.onSurface }]}>{clanDescription}</Text>
+                  </View>
+                ) : null}
+
+                <View style={styles.clanFooterRow}>
+                  <View style={[styles.clanFooterItem, { borderColor: theme.colors.outlineVariant }]}>
+                    <MaterialCommunityIcons name="account-multiple-check" size={16} color={theme.colors.primary} />
+                    <Text style={[styles.clanFooterLabel, { color: theme.colors.onSurfaceVariant }]}>Donations / week</Text>
+                    <AnimatedCounterText value={donationsPerWeek !== null ? formatNumber(donationsPerWeek) : '—'} style={[styles.clanFooterValue, { color: theme.colors.onSurface }]} />
+                  </View>
+                  <View style={[styles.clanFooterItem, { borderColor: theme.colors.outlineVariant }]}>
+                    <MaterialCommunityIcons name="tag-outline" size={16} color={theme.colors.primary} />
+                    <Text style={[styles.clanFooterLabel, { color: theme.colors.onSurfaceVariant }]}>Clan tag</Text>
+                    <Text numberOfLines={1} style={[styles.clanFooterValue, { color: theme.colors.onSurface }]}>{tag || '—'}</Text>
+                  </View>
                 </View>
               </View>
             ) : (
@@ -729,7 +753,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   );
 }
 
-const popupHeight = 315;
+const popupHeight = 390;
 
 const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -793,13 +817,22 @@ const styles = StyleSheet.create({
   playerErrorContainer: { position: 'absolute', left: 18, right: 18, bottom: 8, alignItems: 'center' },
   playerErrorText: { textAlign: 'center', fontSize: 12 },
   retryButton: { marginTop: 8, borderRadius: 18, minHeight: 36 },
-  clanBody: { flex: 1, justifyContent: 'center' },
-  primaryStats: { flexDirection: 'row', gap: 7, marginTop: 9 },
+  clanBody: { flex: 1, justifyContent: 'center', gap: 7 },
+  primaryStats: { flexDirection: 'row', gap: 7, marginTop: 2 },
   primaryStat: { flex: 1, minHeight: 64, borderRadius: 15, paddingHorizontal: 9, backgroundColor: 'rgba(127,127,127,0.10)', flexDirection: 'row', alignItems: 'center', borderWidth: 1 },
   primaryStatIcon: { width: 22, height: 22 },
   statText: { flex: 1, marginLeft: 7, minWidth: 0 },
   statLabel: { fontSize: 9, fontWeight: '600' },
   statValue: { fontSize: 16, fontWeight: '800', marginTop: 1 },
   secondaryRow: { flexDirection: 'row', gap: 5, marginTop: 7, height: 58 },
+  clanMetricGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 1 },
+  clanMetricGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 1 },
+  clanDescriptionCard: { minHeight: 54, maxHeight: 72, borderRadius: 15, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 7, flexDirection: 'row', alignItems: 'flex-start' },
+  clanDescriptionIcon: { width: 28, height: 28, borderRadius: 9, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  clanDescriptionText: { flex: 1, minWidth: 0, marginLeft: 7, fontSize: 9.5, lineHeight: 14, fontWeight: '600' },
+  clanFooterRow: { flexDirection: 'row', gap: 6 },
+  clanFooterItem: { flex: 1, minWidth: 0, minHeight: 43, borderRadius: 14, borderWidth: 1, paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center' },
+  clanFooterLabel: { flex: 1, minWidth: 0, marginLeft: 6, fontSize: 7.5, fontWeight: '600' },
+  clanFooterValue: { marginLeft: 5, fontSize: 9.5, fontWeight: '900' },
   detailLine: { minHeight: 46, borderRadius: 15, paddingHorizontal: 10, marginTop: 7, flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: 'rgba(127,127,127,0.10)', borderWidth: 1 },
 });
