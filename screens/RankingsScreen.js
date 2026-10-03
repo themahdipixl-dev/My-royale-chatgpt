@@ -52,6 +52,7 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   const [previewType, setPreviewType] = useState('player');
   const [detailEntity, setDetailEntity] = useState(null);
   const [detailType, setDetailType] = useState('player');
+  const [clanReturn, setClanReturn] = useState(null);
   const tabPagerX = useRef(new Animated.Value(0)).current;
   const tabSwipeProgress = useRef(new Animated.Value(0)).current;
   const pagerWidthRef = useRef(0);
@@ -319,13 +320,31 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
     return detailType === 'clan'
       ? <ClanDetailsScreen
           entity={detailEntity}
-          onBack={() => setDetailEntity(null)}
-          onPlayerPress={(player) => {
+          initialScrollY={clanReturn?.scrollY || 0}
+          onBack={() => {
+            setClanReturn(null);
+            setDetailEntity(null);
+          }}
+          onPlayerPress={(player, scrollY) => {
+            setClanReturn({ entity: detailEntity, scrollY: Number(scrollY) || 0 });
             setDetailType('player');
             setDetailEntity(player);
           }}
         />
-      : <EntityDetailsScreen entity={detailEntity} type={detailType} onBack={() => setDetailEntity(null)} />;
+      : <EntityDetailsScreen
+          entity={detailEntity}
+          type={detailType}
+          onBack={() => {
+            if (clanReturn) {
+              const previousClan = clanReturn;
+              setClanReturn(null);
+              setDetailType('clan');
+              setDetailEntity(previousClan.entity);
+            } else {
+              setDetailEntity(null);
+            }
+          }}
+        />;
   }
 
   return (
