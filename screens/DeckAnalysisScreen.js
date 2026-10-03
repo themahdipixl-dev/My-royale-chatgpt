@@ -31,7 +31,7 @@ function DeckImages({ deck, theme }) {
             },
           ]}
         >
-          <RetryImage source={{ uri: card.iconUrl }} style={styles.cardImage} resizeMode="contain" />
+          <RetryImage uri={card.iconUrl} style={styles.cardImage} resizeMode="contain" />
         </View>
       ))}
       {!!deck?.towerCard && (
@@ -45,7 +45,7 @@ function DeckImages({ deck, theme }) {
             },
           ]}
         >
-          <RetryImage source={{ uri: deck.towerCard.iconUrl }} style={styles.cardImage} resizeMode="contain" />
+          <RetryImage uri={deck.towerCard.iconUrl} style={styles.cardImage} resizeMode="contain" />
         </View>
       )}
     </View>
