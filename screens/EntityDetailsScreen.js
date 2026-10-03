@@ -2087,31 +2087,72 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
 
             <AnimatedSection index={4} register={registerAnimatedSection}><Surface elevation={0} style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
               <SectionTitle icon="sword" title="POL" subtitle="Path Of Legends" theme={theme} />
-              <View style={styles.seasonTable}>
-                <View style={styles.seasonHeader}>
-                  <Text style={[styles.seasonHeaderText, styles.seasonHeaderFirst, { color: theme.colors.onSurfaceVariant }]}>Season</Text>
-                  <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>League</Text>
-                  <Text style={[styles.seasonHeaderText, { color: theme.colors.onSurfaceVariant }]}>Ratings</Text>
-                  <Text style={[styles.seasonHeaderText, styles.seasonHeaderLast, { color: theme.colors.onSurfaceVariant }]}>Rank</Text>
+
+              <LinearGradient
+                colors={[theme.colors.primaryContainer, theme.colors.surfaceContainerHighest]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.polShowcase}
+              >
+                <View style={[styles.polLeagueIconWrap, { backgroundColor: theme.colors.surfaceContainer }]}>
+                  {playerLeagueImage ? (
+                    <RetryImage uri={playerLeagueImage} style={styles.polLeagueIcon} resizeMode="contain" />
+                  ) : (
+                    <MaterialCommunityIcons name="sword-cross" size={30} color={theme.colors.primary} />
+                  )}
                 </View>
-                <View style={styles.seasonRow}>
-                  <Text style={[styles.seasonText, styles.seasonTextFirst, { color: theme.colors.onSurface }]}>Current</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatLeagueNumber(currentPol?.leagueNumber)}</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(currentPol?.trophies)}</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{currentPol?.rank ? `#${formatNumber(currentPol.rank)}` : '—'}</Text>
+
+                <View style={styles.polShowcaseMain}>
+                  <Text style={[styles.polEyebrow, { color: theme.colors.onSurfaceVariant }]}>CURRENT SEASON</Text>
+                  <Text style={[styles.polLeagueName, { color: theme.colors.onSurface }]}>
+                    League {formatLeagueNumber(currentPol?.leagueNumber)}
+                  </Text>
+                  <View style={styles.polTrophyLine}>
+                    <Image source={pointIcon} style={styles.polTrophyIcon} resizeMode="contain" />
+                    <Text style={[styles.polTrophyValue, { color: theme.colors.onSurface }]}>
+                      {formatNumber(currentPol?.trophies)}
+                    </Text>
+                  </View>
                 </View>
-                <View style={styles.seasonRow}>
-                  <Text style={[styles.seasonText, styles.seasonTextFirst, { color: theme.colors.onSurface }]}>Last</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatLeagueNumber(lastPol?.leagueNumber)}</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(lastPol?.trophies)}</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{lastPol?.rank ? `#${formatNumber(lastPol.rank)}` : '—'}</Text>
+
+                <View style={[styles.polRankPill, { backgroundColor: theme.colors.surfaceContainer }]}>
+                  <MaterialCommunityIcons name="podium" size={15} color={theme.colors.primary} />
+                  <Text style={[styles.polRankLabel, { color: theme.colors.onSurfaceVariant }]}>RANK</Text>
+                  <Text style={[styles.polRankValue, { color: theme.colors.onSurface }]}>
+                    {currentPol?.rank ? `#${formatNumber(currentPol.rank)}` : '—'}
+                  </Text>
                 </View>
-                <View style={styles.seasonRow}>
-                  <Text style={[styles.seasonText, styles.seasonTextFirst, { color: theme.colors.onSurface }]}>Best</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatLeagueNumber(bestPol?.leagueNumber)}</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{formatNumber(bestPol?.trophies)}</Text>
-                  <Text style={[styles.seasonText, { color: theme.colors.onSurface }]}>{bestPol?.rank ? `#${formatNumber(bestPol.rank)}` : '—'}</Text>
-                </View>
+              </LinearGradient>
+
+              <View style={styles.polHistoryRow}>
+                {[
+                  ['Current', currentPol],
+                  ['Last', lastPol],
+                  ['Best', bestPol],
+                ].map(([label, season]) => (
+                  <View
+                    key={label}
+                    style={[styles.polHistoryCard, { backgroundColor: theme.colors.surfaceContainerHighest }]}
+                  >
+                    <View style={styles.polHistoryTop}>
+                      <Text style={[styles.polHistoryLabel, { color: theme.colors.onSurfaceVariant }]}>{label}</Text>
+                      <View style={[styles.polLeagueNumberPill, { backgroundColor: theme.colors.primaryContainer }]}>
+                        <Text style={[styles.polLeagueNumber, { color: theme.colors.onPrimaryContainer }]}>
+                          L{formatLeagueNumber(season?.leagueNumber)}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={[styles.polHistoryTrophies, { color: theme.colors.onSurface }]}>
+                      {formatNumber(season?.trophies)}
+                    </Text>
+                    <View style={styles.polHistoryRankRow}>
+                      <Image source={pointIcon} style={styles.polMiniTrophyIcon} resizeMode="contain" />
+                      <Text style={[styles.polHistoryMeta, { color: theme.colors.onSurfaceVariant }]}>
+                        {season?.rank ? `#${formatNumber(season.rank)}` : 'No rank'}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
               </View>
             </Surface></AnimatedSection>
 
@@ -2842,14 +2883,28 @@ const styles = StyleSheet.create({
   infoValue: { flex: 1, textAlign: 'right', fontSize: 12.5, fontWeight: '700' },
   infoValuePressable: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 6 },
 
-  seasonTable: { borderRadius: 16, overflow: 'hidden' },
-  seasonHeader: { flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 10, backgroundColor: 'rgba(255,255,255,0.035)' },
-  seasonRow: { flexDirection: 'row', paddingVertical: 11, paddingHorizontal: 10 },
-  seasonHeaderText: { flex: 1, fontSize: 10.5, fontWeight: '700', textAlign: 'center' },
-  seasonHeaderFirst: { textAlign: 'left' },
-  seasonHeaderLast: { textAlign: 'center' },
-  seasonText: { flex: 1, fontSize: 12.5, fontWeight: '600', textAlign: 'center' },
-  seasonTextFirst: { textAlign: 'left' },
+  polShowcase: { minHeight: 98, borderRadius: 19, padding: 10, flexDirection: 'row', alignItems: 'center', overflow: 'hidden' },
+  polLeagueIconWrap: { width: 62, height: 62, borderRadius: 19, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
+  polLeagueIcon: { width: 50, height: 50 },
+  polShowcaseMain: { flex: 1, minWidth: 0 },
+  polEyebrow: { fontSize: 8, fontWeight: '900', letterSpacing: 1.1 },
+  polLeagueName: { marginTop: 2, fontSize: 16, fontWeight: '900' },
+  polTrophyLine: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  polTrophyIcon: { width: 15, height: 15, marginRight: 4 },
+  polTrophyValue: { fontSize: 13, fontWeight: '900' },
+  polRankPill: { minWidth: 58, height: 62, borderRadius: 17, paddingHorizontal: 7, alignItems: 'center', justifyContent: 'center', marginLeft: 7 },
+  polRankLabel: { marginTop: 1, fontSize: 7.5, fontWeight: '800', letterSpacing: 0.6 },
+  polRankValue: { marginTop: 1, fontSize: 12, fontWeight: '900' },
+  polHistoryRow: { flexDirection: 'row', gap: 7, marginTop: 8 },
+  polHistoryCard: { flex: 1, minWidth: 0, minHeight: 76, borderRadius: 16, padding: 9 },
+  polHistoryTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  polHistoryLabel: { fontSize: 9, fontWeight: '800' },
+  polLeagueNumberPill: { minWidth: 27, height: 19, paddingHorizontal: 5, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  polLeagueNumber: { fontSize: 8.5, fontWeight: '900' },
+  polHistoryTrophies: { marginTop: 7, fontSize: 14, fontWeight: '900' },
+  polHistoryRankRow: { flexDirection: 'row', alignItems: 'center', marginTop: 3 },
+  polMiniTrophyIcon: { width: 10, height: 10, marginRight: 3 },
+  polHistoryMeta: { fontSize: 8.5, fontWeight: '700' },
 
   clanHero: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   clanBadge: { width: 54, height: 54, alignItems: 'center', justifyContent: 'center' },
