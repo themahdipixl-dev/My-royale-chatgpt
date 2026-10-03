@@ -2849,9 +2849,6 @@ const styles = StyleSheet.create({
   battleTrophyChangeText: { fontSize: 10, fontWeight: "900" },
   battleCollapsedMeta: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", marginTop: 5, paddingHorizontal: 2 },
   battleCollapsedTime: { fontSize: 9.5, fontWeight: "700" },
-  battleCollapsedResult: { minWidth: 46, minHeight: 25, borderRadius: 9, alignItems: "center", justifyContent: "center", paddingHorizontal: 8 },
-  battleCollapsedResultText: { fontSize: 11.5, fontWeight: "900", color: "#101112" },
-  battleCollapsedMode: { width: 56, fontSize: 8.5, fontWeight: "700", textAlign: "right" },
   battleExpandedDeckRow: { width: "100%", flexDirection: "row", alignItems: "flex-start", marginTop: 9 },
   battleSide: { flex: 1, minWidth: 0 },
   battleSideMirrored: { alignItems: "flex-end" },
@@ -2869,7 +2866,6 @@ const styles = StyleSheet.create({
   battleResultBadgeText: { fontSize: 12, fontWeight: "900", color: "#101112" },
   battleFooter: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", marginTop: 9, paddingHorizontal: 2 },
   battleDate: { fontSize: 9.5, fontWeight: "700" },
-  battleTypeHint: { fontSize: 9.5, fontWeight: "600" },
   battleChevronButton: { width: 34, height: 25, alignSelf: "center", alignItems: "center", justifyContent: "center", marginTop: 2 },
 
 
