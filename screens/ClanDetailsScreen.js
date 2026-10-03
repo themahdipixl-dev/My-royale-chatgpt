@@ -54,7 +54,7 @@ function MemberRow({ member, index, theme, onPress }) {
   </Animated.View>;
 }
 
-export default function ClanDetailsScreen({ entity, onBack }) {
+export default function ClanDetailsScreen({ entity, onBack, onPlayerPress }) {
   const theme = useTheme();
   const tag = firstValue(entity?.tag, entity?.clan?.tag);
   const [clan, setClan] = useState(entity || null);
@@ -153,7 +153,7 @@ export default function ClanDetailsScreen({ entity, onBack }) {
           {members.length ? (
             <>
               <View style={[styles.membersRevealWrap, { maxHeight: membersExpanded ? 10000 : 250 }]}>
-                {members.map((member,index) => <MemberRow key={member?.tag || member?.name || index} member={member} index={index} theme={theme} onPress={() => member?.tag && onBack?.({ type: 'player', entity: member })} />)}
+                {members.map((member,index) => <MemberRow key={member?.tag || member?.name || index} member={member} index={index} theme={theme} onPress={() => member?.tag && onPlayerPress?.(member)} />)}
                 {!membersExpanded ? (
                   <LinearGradient
                     pointerEvents="none"
