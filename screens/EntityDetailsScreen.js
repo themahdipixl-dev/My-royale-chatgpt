@@ -1147,7 +1147,7 @@ function resolveBattleCardImage(card, index, deck) {
 function BattleCardImage({ card, theme, size = 42, index = 0, deck = [] }) {
   const image = resolveBattleCardImage(card, index, deck);
   return (
-    <View style={[styles.battleCard, { width: size, height: Math.round(size * 1.22), marginRight: -3.5 }]}>
+    <View style={[styles.battleCard, { width: "25%", flexBasis: "25%", height: Math.round(size * 1.22), marginRight: 0 }]}>
       {image ? (
         <RetryImage uri={image} style={styles.battleCardImage} resizeMode="contain" />
       ) : (
