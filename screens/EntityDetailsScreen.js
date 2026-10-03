@@ -2699,11 +2699,11 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                         <LinearGradient
                           colors={[
                             'transparent',
-                            'rgba(0,0,0,0.025)',
-                            'rgba(0,0,0,0.10)',
-                            theme.colors.surfaceContainer,
+                            'rgba(0,0,0,0.04)',
+                            'rgba(0,0,0,0.24)',
+                            'rgba(0,0,0,0.62)',
                           ]}
-                          locations={[0, 0.38, 0.68, 1]}
+                          locations={[0, 0.30, 0.68, 1]}
                           start={{ x: 0, y: 0 }}
                           end={{ x: 0, y: 1 }}
                           dither
@@ -2996,7 +2996,7 @@ const styles = StyleSheet.create({
   achievementStars: { marginLeft: 8, flexDirection: 'row', alignItems: 'center', minWidth: 30, justifyContent: 'flex-end' },
   achievementStarsText: { marginLeft: 2, fontSize: 11, fontWeight: '800' },
   battleLogRevealWrap: { width: "100%" },
-  battleLogCollapseFade: { position: "absolute", left: 0, right: 0, top: 112, height: 46, overflow: "hidden" },
+  battleLogCollapseFade: { position: "absolute", left: 0, right: 0, top: 108, height: 50, overflow: "hidden", zIndex: 20, elevation: 20 },
   battleLogFadeGradient: { flex: 1, width: "100%" },
   battleLogExpandButton: { alignSelf: "center", width: 34, height: 30, marginTop: 8, alignItems: "center", justifyContent: "center" },
   battleLoading: { paddingVertical: 20, alignItems: 'center' },
