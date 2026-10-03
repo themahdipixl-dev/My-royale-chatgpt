@@ -826,7 +826,6 @@ const styles = StyleSheet.create({
   statValue: { fontSize: 16, fontWeight: '800', marginTop: 1 },
   secondaryRow: { flexDirection: 'row', gap: 5, marginTop: 7, height: 58 },
   clanMetricGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 1 },
-  clanMetricGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 1 },
   clanDescriptionCard: { minHeight: 54, maxHeight: 72, borderRadius: 15, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 7, flexDirection: 'row', alignItems: 'flex-start' },
   clanDescriptionIcon: { width: 28, height: 28, borderRadius: 9, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   clanDescriptionText: { flex: 1, minWidth: 0, marginLeft: 7, fontSize: 9.5, lineHeight: 14, fontWeight: '600' },
