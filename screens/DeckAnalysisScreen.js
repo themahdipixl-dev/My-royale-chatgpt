@@ -310,6 +310,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: StyleSheet.hairlineWidth,
     padding: 12,
+    paddingTop: 8,
   },
   rankHeader: {
     alignItems: 'center',
@@ -355,12 +356,13 @@ const styles = StyleSheet.create({
   statBar: {
     flex: 1,
     minWidth: 0,
-    height: 39,
+    height: 41,
     borderRadius: 12,
     paddingHorizontal: 2,
     justifyContent: 'center',
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
+    transform: [{ translateX: -3 }],
   },
   statGrid: {
     flex: 1,
