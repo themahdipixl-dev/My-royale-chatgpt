@@ -78,12 +78,11 @@ function DeckRow({ item, index, theme, entrance }) {
           },
         ]}
       >
-        <View style={styles.rankColumn}>
-          <Text style={[styles.rank, { color: theme.colors.onSurface }]}>{index + 1}</Text>
-          <Text style={[styles.rankLabel, { color: theme.colors.onSurfaceVariant }]}>RANK</Text>
-        </View>
-
         <View style={styles.deckBody}>
+          <View style={styles.rankHeader}>
+            <Text style={[styles.rank, { color: theme.colors.onSurface }]}>#{index + 1}</Text>
+            <Text style={[styles.rankLabel, { color: theme.colors.onSurfaceVariant }]}>RANK</Text>
+          </View>
           <DeckImages deck={item} theme={theme} />
           <View style={styles.statLine}>
             <View style={styles.stat}>
@@ -319,15 +318,13 @@ const styles = StyleSheet.create({
   deckCard: {
     borderRadius: 20,
     borderWidth: StyleSheet.hairlineWidth,
-    padding: 10,
-    flexDirection: 'row',
+    padding: 12,
   },
-  rankColumn: {
-    width: 36,
+  rankHeader: {
     alignItems: 'center',
-    paddingTop: 2,
+    marginBottom: 10,
   },
-  rank: { fontSize: 20, fontWeight: '900' },
+  rank: { fontSize: 24, fontWeight: '900' },
   rankLabel: { marginTop: -1, fontSize: 7, fontWeight: '800', letterSpacing: 0.6 },
   deckBody: { flex: 1 },
   deckImages: {
@@ -335,17 +332,18 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 7,
     paddingRight: 2,
+    justifyContent: 'space-between',
   },
   cardImageWrap: {
-    width: 54,
-    height: 68,
-    borderRadius: 12,
+    width: 62,
+    height: 78,
+    borderRadius: 13,
     borderWidth: 1.2,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  cardImage: { width: 52, height: 66 },
+  cardImage: { width: 60, height: 76 },
   towerSection: {
     marginTop: 12,
     paddingTop: 10,
@@ -359,15 +357,15 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   towerCardWrap: {
-    width: 58,
-    height: 72,
+    width: 66,
+    height: 82,
     borderRadius: 13,
     borderWidth: 1.2,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  towerImage: { width: 56, height: 70 },
+  towerImage: { width: 64, height: 80 },
   towerName: {
     marginTop: 4,
     fontSize: 10,
