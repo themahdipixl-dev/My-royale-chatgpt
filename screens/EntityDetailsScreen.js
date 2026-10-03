@@ -2037,20 +2037,6 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               </View>
 
               <View style={styles.heroStats}>
-                <View style={[styles.heroTrophy, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-                  <Image source={pointIcon} style={styles.heroPointIcon} resizeMode="contain" />
-                  <View>
-                    <Text style={[styles.heroStatLabel, { color: theme.colors.onSurfaceVariant }]}>Trophies</Text>
-                    <Text style={[styles.heroTrophyValue, { color: theme.colors.onSurface }]}>{formatNumber(data.trophies)}</Text>
-                  </View>
-                </View>
-                <View style={[styles.heroBest, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-                  <MaterialCommunityIcons name="trophy-award" size={22} color={theme.colors.primary} />
-                  <View>
-                    <Text style={[styles.heroStatLabel, { color: theme.colors.onSurfaceVariant }]}>Best</Text>
-                    <Text style={[styles.heroBestValue, { color: theme.colors.onSurface }]}>{formatNumber(displayedBestTrophies)}</Text>
-                  </View>
-                </View>
                 {badges.slice(0, 3).map((badge, index) => (
                   <BadgeItem
                     key={String(badge?.name || badge?.id || index)}
@@ -2062,6 +2048,36 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                     onToggleBadgePopup={setActiveBadgeKey}
                   />
                 ))}
+
+                <View
+                  style={[
+                    styles.heroTrophyBox,
+                    {
+                      backgroundColor: theme.colors.surfaceContainerHighest,
+                      borderColor: theme.colors.outlineVariant,
+                    },
+                  ]}
+                >
+                  <View style={styles.heroTrophyHalf}>
+                    <Image source={pointIcon} style={styles.heroBoxPointIcon} resizeMode="contain" />
+                    <View style={styles.heroBoxText}>
+                      <Text style={[styles.heroBoxLabel, { color: theme.colors.onSurfaceVariant }]}>Trophies</Text>
+                      <Text style={[styles.heroBoxValue, { color: theme.colors.onSurface }]}>
+                        {formatNumber(data.trophies)}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={[styles.heroTrophyDivider, { backgroundColor: theme.colors.outlineVariant }]} />
+                  <View style={styles.heroTrophyHalf}>
+                    <MaterialCommunityIcons name="trophy-award" size={18} color={theme.colors.primary} />
+                    <View style={styles.heroBoxText}>
+                      <Text style={[styles.heroBoxLabel, { color: theme.colors.onSurfaceVariant }]}>Best</Text>
+                      <Text style={[styles.heroBoxValue, { color: theme.colors.onSurface }]}>
+                        {formatNumber(displayedBestTrophies)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
               </View>
 
             </Surface></AnimatedSection>
@@ -2853,17 +2869,24 @@ const styles = StyleSheet.create({
   heroTagPressable: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', gap: 5, marginTop: 3, paddingVertical: 1 },
   heroTag: { fontSize: 13, fontWeight: '800' },
   heroSub: { marginTop: 5, fontSize: 11.5 },
-  heroStats: { flexDirection: 'row', alignItems: 'center', marginTop: 15, gap: 6 },
+  heroStats: { flexDirection: 'row', alignItems: 'center', marginTop: 15, gap: 8 },
   heroTrophy: { flex: 1, minWidth: 0, minHeight: 62, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, borderRadius: 17 },
   heroBest: { flex: 1, minWidth: 0, minHeight: 62, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, borderRadius: 17 },
   heroPointIcon: { width: 24, height: 24, marginRight: 6 },
   heroStatLabel: { fontSize: 9 },
   heroTrophyValue: { marginTop: 1, fontSize: 17, fontWeight: '900' },
   heroBestValue: { marginTop: 1, fontSize: 17, fontWeight: '900' },
-  heroBadgeSlot: { width: 46, height: 62, zIndex: 20 },
-  heroBadgePressable: { width: 46, height: 62, alignItems: 'center', justifyContent: 'center' },
-  heroBadgeVisual: { width: 46, height: 62, alignItems: 'center', justifyContent: 'center', overflow: 'visible' },
-  heroBadgeInfoPopup: { position: 'absolute', top: 54, left: -42, width: 130, minHeight: 76, borderRadius: 14, borderWidth: 1, paddingHorizontal: 9, paddingVertical: 8, alignItems: 'center', justifyContent: 'center', elevation: 8, zIndex: 50 },
+  heroBadgeSlot: { width: 58, height: 62, zIndex: 20 },
+  heroBadgePressable: { width: 58, height: 62, alignItems: 'center', justifyContent: 'center' },
+  heroBadgeVisual: { width: 58, height: 62, alignItems: 'center', justifyContent: 'center', overflow: 'visible' },
+  heroBadgeInfoPopup: { position: 'absolute', top: 54, left: -36, width: 130, minHeight: 76, borderRadius: 14, borderWidth: 1, paddingHorizontal: 9, paddingVertical: 8, alignItems: 'center', justifyContent: 'center', elevation: 8, zIndex: 50 },
+  heroTrophyBox: { width: 86, height: 62, borderRadius: 17, borderWidth: 1, overflow: 'hidden', justifyContent: 'center' },
+  heroTrophyHalf: { flex: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 7 },
+  heroTrophyDivider: { height: 1, width: '100%' },
+  heroBoxPointIcon: { width: 15, height: 15, marginRight: 4 },
+  heroBoxText: { flex: 1, minWidth: 0 },
+  heroBoxLabel: { fontSize: 7.5, fontWeight: '700' },
+  heroBoxValue: { marginTop: 1, fontSize: 10.5, fontWeight: '900' },
 
   statGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 4 },
   statTile: { width: '31.5%', minHeight: 52, marginBottom: 7 },
