@@ -38,22 +38,29 @@ function DeckImages({ deck, theme }) {
       </View>
 
       {!!deck?.towerCard && (
-        <View style={[styles.towerSection, { borderTopColor: theme.colors.outlineVariant }]}>
-          <Text style={[styles.towerLabel, { color: theme.colors.onSurfaceVariant }]}>TOWER CARD</Text>
-          <View
-            style={[
-              styles.towerCardWrap,
-              {
-                backgroundColor: theme.colors.surfaceContainerHighest,
-                borderColor: theme.colors.outlineVariant,
-              },
-            ]}
-          >
+        <View style={styles.towerSection}>
+          <View style={styles.towerImageOnly}>
             <RetryImage uri={deck.towerCard.iconUrl} style={styles.towerImage} resizeMode="contain" />
           </View>
-          <Text numberOfLines={1} style={[styles.towerName, { color: theme.colors.onSurface }]}>
-            {deck.towerCard.name || 'Unknown'}
-          </Text>
+
+          <View style={styles.statGrid}>
+            <View style={[styles.stat, styles.statBox, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+              <Text style={[styles.statValue, { color: theme.colors.primary }]}>{pct(deck.adjustedWinRate)}</Text>
+              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Adjusted WR</Text>
+            </View>
+            <View style={[styles.stat, styles.statBox, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+              <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>{pct(deck.winRate)}</Text>
+              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Win Rate</Text>
+            </View>
+            <View style={[styles.stat, styles.statBox, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+              <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>{deck.games ?? 0}</Text>
+              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Games</Text>
+            </View>
+            <View style={[styles.stat, styles.statBox, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+              <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>{deck.totalCrowns ?? 0}</Text>
+              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Crowns</Text>
+            </View>
+          </View>
         </View>
       )}
     </View>
@@ -84,24 +91,6 @@ function DeckRow({ item, index, theme, entrance }) {
             <Text style={[styles.rankLabel, { color: theme.colors.onSurfaceVariant }]}>RANK</Text>
           </View>
           <DeckImages deck={item} theme={theme} />
-          <View style={styles.statLine}>
-            <View style={styles.stat}>
-              <Text style={[styles.statValue, { color: theme.colors.primary }]}>{pct(item.adjustedWinRate)}</Text>
-              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Adjusted WR</Text>
-            </View>
-            <View style={styles.stat}>
-              <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>{pct(item.winRate)}</Text>
-              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Win Rate</Text>
-            </View>
-            <View style={styles.stat}>
-              <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>{item.games ?? 0}</Text>
-              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Games</Text>
-            </View>
-            <View style={styles.stat}>
-              <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>{item.totalCrowns ?? 0}</Text>
-              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Crowns</Text>
-            </View>
-          </View>
           <View style={styles.metaLine}>
             <Text numberOfLines={1} style={[styles.metaText, { color: theme.colors.onSurfaceVariant }]}>
               {item.wins ?? 0}W · {item.losses ?? 0}L · {item.draws ?? 0}D
@@ -345,49 +334,43 @@ const styles = StyleSheet.create({
   },
   cardImage: { width: 76, height: 97 },
   towerSection: {
-    marginTop: 12,
-    paddingTop: 10,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    alignItems: 'center',
-  },
-  towerLabel: {
-    fontSize: 8,
-    fontWeight: '800',
-    letterSpacing: 1,
-    marginBottom: 6,
-  },
-  towerCardWrap: {
-    width: 82,
-    height: 104,
-    borderRadius: 14,
-    borderWidth: 1.2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  towerImage: { width: 80, height: 102 },
-  towerName: {
-    marginTop: 4,
-    fontSize: 10,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  statLine: {
     marginTop: 10,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
+  },
+  towerImageOnly: {
+    width: 44,
+    height: 54,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    overflow: 'visible',
+  },
+  towerImage: { width: 40, height: 50 },
+  statGrid: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: 5,
   },
   stat: { alignItems: 'center', minWidth: 58 },
-  statValue: { fontSize: 13, fontWeight: '800' },
-  statLabel: { marginTop: 1, fontSize: 8.5, fontWeight: '600' },
+  statBox: {
+    flex: 1,
+    minWidth: 0,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  statValue: { fontSize: 12, fontWeight: '800' },
+  statLabel: { marginTop: 1, fontSize: 7.5, fontWeight: '600', textAlign: 'center' },
   metaLine: {
-    marginTop: 7,
+    marginTop: 6,
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 8,
   },
-  metaText: { fontSize: 9.5, fontWeight: '700' },
-  towerText: { flex: 1, textAlign: 'right', fontSize: 9.5, fontWeight: '600' },
+  metaText: { fontSize: 9, fontWeight: '700' },
+  towerText: { flex: 1, textAlign: 'right', fontSize: 9, fontWeight: '600' },
   emptyState: {
     flex: 1,
     alignItems: 'center',
