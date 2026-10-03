@@ -3010,7 +3010,7 @@ const styles = StyleSheet.create({
   battleDeckToolsMirrored: { alignSelf: "flex-end", flexDirection: "row-reverse", justifyContent: "flex-start" },
   battleTowerTool: { width: 36, height: 44, alignItems: "center", justifyContent: "center" },
   battleToolButton: { width: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center" },
-  battleElixirPill: { width: 42, height: 30, borderRadius: 10, paddingHorizontal: 5, alignItems: "center", justifyContent: "center", flexDirection: "row", backgroundColor: "#6C4BD6" },
+  battleElixirPill: { width: 38, height: 30, borderRadius: 15, paddingHorizontal: 4, alignItems: "center", justifyContent: "center", flexDirection: "row", backgroundColor: "#6C4BD6", overflow: "hidden" },
   battleElixirText: { marginLeft: 2, fontSize: 11, fontWeight: "900" },
   battleCard: { overflow: "hidden", alignItems: "center", justifyContent: "center" },
   battleCardImage: { width: "100%", height: "100%", transform: [{ scale: 1.16 }] },
