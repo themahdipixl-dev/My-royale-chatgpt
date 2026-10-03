@@ -2686,7 +2686,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                         />
                       </View>
                     ) : null}
-                  </Animated.View>
+                  </View>
                   {battlelog.length > 1 ? (
                     <Pressable
                       onPress={toggleBattleLogExpanded}
