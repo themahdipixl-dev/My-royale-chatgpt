@@ -12,6 +12,7 @@ import RankRow, { ROW_HEIGHT } from '../components/RankRow';
 import ClanRow, { CLAN_ROW_HEIGHT } from '../components/ClanRow';
 import EntityPreviewModal from '../components/EntityPreviewModal';
 import EntityDetailsScreen from './EntityDetailsScreen';
+import ClanDetailsScreen from './ClanDetailsScreen';
 
 const POL_PLAYER_ICON = 'https://royaleapi.github.io/cr-api-assets/arenas/arena24.png';
 
@@ -315,7 +316,9 @@ export default function RankingsScreen({ onRequestHome, onRequestBottomNext }) {
   }, [previewEntity, previewType]);
 
   if (detailEntity) {
-    return <EntityDetailsScreen entity={detailEntity} type={detailType} onBack={() => setDetailEntity(null)} />;
+    return detailType === 'clan'
+      ? <ClanDetailsScreen entity={detailEntity} onBack={() => setDetailEntity(null)} />
+      : <EntityDetailsScreen entity={detailEntity} type={detailType} onBack={() => setDetailEntity(null)} />;
   }
 
   return (
