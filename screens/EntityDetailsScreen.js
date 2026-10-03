@@ -1257,7 +1257,7 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
 
   const innerCard = (
     <View style={[styles.battleRowInner, expanded && styles.battleRowInnerExpanded, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-      <View style={styles.battleHeader}>
+      <View style={[styles.battleHeader, expanded && styles.battleHeaderExpanded]}>
         <View style={styles.battlePlayerBlock}>
           {hasTrophyInfo ? renderTrophy(leftTrophies, leftChange, "left") : null}
           <Text numberOfLines={1} style={[styles.battlePlayerName, { color: theme.colors.onSurface }]}>
@@ -1859,14 +1859,24 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
 
   const toggleBattleLogExpanded = useCallback(() => {
     const nextExpanded = !battleLogExpanded;
+
+    LayoutAnimation.configureNext({
+      duration: 360,
+      create: {
+        type: LayoutAnimation.Types.easeOut,
+        property: LayoutAnimation.Properties.opacity,
+      },
+      update: {
+        type: LayoutAnimation.Types.easeInEaseOut,
+      },
+      delete: {
+        type: LayoutAnimation.Types.easeIn,
+        property: LayoutAnimation.Properties.opacity,
+      },
+    });
+
     setBattleLogExpanded(nextExpanded);
-    Animated.spring(battleLogExpandProgress, {
-      toValue: nextExpanded ? 1 : 0,
-      friction: 8,
-      tension: 65,
-      useNativeDriver: false,
-    }).start();
-  }, [battleLogExpanded, battleLogExpandProgress]);
+  }, [battleLogExpanded]);
 
   const toggleAchievementsExpanded = useCallback(() => {
     const nextExpanded = !achievementsExpanded;
@@ -2631,18 +2641,10 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                 <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No battle log available.</Text>
               ) : (
                 <>
-                  <Animated.View
+                  <View
                     style={[
                       styles.battleLogRevealWrap,
-                      {
-                        maxHeight: battleLogExpandProgress.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [
-  Math.min(158, battlelog.length * 100 + Math.max(0, battlelog.length - 1) * 8),
-  Math.max(158, battlelog.length * 100 + Math.max(0, battlelog.length - 1) * 8 + Object.values(expandedBattles).filter(Boolean).length * 158 + 30),
-],
-                        }),
-                      },
+                      !battleLogExpanded && styles.battleLogCollapsedWrap,
                     ]}
                   >
                     {battlelog.map((battle, index) => {
@@ -2955,32 +2957,34 @@ const styles = StyleSheet.create({
   achievementInfo: { marginTop: 3, fontSize: 9.5 },
   achievementStars: { marginLeft: 8, flexDirection: 'row', alignItems: 'center', minWidth: 30, justifyContent: 'flex-end' },
   achievementStarsText: { marginLeft: 2, fontSize: 11, fontWeight: '800' },
-  battleLogRevealWrap: { width: "100%", overflow: "hidden" },
-  battleLogCollapseFade: { position: "absolute", left: 0, right: 0, height: 46, overflow: "hidden" },
+  battleLogRevealWrap: { width: "100%" },
+  battleLogCollapsedWrap: { height: 158, overflow: "hidden" },
+  battleLogCollapseFade: { position: "absolute", left: 0, right: 0, top: 112, height: 46, overflow: "hidden" },
   battleLogFadeGradient: { flex: 1, width: "100%" },
   battleLogExpandButton: { alignSelf: "center", width: 34, height: 30, marginTop: 8, alignItems: "center", justifyContent: "center" },
   battleLoading: { paddingVertical: 20, alignItems: 'center' },
   battleRowGradient: { width: "100%", borderRadius: 18, padding: 1.2, marginBottom: 8 },
-  battleRowInner: { minHeight: 92, borderRadius: 17, paddingHorizontal: 10, paddingTop: 7, paddingBottom: 2, overflow: "hidden" },
+  battleRowInner: { minHeight: 78, borderRadius: 17, paddingHorizontal: 9, paddingTop: 3, paddingBottom: 0, overflow: "hidden" },
   battleRowInnerExpanded: { minHeight: 250, paddingTop: 10 },
-  battleHeader: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 58 },
+  battleHeader: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 40 },
+  battleHeaderExpanded: { minHeight: 58 },
   battlePlayerBlock: { flex: 1, minWidth: 0, alignItems: "flex-start" },
   battlePlayerBlockRight: { alignItems: "flex-end" },
-  battlePlayerName: { maxWidth: "100%", marginTop: 4, fontSize: 12.5, fontWeight: "800" },
-  battlePlayerClan: { marginTop: 2, maxWidth: "100%", fontSize: 9.5, fontWeight: "600" },
+  battlePlayerName: { maxWidth: "100%", marginTop: 1, fontSize: 11.5, fontWeight: "800" },
+  battlePlayerClan: { marginTop: 0, maxWidth: "100%", fontSize: 8.5, fontWeight: "600" },
   battleCenterHeader: { width: 70, alignItems: "center", justifyContent: "center", paddingHorizontal: 3 },
-  battleModeImage: { width: 26, height: 26, marginBottom: 2 },
-  battleRankedLabel: { fontSize: 9.5, fontWeight: "800", textAlign: "center" },
+  battleModeImage: { width: 21, height: 21, marginBottom: 0 },
+  battleRankedLabel: { fontSize: 8.5, fontWeight: "800", textAlign: "center" },
   battleTrophyCluster: { flexDirection: "row", alignItems: "center", gap: 4 },
   battleTrophyClusterRight: { flexDirection: "row-reverse", justifyContent: "flex-start" },
-  battleTrophyValue: { minHeight: 25, borderRadius: 9, borderWidth: 1, paddingHorizontal: 6, flexDirection: "row", alignItems: "center" },
-  battleTrophyIcon: { width: 14, height: 14, marginRight: 3 },
-  battleTrophyText: { fontSize: 10, fontWeight: "900" },
-  battleTrophyChange: { minHeight: 25, minWidth: 34, borderRadius: 8, borderWidth: 1.2, paddingHorizontal: 5, alignItems: "center", justifyContent: "center" },
-  battleTrophyChangeText: { fontSize: 10, fontWeight: "900" },
-  battleCollapsedMeta: { width: "100%", alignItems: "center", justifyContent: "center", marginTop: 6 },
-  battleCollapsedTimeRow: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", marginTop: 4, paddingHorizontal: 2 },
-  battleCollapsedTime: { fontSize: 9.5, fontWeight: "700" },
+  battleTrophyValue: { minHeight: 21, borderRadius: 8, borderWidth: 1, paddingHorizontal: 5, flexDirection: "row", alignItems: "center" },
+  battleTrophyIcon: { width: 12, height: 12, marginRight: 2 },
+  battleTrophyText: { fontSize: 9, fontWeight: "900" },
+  battleTrophyChange: { minHeight: 21, minWidth: 30, borderRadius: 7, borderWidth: 1.1, paddingHorizontal: 4, alignItems: "center", justifyContent: "center" },
+  battleTrophyChangeText: { fontSize: 9, fontWeight: "900" },
+  battleCollapsedMeta: { width: "100%", alignItems: "center", justifyContent: "center", marginTop: 2 },
+  battleCollapsedTimeRow: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", marginTop: 1, paddingHorizontal: 2 },
+  battleCollapsedTime: { fontSize: 8.5, fontWeight: "700" },
   battleExpandedDeckRow: { width: "100%", flexDirection: "row", alignItems: "flex-start", marginTop: 9 },
   battleSide: { flex: 1, minWidth: 0 },
   battleSideMirrored: { alignItems: "flex-end" },
@@ -2994,8 +2998,8 @@ const styles = StyleSheet.create({
   battleCard: { overflow: "hidden", alignItems: "center", justifyContent: "center" },
   battleCardImage: { width: "100%", height: "100%" },
   battleExpandedDivider: { width: 38, alignItems: "center", justifyContent: "center", paddingTop: 38 },
-  battleResultBadge: { minWidth: 38, minHeight: 30, borderRadius: 10, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 },
-  battleResultBadgeText: { fontSize: 12, fontWeight: "900", color: "#101112" },
+  battleResultBadge: { minWidth: 34, minHeight: 24, borderRadius: 8, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 },
+  battleResultBadgeText: { fontSize: 10.5, fontWeight: "900", color: "#101112" },
   battleFooter: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", marginTop: 9, paddingHorizontal: 2 },
   battleDate: { fontSize: 9.5, fontWeight: "700" },
   battleChevronButton: { width: 34, height: 25, alignSelf: "center", alignItems: "center", justifyContent: "center", marginTop: 2 },
