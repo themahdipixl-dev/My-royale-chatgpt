@@ -14,38 +14,46 @@ function pct(value) {
 function DeckImages({ deck, theme }) {
   const cards = Array.isArray(deck?.cards) ? deck.cards : [];
   return (
-    <View style={styles.deckImages}>
-      {cards.map((card, index) => (
-        <View
-          key={`${card.id || card.name}-${index}`}
-          style={[
-            styles.cardImageWrap,
-            {
-              backgroundColor: theme.colors.surfaceContainerHighest,
-              borderColor:
-                card.cardType === 'evolution'
-                  ? '#8B5CF6'
-                  : card.cardType === 'hero'
-                    ? '#EAB308'
-                    : theme.colors.outlineVariant,
-            },
-          ]}
-        >
-          <RetryImage uri={card.iconUrl} style={styles.cardImage} resizeMode="contain" />
-        </View>
-      ))}
+    <View>
+      <View style={styles.deckImages}>
+        {cards.map((card, index) => (
+          <View
+            key={`${card.id || card.name}-${index}`}
+            style={[
+              styles.cardImageWrap,
+              {
+                backgroundColor: theme.colors.surfaceContainerHighest,
+                borderColor:
+                  card.cardType === 'evolution'
+                    ? '#8B5CF6'
+                    : card.cardType === 'hero'
+                      ? '#EAB308'
+                      : theme.colors.outlineVariant,
+              },
+            ]}
+          >
+            <RetryImage uri={card.iconUrl} style={styles.cardImage} resizeMode="contain" />
+          </View>
+        ))}
+      </View>
+
       {!!deck?.towerCard && (
-        <View
-          style={[
-            styles.cardImageWrap,
-            styles.towerWrap,
-            {
-              backgroundColor: theme.colors.surfaceContainerHighest,
-              borderColor: theme.colors.outlineVariant,
-            },
-          ]}
-        >
-          <RetryImage uri={deck.towerCard.iconUrl} style={styles.cardImage} resizeMode="contain" />
+        <View style={[styles.towerSection, { borderTopColor: theme.colors.outlineVariant }]}>
+          <Text style={[styles.towerLabel, { color: theme.colors.onSurfaceVariant }]}>TOWER CARD</Text>
+          <View
+            style={[
+              styles.towerCardWrap,
+              {
+                backgroundColor: theme.colors.surfaceContainerHighest,
+                borderColor: theme.colors.outlineVariant,
+              },
+            ]}
+          >
+            <RetryImage uri={deck.towerCard.iconUrl} style={styles.towerImage} resizeMode="contain" />
+          </View>
+          <Text numberOfLines={1} style={[styles.towerName, { color: theme.colors.onSurface }]}>
+            {deck.towerCard.name || 'Unknown'}
+          </Text>
         </View>
       )}
     </View>
@@ -325,20 +333,47 @@ const styles = StyleSheet.create({
   deckImages: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
+    gap: 7,
     paddingRight: 2,
   },
   cardImageWrap: {
-    width: 48,
-    height: 60,
-    borderRadius: 11,
+    width: 54,
+    height: 68,
+    borderRadius: 12,
     borderWidth: 1.2,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  towerWrap: { marginLeft: 3 },
-  cardImage: { width: 46, height: 58 },
+  cardImage: { width: 52, height: 66 },
+  towerSection: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+  },
+  towerLabel: {
+    fontSize: 8,
+    fontWeight: '800',
+    letterSpacing: 1,
+    marginBottom: 6,
+  },
+  towerCardWrap: {
+    width: 58,
+    height: 72,
+    borderRadius: 13,
+    borderWidth: 1.2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  towerImage: { width: 56, height: 70 },
+  towerName: {
+    marginTop: 4,
+    fontSize: 10,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
   statLine: {
     marginTop: 10,
     flexDirection: 'row',
