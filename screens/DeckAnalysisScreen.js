@@ -43,7 +43,7 @@ function DeckImages({ deck, theme }) {
             <RetryImage uri={deck.towerCard.iconUrl} style={styles.towerImage} resizeMode="contain" />
           </View>
 
-          <View style={[styles.statBar, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+          <View style={[styles.statBar, { backgroundColor: theme.colors.surfaceContainerHighest, borderColor: theme.colors.outline }]}>
             <View style={styles.statGrid}>
               <View style={styles.stat}>
                 <Text style={[styles.statValue, { color: theme.colors.primary }]}>{pct(deck.adjustedWinRate)}</Text>
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   },
   rankHeader: {
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 6,
   },
   rank: { fontSize: 24, fontWeight: '900' },
   rankLabel: { marginTop: -1, fontSize: 7, fontWeight: '800', letterSpacing: 0.6 },
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   },
   cardImage: { width: 76, height: 97 },
   towerSection: {
-    marginTop: 4,
+    marginTop: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 7,
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   statBar: {
     flex: 1,
     minWidth: 0,
-    height: 41,
+    height: 39,
     borderRadius: 12,
     paddingHorizontal: 2,
     justifyContent: 'center',
