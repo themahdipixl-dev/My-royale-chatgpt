@@ -2979,7 +2979,7 @@ const styles = StyleSheet.create({
   battlePlayerBlockRight: { alignItems: "flex-end" },
   battlePlayerName: { maxWidth: "100%", marginTop: 4, fontSize: 12.5, fontWeight: "800" },
   battlePlayerClan: { marginTop: 2, maxWidth: "100%", fontSize: 9.5, fontWeight: "600" },
-  battleCenterHeader: { width: 70, alignItems: "center", justifyContent: "center", paddingHorizontal: 3 },
+  battleCenterHeader: { width: 70, alignItems: "center", justifyContent: "flex-start", paddingHorizontal: 3, paddingTop: 2 },
   battleModeImage: { width: 21, height: 21, marginBottom: 0 },
   battleRankedLabel: { fontSize: 8.5, fontWeight: "800", textAlign: "center" },
   battleTrophyCluster: { flexDirection: "row", alignItems: "center", gap: 4 },
