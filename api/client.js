@@ -88,6 +88,11 @@ export async function fetchMergeTacticsRankings(limit = 500) {
   const data = await getJson(`/api/leaderboard/${MERGE_TACTICS_LEADERBOARD_ID}?limit=${limit}`);
   return getItems(data);
 }
+export async function fetchDeckAnalysis() {
+  const data = await getJson('/api/decks');
+  return data && Array.isArray(data.decks) ? data : { generatedAt: null, source: null, methodology: null, decks: [] };
+}
+
 export async function fetchClan(tag) {
   return getJson(`/api/clan/${encodeTag(tag)}`);
 }
