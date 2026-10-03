@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
   },
   cardImage: { width: 76, height: 97 },
   towerSection: {
-    marginTop: 1,
+    marginTop: 5,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 7,
