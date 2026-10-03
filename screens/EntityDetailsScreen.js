@@ -1171,7 +1171,7 @@ function BattleDeck({ player, theme, mirrored = false, onCopy, onSave, saved }) 
             key={card?.id ?? card?.name ?? index}
             card={card}
             theme={theme}
-            size={30}
+            size={40}
             index={index}
             deck={deck}
           />
@@ -1180,7 +1180,7 @@ function BattleDeck({ player, theme, mirrored = false, onCopy, onSave, saved }) 
       <View style={[styles.battleDeckTools, mirrored && styles.battleDeckToolsMirrored]}>
         <View style={styles.battleTowerTool}>
           {towerCard ? (
-            <BattleCardImage card={towerCard} theme={theme} size={30} />
+            <BattleCardImage card={towerCard} theme={theme} size={40} />
           ) : (
             <MaterialCommunityIcons name="shield-outline" size={20} color={theme.colors.onSurfaceVariant} />
           )}
@@ -1189,7 +1189,7 @@ function BattleDeck({ player, theme, mirrored = false, onCopy, onSave, saved }) 
           styles.battleToolButton,
           { opacity: deck.length === 8 ? (pressed ? 0.55 : 1) : 0.4 },
         ]} accessibilityLabel="Copy battle deck">
-          <MaterialCommunityIcons name="content-copy" size={17} color={theme.colors.onSurfaceVariant} />
+          <MaterialCommunityIcons name="content-copy" size={16} color={theme.colors.onSurfaceVariant} />
         </Pressable>
         <Pressable onPress={onSave} disabled={deck.length !== 8} style={({ pressed }) => [
           styles.battleToolButton,
@@ -1197,7 +1197,7 @@ function BattleDeck({ player, theme, mirrored = false, onCopy, onSave, saved }) 
         ]} accessibilityLabel={saved ? "Remove saved battle deck" : "Save battle deck"}>
           <MaterialCommunityIcons
             name={saved ? "bookmark" : "bookmark-outline"}
-            size={17}
+            size={16}
             color={saved ? theme.colors.primary : theme.colors.onSurfaceVariant}
           />
         </Pressable>
@@ -2997,13 +2997,13 @@ const styles = StyleSheet.create({
   battleExpandedDeckRow: { width: "100%", flexDirection: "row", alignItems: "flex-start", marginTop: 9 },
   battleSide: { flex: 1, minWidth: 0 },
   battleSideMirrored: { alignItems: "flex-end" },
-  battleCardsGrid: { width: "100%", flexDirection: "row", flexWrap: "wrap", gap: 4, justifyContent: "flex-start" },
-  battleDeckTools: { width: 132, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 3, marginTop: 7 },
+  battleCardsGrid: { width: "100%", flexDirection: "row", flexWrap: "wrap", gap: 1, justifyContent: "flex-start" },
+  battleDeckTools: { width: 150, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 2, marginTop: 7 },
   battleDeckToolsMirrored: { alignSelf: "flex-end", flexDirection: "row-reverse", justifyContent: "flex-start" },
-  battleTowerTool: { width: 30, height: 37, alignItems: "center", justifyContent: "center" },
-  battleToolButton: { width: 30, height: 30, borderRadius: 9, alignItems: "center", justifyContent: "center" },
-  battleElixirPill: { width: 40, height: 30, borderRadius: 9, paddingHorizontal: 5, alignItems: "center", justifyContent: "center", flexDirection: "row", backgroundColor: "#6C4BD6" },
-  battleElixirText: { marginLeft: 2, fontSize: 11.5, fontWeight: "900" },
+  battleTowerTool: { width: 40, height: 49, alignItems: "center", justifyContent: "center" },
+  battleToolButton: { width: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center" },
+  battleElixirPill: { width: 32, height: 25, borderRadius: 8, paddingHorizontal: 3, alignItems: "center", justifyContent: "center", flexDirection: "row", backgroundColor: "#6C4BD6" },
+  battleElixirText: { marginLeft: 1, fontSize: 9.5, fontWeight: "900" },
   battleCard: { overflow: "hidden", alignItems: "center", justifyContent: "center" },
   battleCardImage: { width: "100%", height: "100%" },
   battleExpandedDivider: { width: 38, alignItems: "center", justifyContent: "center", paddingTop: 38 },
@@ -3012,7 +3012,7 @@ const styles = StyleSheet.create({
   battleFooter: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", marginTop: 9, paddingHorizontal: 2 },
   battleDate: { fontSize: 9.5, fontWeight: "700" },
   battleChevronButton: { width: 34, height: 25, alignSelf: "center", alignItems: "center", justifyContent: "center", marginTop: 2 },
-  battleChevronButtonCollapsed: { position: "absolute", left: "50%", width: 34, marginLeft: -17, bottom: 1, marginTop: 0, alignSelf: "auto" },
+  battleChevronButtonCollapsed: { position: "absolute", left: "50%", width: 34, marginLeft: -12, bottom: 1, marginTop: 0, alignSelf: "auto" },
 
 
   emptyText: { fontSize: 12, lineHeight: 18 },
