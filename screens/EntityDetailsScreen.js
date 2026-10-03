@@ -1288,7 +1288,7 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
           )}
           <Text numberOfLines={1} style={[styles.battleRankedLabel, { color: theme.colors.onSurface }]}>Ranked</Text>
           <Text numberOfLines={1} style={[styles.battleVsLabel, { color: theme.colors.onSurfaceVariant }]}>
-            {expanded ? "vs" : resultText}
+            {resultText}
           </Text>
         </View>
 
@@ -1305,11 +1305,6 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
 
       {!expanded ? (
         <>
-          <View style={styles.battleCollapsedMeta}>
-            <View style={[styles.battleResultBadge, { backgroundColor: draw ? theme.colors.surfaceContainer : won ? "#35D07F" : "#FF5C67" }]}>
-              <Text style={styles.battleResultBadgeText}>{resultText}</Text>
-            </View>
-          </View>
           <View style={styles.battleCollapsedTimeRow}>
             <Text style={[styles.battleCollapsedTime, { color: theme.colors.onSurfaceVariant }]}>{formatBattleAge(playedAt)}</Text>
           </View>
@@ -1325,9 +1320,7 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
               saved={savedLeft}
             />
             <View style={styles.battleExpandedDivider}>
-              <View style={[styles.battleResultBadge, { backgroundColor: draw ? theme.colors.surfaceContainer : won ? "#35D07F" : "#FF5C67" }]}>
-                <Text style={styles.battleResultBadgeText}>{resultText}</Text>
-              </View>
+              <Text numberOfLines={1} style={[styles.battleVsLabel, { color: theme.colors.onSurfaceVariant }]}>vs</Text>
             </View>
             <BattleDeck
               player={rightPlayer}
