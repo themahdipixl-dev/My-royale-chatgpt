@@ -1378,6 +1378,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const [loading, setLoading] = useState(type === 'player');
   const [refreshing, setRefreshing] = useState(false);
   const [battleLoading, setBattleLoading] = useState(false);
+  const [battleError, setBattleError] = useState(null);
   const [error, setError] = useState(null);
   const [showAllBadges, setShowAllBadges] = useState(false);
   const [activeBadgeKey, setActiveBadgeKey] = useState(null);
@@ -1541,9 +1542,14 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const loadBattlelog = useCallback(() => {
     if (isClan || !tag) return;
     setBattleLoading(true);
+    setBattleError(null);
     fetchPlayerBattlelog(tag)
-      .then((items) => setBattlelog(Array.isArray(items) ? items : []))
-      .catch(() => setBattlelog([]))
+      .then((items) => {
+        setBattlelog(Array.isArray(items) ? items : []);
+      })
+      .catch((err) => {
+        setBattleError(err?.message || 'Could not load battle log.');
+      })
       .finally(() => setBattleLoading(false));
   }, [isClan, tag]);
 
@@ -2559,6 +2565,16 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               {battleLoading ? (
                 <View style={styles.battleLoading}>
                   <ActivityIndicator size="small" color={theme.colors.primary} />
+                </View>
+              ) : battleError && battlelog.length === 0 ? (
+                <View style={{ alignItems: 'center', paddingVertical: 12 }}>
+                  <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>{battleError}</Text>
+                  <Pressable
+                    onPress={loadBattlelog}
+                    style={[styles.retryButton, { backgroundColor: theme.colors.primaryContainer }]}
+                  >
+                    <Text style={[styles.retryText, { color: theme.colors.onPrimaryContainer }]}>Retry</Text>
+                  </Pressable>
                 </View>
               ) : battlelog.length === 0 ? (
                 <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No battle log available.</Text>
