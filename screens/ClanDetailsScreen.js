@@ -33,10 +33,10 @@ function SectionTitle({ icon, title, right, theme }) {
   </View>;
 }
 
-function MemberRow({ member, index, theme }) {
+function MemberRow({ member, index, theme, onPress }) {
   const badge = getClanBadgeImage(member?.badgeId);
   const role = member?.role ? String(member.role).replace(/^./, c => c.toUpperCase()) : 'Member';
-  return <Animated.View style={[styles.memberRow, { backgroundColor: theme.colors.surfaceContainerHighest, borderColor: theme.colors.outlineVariant, opacity: 1 }]}>
+  return <Pressable onPress={onPress} android_ripple={{ color: theme.colors.primaryContainer }} style={({ pressed }) => [{ opacity: pressed ? 0.72 : 1 }]}>\n    <Animated.View style={[styles.memberRow, { backgroundColor: theme.colors.surfaceContainerHighest, borderColor: theme.colors.outlineVariant, opacity: 1 }]}>
     <View style={[styles.memberRank, { backgroundColor: index < 3 ? theme.colors.primaryContainer : theme.colors.surfaceContainer }]}>
       <Text style={[styles.memberRankText, { color: theme.colors.onSurface }]}>{index + 1}</Text>
     </View>
@@ -153,7 +153,7 @@ export default function ClanDetailsScreen({ entity, onBack }) {
           {members.length ? (
             <>
               <View style={[styles.membersRevealWrap, { maxHeight: membersExpanded ? 10000 : 250 }]}>
-                {members.map((member,index) => <MemberRow key={member?.tag || member?.name || index} member={member} index={index} theme={theme} />)}
+                {members.map((member,index) => <MemberRow key={member?.tag || member?.name || index} member={member} index={index} theme={theme} onPress={() => member?.tag && onBack?.({ type: 'player', entity: member })} />)}
                 {!membersExpanded ? (
                   <LinearGradient
                     pointerEvents="none"
