@@ -1876,7 +1876,12 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     });
 
     setBattleLogExpanded(nextExpanded);
-  }, [battleLogExpanded]);
+    Animated.timing(battleLogExpandProgress, {
+      toValue: nextExpanded ? 1 : 0,
+      duration: 280,
+      useNativeDriver: true,
+    }).start();
+  }, [battleLogExpanded, battleLogExpandProgress]);
 
   const toggleAchievementsExpanded = useCallback(() => {
     const nextExpanded = !achievementsExpanded;
