@@ -1287,9 +1287,9 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
             <MaterialCommunityIcons name="gamepad-variant-outline" size={23} color={theme.colors.primary} />
           )}
           <Text numberOfLines={1} style={[styles.battleRankedLabel, { color: theme.colors.onSurface }]}>Ranked</Text>
-          {expanded ? (
-            <Text numberOfLines={1} style={[styles.battleVsLabel, { color: theme.colors.onSurfaceVariant }]}>vs</Text>
-          ) : null}
+          <Text numberOfLines={1} style={[styles.battleVsLabel, { color: theme.colors.onSurfaceVariant }]}>
+            {expanded ? "vs" : resultText}
+          </Text>
         </View>
 
         <View style={[styles.battlePlayerBlock, styles.battlePlayerBlockRight]}>
@@ -1324,7 +1324,11 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
               onSave={() => onSaveDeck(battleKey + "-left")}
               saved={savedLeft}
             />
-            <View style={styles.battleExpandedDivider} />
+            <View style={styles.battleExpandedDivider}>
+              <View style={[styles.battleResultBadge, { backgroundColor: draw ? theme.colors.surfaceContainer : won ? "#35D07F" : "#FF5C67" }]}>
+                <Text style={styles.battleResultBadgeText}>{resultText}</Text>
+              </View>
+            </View>
             <BattleDeck
               player={rightPlayer}
               theme={theme}
