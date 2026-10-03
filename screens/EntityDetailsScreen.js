@@ -1287,9 +1287,9 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
             <MaterialCommunityIcons name="gamepad-variant-outline" size={23} color={theme.colors.primary} />
           )}
           <Text numberOfLines={1} style={[styles.battleRankedLabel, { color: theme.colors.onSurface }]}>Ranked</Text>
-          <Text numberOfLines={1} style={[styles.battleVsLabel, { color: theme.colors.onSurfaceVariant }]}>
-            {expanded ? "vs" : resultText}
-          </Text>
+          {expanded ? (
+            <Text numberOfLines={1} style={[styles.battleVsLabel, { color: theme.colors.onSurfaceVariant }]}>vs</Text>
+          ) : null}
         </View>
 
         <View style={[styles.battlePlayerBlock, styles.battlePlayerBlockRight]}>
