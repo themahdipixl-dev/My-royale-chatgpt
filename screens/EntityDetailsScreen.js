@@ -2867,7 +2867,6 @@ const styles = StyleSheet.create({
   battleCenterHeader: { width: 70, alignItems: "center", justifyContent: "center", paddingHorizontal: 3 },
   battleModeImage: { width: 26, height: 26, marginBottom: 2 },
   battleRankedLabel: { fontSize: 9.5, fontWeight: "800", textAlign: "center" },
-  battleScore: { marginTop: 2, fontSize: 14, fontWeight: "900" },
   battleTrophyCluster: { flexDirection: "row", alignItems: "center", gap: 4 },
   battleTrophyClusterRight: { flexDirection: "row-reverse", justifyContent: "flex-start" },
   battleTrophyValue: { minHeight: 25, borderRadius: 9, borderWidth: 1, paddingHorizontal: 6, flexDirection: "row", alignItems: "center" },
