@@ -48,7 +48,18 @@ export async function fetchSearch(query) {
 }
 
 export async function fetchPlayer(tag) {
-  return getJson(`/api/player/${encodeTag(tag)}`);
+  let lastError = null;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      return await getJson(`/api/player/${encodeTag(tag)}`);
+    } catch (error) {
+      lastError = error;
+      if (attempt < 3) {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      }
+    }
+  }
+  throw lastError || new Error('Could not load player details.');
 }
 
 export async function fetchPlayerBattlelog(tag) {
