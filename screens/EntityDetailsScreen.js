@@ -1147,7 +1147,7 @@ function resolveBattleCardImage(card, index, deck) {
 function BattleCardImage({ card, theme, size = 42, index = 0, deck = [] }) {
   const image = resolveBattleCardImage(card, index, deck);
   return (
-    <View style={[styles.battleCard, { width: size, height: Math.round(size * 1.22) }]}>
+    <View style={[styles.battleCard, { width: size, height: Math.round(size * 1.22), marginRight: -1.5 }]}>
       {image ? (
         <RetryImage uri={image} style={styles.battleCardImage} resizeMode="contain" />
       ) : (
@@ -3003,7 +3003,7 @@ const styles = StyleSheet.create({
   battleExpandedDeckRow: { width: "100%", flexDirection: "row", alignItems: "flex-start", marginTop: 9 },
   battleSide: { flex: 1, minWidth: 0 },
   battleSideMirrored: { alignItems: "flex-end" },
-  battleCardsGrid: { width: "100%", flexDirection: "row", flexWrap: "wrap", gap: 0, columnGap: 0, rowGap: 0, justifyContent: "flex-start" },
+  battleCardsGrid: { width: "100%", flexDirection: "row", flexWrap: "wrap", columnGap: 0, rowGap: 0, justifyContent: "flex-start" },
   battleDeckTools: { width: 134, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 2, marginTop: 7 },
   battleDeckToolsMirrored: { alignSelf: "flex-end", flexDirection: "row-reverse", justifyContent: "flex-start" },
   battleTowerTool: { width: 36, height: 44, alignItems: "center", justifyContent: "center" },
