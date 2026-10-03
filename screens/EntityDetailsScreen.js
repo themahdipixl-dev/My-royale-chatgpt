@@ -1144,10 +1144,13 @@ function resolveBattleCardImage(card, index, deck) {
   return resolveCurrentDeckImage(card, index, deck);
 }
 
-function BattleCardImage({ card, theme, size = 42, index = 0, deck = [] }) {
+function BattleCardImage({ card, theme, size = 42, index = 0, deck = [], gridItem = false }) {
   const image = resolveBattleCardImage(card, index, deck);
+  const cardLayout = gridItem
+    ? { width: "25%", flexBasis: "25%", height: Math.round(size * 1.22), marginRight: 0 }
+    : { width: size, height: Math.round(size * 1.22), marginRight: 0 };
   return (
-    <View style={[styles.battleCard, { width: "25%", flexBasis: "25%", height: Math.round(size * 1.22), marginRight: 0 }]}>
+    <View style={[styles.battleCard, cardLayout]}>
       {image ? (
         <RetryImage uri={image} style={styles.battleCardImage} resizeMode="contain" />
       ) : (
@@ -1174,6 +1177,7 @@ function BattleDeck({ player, theme, mirrored = false, onCopy, onSave, saved }) 
             size={39}
             index={index}
             deck={deck}
+            gridItem
           />
         ))}
       </View>
@@ -1283,6 +1287,9 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
             <MaterialCommunityIcons name="gamepad-variant-outline" size={23} color={theme.colors.primary} />
           )}
           <Text numberOfLines={1} style={[styles.battleRankedLabel, { color: theme.colors.onSurface }]}>Ranked</Text>
+          <Text numberOfLines={1} style={[styles.battleVsLabel, { color: theme.colors.onSurfaceVariant }]}>
+            {expanded ? "vs" : resultText}
+          </Text>
         </View>
 
         <View style={[styles.battlePlayerBlock, styles.battlePlayerBlockRight]}>
@@ -1317,11 +1324,7 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
               onSave={() => onSaveDeck(battleKey + "-left")}
               saved={savedLeft}
             />
-            <View style={styles.battleExpandedDivider}>
-              <View style={[styles.battleResultBadge, { backgroundColor: draw ? theme.colors.surfaceContainer : won ? "#35D07F" : "#FF5C67" }]}>
-                <Text style={styles.battleResultBadgeText}>{resultText}</Text>
-              </View>
-            </View>
+            <View style={styles.battleExpandedDivider} />
             <BattleDeck
               player={rightPlayer}
               theme={theme}
@@ -2990,6 +2993,7 @@ const styles = StyleSheet.create({
   battleCenterHeader: { width: 70, alignItems: "center", justifyContent: "flex-start", paddingHorizontal: 3, paddingTop: 2, transform: [{ translateY: -8 }] },
   battleModeImage: { width: 21, height: 21, marginBottom: 0 },
   battleRankedLabel: { fontSize: 8.5, fontWeight: "800", textAlign: "center" },
+  battleVsLabel: { marginTop: 1, fontSize: 8, fontWeight: "800", textAlign: "center" },
   battleTrophyCluster: { flexDirection: "row", alignItems: "center", gap: 4 },
   battleTrophyClusterRight: { flexDirection: "row-reverse", justifyContent: "flex-start" },
   battleTrophyValue: { minHeight: 25, borderRadius: 9, borderWidth: 1, paddingHorizontal: 6, flexDirection: "row", alignItems: "center" },
