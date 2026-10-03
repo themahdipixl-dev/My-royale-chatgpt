@@ -946,7 +946,7 @@ function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, compact
   const [popupMounted, setPopupMounted] = useState(false);
 
   useEffect(() => {
-    if (!playerDetailsGrid) return undefined;
+    if (!playerDetailsGrid && !compact) return undefined;
 
     if (popupVisible) {
       setPopupMounted(true);
@@ -2877,7 +2877,7 @@ const styles = StyleSheet.create({
   heroBadgePressable: { width: 104, height: 104, alignItems: 'center', justifyContent: 'center', margin: 0, padding: 0 },
   heroBadgeVisual: { width: 104, height: 104, alignItems: 'center', justifyContent: 'center', overflow: 'visible', margin: 0, padding: 0 },
   heroBadgeInfoPopup: { position: 'absolute', top: 72, left: -36, width: 130, minHeight: 76, borderRadius: 14, borderWidth: 1, paddingHorizontal: 9, paddingVertical: 8, alignItems: 'center', justifyContent: 'center', elevation: 8, zIndex: 50 },
-  heroTrophyBox: { width: 86, height: 62, borderRadius: 17, borderWidth: 1, overflow: 'hidden', justifyContent: 'center', marginLeft: 'auto', transform: [{ translateY: -11 }] },
+  heroTrophyBox: { width: 86, height: 62, borderRadius: 17, borderWidth: 1, overflow: 'hidden', justifyContent: 'center', marginLeft: 'auto', transform: [{ translateY: 7 }] },
   heroTrophyHalf: { flex: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 7 },
   heroTrophyDivider: { height: 1, width: '100%' },
   heroBoxPointIcon: { width: 15, height: 15, marginRight: 4 },
