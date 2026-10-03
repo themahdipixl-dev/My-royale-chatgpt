@@ -2016,7 +2016,19 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                 </View>
                 <View style={styles.heroIdentity}>
                   <Text numberOfLines={1} style={[styles.heroName, { color: theme.colors.onSurface }]}>{title}</Text>
-                  <Text numberOfLines={1} style={[styles.heroTag, { color: theme.colors.primary }]}>{shortTag(data.tag || tag)}</Text>
+                  <Pressable
+                    onPress={handleCopyTag}
+                    disabled={!data.tag && !tag}
+                    hitSlop={6}
+                    style={styles.heroTagPressable}
+                    accessibilityRole="button"
+                    accessibilityLabel="Copy player tag"
+                  >
+                    <Text selectable numberOfLines={1} style={[styles.heroTag, { color: theme.colors.primary }]}>
+                      {shortTag(data.tag || tag)}
+                    </Text>
+                    <MaterialCommunityIcons name="content-copy" size={13} color={theme.colors.primary} />
+                  </Pressable>
                   <Text numberOfLines={1} style={[styles.heroSub, { color: theme.colors.onSurfaceVariant }]}>
                     {firstValue(data.role, 'Player')} · {displayedArenaName || 'Arena'}
                   </Text>
@@ -2024,20 +2036,48 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               </View>
 
               <View style={styles.heroStats}>
-                <View style={styles.heroTrophy}>
+                <View style={[styles.heroTrophy, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
                   <Image source={pointIcon} style={styles.heroPointIcon} resizeMode="contain" />
                   <View>
                     <Text style={[styles.heroStatLabel, { color: theme.colors.onSurfaceVariant }]}>Trophies</Text>
                     <Text style={[styles.heroTrophyValue, { color: theme.colors.onSurface }]}>{formatNumber(data.trophies)}</Text>
                   </View>
                 </View>
-                <View style={styles.heroBest}>
+                <View style={[styles.heroBest, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
                   <MaterialCommunityIcons name="trophy-award" size={22} color={theme.colors.primary} />
                   <View>
                     <Text style={[styles.heroStatLabel, { color: theme.colors.onSurfaceVariant }]}>Best</Text>
                     <Text style={[styles.heroBestValue, { color: theme.colors.onSurface }]}>{formatNumber(displayedBestTrophies)}</Text>
                   </View>
                 </View>
+              </View>
+
+              <View style={styles.heroBadgesHeader}>
+                <Text style={[styles.heroBadgesTitle, { color: theme.colors.onSurface }]}>Featured Badges</Text>
+                <Text style={[styles.heroBadgesHint, { color: theme.colors.onSurfaceVariant }]}>Top 3</Text>
+              </View>
+              <View style={styles.heroBadgesRow}>
+                {badges.slice(0, 3).map((badge, index) => (
+                  <View
+                    key={String(badge?.name || badge?.id || index)}
+                    style={[styles.heroBadgeCard, { backgroundColor: theme.colors.surfaceContainerHighest, borderColor: theme.colors.outlineVariant }]}
+                  >
+                    <BadgeVisual
+                      item={badge}
+                      theme={theme}
+                      size={70}
+                      crownColor={theme.colors.primary}
+                    />
+                    <Text numberOfLines={1} style={[styles.heroBadgeName, { color: theme.colors.onSurface }]}>
+                      {badge?.name || 'Badge'}
+                    </Text>
+                    {number(badge?.level) > 0 ? (
+                      <Text style={[styles.heroBadgeLevel, { color: theme.colors.onSurfaceVariant }]}>
+                        Lv. {formatNumber(badge.level)}
+                      </Text>
+                    ) : null}
+                  </View>
+                ))}
               </View>
             </Surface></AnimatedSection>
 
@@ -2821,19 +2861,27 @@ const styles = StyleSheet.create({
 
   heroCard: { borderRadius: 24, padding: 16, marginBottom: 12, borderWidth: 1 },
   heroTop: { flexDirection: 'row', alignItems: 'center' },
-  heroIcon: { width: 64, height: 64, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
-  heroLeagueIcon: { width: 42, height: 42 },
-  heroIdentity: { flex: 1, marginLeft: 13 },
-  heroName: { fontSize: 22, fontWeight: '800' },
-  heroTag: { marginTop: 3, fontSize: 13, fontWeight: '700' },
-  heroSub: { marginTop: 5, fontSize: 12 },
-  heroStats: { flexDirection: 'row', marginTop: 18, gap: 10 },
-  heroTrophy: { flex: 1, flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.03)' },
-  heroBest: { flex: 1, flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.03)' },
-  heroPointIcon: { width: 24, height: 24, marginRight: 8 },
-  heroStatLabel: { fontSize: 11 },
-  heroTrophyValue: { marginTop: 2, fontSize: 18, fontWeight: '800' },
-  heroBestValue: { marginTop: 2, fontSize: 18, fontWeight: '800' },
+  heroIcon: { width: 68, height: 68, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  heroLeagueIcon: { width: 46, height: 46 },
+  heroIdentity: { flex: 1, minWidth: 0, marginLeft: 13 },
+  heroName: { fontSize: 23, fontWeight: '900', letterSpacing: -0.3 },
+  heroTagPressable: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', gap: 5, marginTop: 3, paddingVertical: 1 },
+  heroTag: { fontSize: 13, fontWeight: '800' },
+  heroSub: { marginTop: 5, fontSize: 11.5 },
+  heroStats: { flexDirection: 'row', marginTop: 15, gap: 9 },
+  heroTrophy: { flex: 1, minHeight: 66, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 11, borderRadius: 18 },
+  heroBest: { flex: 1, minHeight: 66, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 11, borderRadius: 18 },
+  heroPointIcon: { width: 26, height: 26, marginRight: 7 },
+  heroStatLabel: { fontSize: 10 },
+  heroTrophyValue: { marginTop: 2, fontSize: 19, fontWeight: '900' },
+  heroBestValue: { marginTop: 2, fontSize: 19, fontWeight: '900' },
+  heroBadgesHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 15, marginBottom: 7 },
+  heroBadgesTitle: { fontSize: 11.5, fontWeight: '900' },
+  heroBadgesHint: { fontSize: 8.5, fontWeight: '800' },
+  heroBadgesRow: { flexDirection: 'row', gap: 7 },
+  heroBadgeCard: { flex: 1, minWidth: 0, minHeight: 103, borderRadius: 17, borderWidth: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5, paddingVertical: 6 },
+  heroBadgeName: { width: '100%', marginTop: 3, fontSize: 8.5, fontWeight: '800', textAlign: 'center' },
+  heroBadgeLevel: { marginTop: 1, fontSize: 7.5, fontWeight: '700' },
 
   statGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 4 },
   statTile: { width: '31.5%', minHeight: 52, marginBottom: 7 },
