@@ -968,7 +968,7 @@ function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, compact
     }
 
     return undefined;
-  }, [playerDetailsGrid, popupVisible, popupMounted, popupOpacity]);
+  }, [playerDetailsGrid, compact, popupVisible, popupMounted, popupOpacity]);
 
   const content = (
     <Pressable
