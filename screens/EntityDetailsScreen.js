@@ -1287,9 +1287,9 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
             <MaterialCommunityIcons name="gamepad-variant-outline" size={23} color={theme.colors.primary} />
           )}
           <Text numberOfLines={1} style={[styles.battleRankedLabel, { color: theme.colors.onSurface }]}>Ranked</Text>
-          <Text numberOfLines={1} style={[styles.battleVsLabel, { color: theme.colors.onSurfaceVariant }]}>
-            {resultText}
-          </Text>
+          <View style={[styles.battleResultBadge, { backgroundColor: draw ? theme.colors.surfaceContainer : won ? "#35D07F" : "#FF5C67" }]}>
+            <Text style={styles.battleResultBadgeText}>{resultText}</Text>
+          </View>
         </View>
 
         <View style={[styles.battlePlayerBlock, styles.battlePlayerBlockRight]}>
@@ -2991,6 +2991,8 @@ const styles = StyleSheet.create({
   battleModeImage: { width: 21, height: 21, marginBottom: 0 },
   battleRankedLabel: { fontSize: 8.5, fontWeight: "800", textAlign: "center" },
   battleVsLabel: { marginTop: 1, fontSize: 8, fontWeight: "800", textAlign: "center" },
+  battleResultBadge: { minWidth: 38, minHeight: 30, borderRadius: 10, alignItems: "center", justifyContent: "center", paddingHorizontal: 4, marginTop: 2 },
+  battleResultBadgeText: { fontSize: 12, fontWeight: "900", color: "#101112" },
   battleTrophyCluster: { flexDirection: "row", alignItems: "center", gap: 4 },
   battleTrophyClusterRight: { flexDirection: "row-reverse", justifyContent: "flex-start" },
   battleTrophyValue: { minHeight: 25, borderRadius: 9, borderWidth: 1, paddingHorizontal: 6, flexDirection: "row", alignItems: "center" },
@@ -3008,8 +3010,8 @@ const styles = StyleSheet.create({
   battleDeckToolsMirrored: { alignSelf: "flex-end", flexDirection: "row-reverse", justifyContent: "flex-start" },
   battleTowerTool: { width: 36, height: 44, alignItems: "center", justifyContent: "center" },
   battleToolButton: { width: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center" },
-  battleElixirPill: { width: 32, height: 25, borderRadius: 8, paddingHorizontal: 3, alignItems: "center", justifyContent: "center", flexDirection: "row", backgroundColor: "#6C4BD6" },
-  battleElixirText: { marginLeft: 1, fontSize: 9.5, fontWeight: "900" },
+  battleElixirPill: { width: 42, height: 30, borderRadius: 10, paddingHorizontal: 5, alignItems: "center", justifyContent: "center", flexDirection: "row", backgroundColor: "#6C4BD6" },
+  battleElixirText: { marginLeft: 2, fontSize: 11, fontWeight: "900" },
   battleCard: { overflow: "hidden", alignItems: "center", justifyContent: "center" },
   battleCardImage: { width: "100%", height: "100%", transform: [{ scale: 1.16 }] },
   battleExpandedDivider: { width: 24, alignItems: "center", justifyContent: "center", paddingTop: 38 },
