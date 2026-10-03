@@ -3010,7 +3010,7 @@ const styles = StyleSheet.create({
   battleFooter: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", marginTop: 9, paddingHorizontal: 2 },
   battleDate: { fontSize: 9.5, fontWeight: "700" },
   battleChevronButton: { width: 34, height: 25, alignSelf: "center", alignItems: "center", justifyContent: "center", marginTop: 2 },
-  battleChevronButtonCollapsed: { position: "absolute", right: 6, bottom: 1, marginTop: 0 },
+  battleChevronButtonCollapsed: { position: "absolute", left: 0, right: 0, bottom: 1, marginTop: 0, alignSelf: "center" },
 
 
   emptyText: { fontSize: 12, lineHeight: 18 },
