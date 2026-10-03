@@ -43,22 +43,27 @@ function DeckImages({ deck, theme }) {
             <RetryImage uri={deck.towerCard.iconUrl} style={styles.towerImage} resizeMode="contain" />
           </View>
 
-          <View style={styles.statGrid}>
-            <View style={[styles.stat, styles.statBox, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-              <Text style={[styles.statValue, { color: theme.colors.primary }]}>{pct(deck.adjustedWinRate)}</Text>
-              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Adjusted WR</Text>
-            </View>
-            <View style={[styles.stat, styles.statBox, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-              <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>{pct(deck.winRate)}</Text>
-              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Win Rate</Text>
-            </View>
-            <View style={[styles.stat, styles.statBox, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-              <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>{deck.games ?? 0}</Text>
-              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Games</Text>
-            </View>
-            <View style={[styles.stat, styles.statBox, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
-              <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>{deck.totalCrowns ?? 0}</Text>
-              <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Crowns</Text>
+          <View style={[styles.statBar, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+            <View style={styles.statGrid}>
+              <View style={styles.stat}>
+                <Text style={[styles.statValue, { color: theme.colors.primary }]}>{pct(deck.adjustedWinRate)}</Text>
+                <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Adjusted WR</Text>
+              </View>
+              <View style={[styles.statDivider, { backgroundColor: theme.colors.outlineVariant }]} />
+              <View style={styles.stat}>
+                <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>{pct(deck.winRate)}</Text>
+                <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Win Rate</Text>
+              </View>
+              <View style={[styles.statDivider, { backgroundColor: theme.colors.outlineVariant }]} />
+              <View style={styles.stat}>
+                <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>{deck.games ?? 0}</Text>
+                <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Games</Text>
+              </View>
+              <View style={[styles.statDivider, { backgroundColor: theme.colors.outlineVariant }]} />
+              <View style={styles.stat}>
+                <Text style={[styles.statValue, { color: theme.colors.onSurface }]}>{deck.totalCrowns ?? 0}</Text>
+                <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Crowns</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -90,15 +95,12 @@ function DeckRow({ item, index, theme, entrance }) {
             <Text style={[styles.rank, { color: theme.colors.onSurface }]}>#{index + 1}</Text>
             <Text style={[styles.rankLabel, { color: theme.colors.onSurfaceVariant }]}>RANK</Text>
           </View>
-          <DeckImages deck={item} theme={theme} />
           <View style={styles.metaLine}>
             <Text numberOfLines={1} style={[styles.metaText, { color: theme.colors.onSurfaceVariant }]}>
               {item.wins ?? 0}W · {item.losses ?? 0}L · {item.draws ?? 0}D
             </Text>
-            <Text numberOfLines={1} style={[styles.towerText, { color: theme.colors.onSurfaceVariant }]}>
-              Tower: {item.towerCard?.name || 'Unknown'}
-            </Text>
           </View>
+          <DeckImages deck={item} theme={theme} />
         </View>
       </Surface>
     </Animated.View>
@@ -334,43 +336,56 @@ const styles = StyleSheet.create({
   },
   cardImage: { width: 76, height: 97 },
   towerSection: {
-    marginTop: 10,
+    marginTop: 7,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 7,
+    width: '100%',
   },
   towerImageOnly: {
-    width: 44,
-    height: 54,
+    width: 40,
+    height: 46,
     alignItems: 'flex-start',
     justifyContent: 'center',
     overflow: 'visible',
+    flexShrink: 0,
   },
-  towerImage: { width: 40, height: 50 },
-  statGrid: {
-    flex: 1,
-    flexDirection: 'row',
-    gap: 5,
-  },
-  stat: { alignItems: 'center', minWidth: 58 },
-  statBox: {
+  towerImage: { width: 34, height: 42 },
+  statBar: {
     flex: 1,
     minWidth: 0,
-    height: 48,
+    height: 43,
     borderRadius: 12,
+    paddingHorizontal: 2,
     justifyContent: 'center',
-    paddingHorizontal: 3,
+    overflow: 'hidden',
   },
-  statValue: { fontSize: 12, fontWeight: '800' },
-  statLabel: { marginTop: 1, fontSize: 7.5, fontWeight: '600', textAlign: 'center' },
-  metaLine: {
-    marginTop: 6,
+  statGrid: {
+    flex: 1,
+    minWidth: 0,
+    height: '100%',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 8,
+    alignItems: 'stretch',
   },
-  metaText: { fontSize: 9, fontWeight: '700' },
-  towerText: { flex: 1, textAlign: 'right', fontSize: 9, fontWeight: '600' },
+  stat: {
+    flex: 1,
+    minWidth: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 2,
+  },
+  statDivider: {
+    width: StyleSheet.hairlineWidth,
+    height: '58%',
+    alignSelf: 'center',
+  },
+  statValue: { fontSize: 11.5, fontWeight: '800' },
+  statLabel: { marginTop: 1, fontSize: 7.2, fontWeight: '600', textAlign: 'center' },
+  metaLine: {
+    marginTop: 1,
+    alignItems: 'flex-end',
+  },
+  metaText: { fontSize: 8.5, fontWeight: '700', textAlign: 'right' },
   emptyState: {
     flex: 1,
     alignItems: 'center',
