@@ -1265,7 +1265,6 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
             <MaterialCommunityIcons name="gamepad-variant-outline" size={23} color={theme.colors.primary} />
           )}
           <Text numberOfLines={1} style={[styles.battleRankedLabel, { color: theme.colors.onSurface }]}>Ranked</Text>
-          <Text style={[styles.battleScore, { color: theme.colors.onSurface }]}>{resultText}</Text>
         </View>
 
         <View style={[styles.battlePlayerBlock, styles.battlePlayerBlockRight]}>
@@ -1280,9 +1279,22 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
       </View>
 
       {!expanded ? (
-        <View style={styles.battleCollapsedMeta}>
-          <Text style={[styles.battleCollapsedTime, { color: theme.colors.onSurfaceVariant }]}>{formatBattleAge(playedAt)}</Text>
-        </View>
+        <>
+          <View style={styles.battleCollapsedMeta}>
+            <View style={[
+              styles.battleCollapsedResult,
+              { backgroundColor: draw ? theme.colors.surfaceContainer : won ? "#35D07F" : "#FF5C67" },
+            ]}>
+              <Text style={[
+                styles.battleCollapsedResultText,
+                { color: draw ? theme.colors.onSurface : "#101112" },
+              ]}>{resultText}</Text>
+            </View>
+          </View>
+          <View style={styles.battleCollapsedTimeRow}>
+            <Text style={[styles.battleCollapsedTime, { color: theme.colors.onSurfaceVariant }]}>{formatBattleAge(playedAt)}</Text>
+          </View>
+        </>
       ) : (
         <>
           <View style={styles.battleExpandedDeckRow}>
@@ -2863,7 +2875,8 @@ const styles = StyleSheet.create({
   battleTrophyText: { fontSize: 10, fontWeight: "900" },
   battleTrophyChange: { minHeight: 25, minWidth: 34, borderRadius: 8, borderWidth: 1.2, paddingHorizontal: 5, alignItems: "center", justifyContent: "center" },
   battleTrophyChangeText: { fontSize: 10, fontWeight: "900" },
-  battleCollapsedMeta: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", marginTop: 5, paddingHorizontal: 2 },
+  battleCollapsedMeta: { width: "100%", alignItems: "center", justifyContent: "center", marginTop: 6 },
+  battleCollapsedTimeRow: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", marginTop: 4, paddingHorizontal: 2 },
   battleCollapsedTime: { fontSize: 9.5, fontWeight: "700" },
   battleExpandedDeckRow: { width: "100%", flexDirection: "row", alignItems: "flex-start", marginTop: 9 },
   battleSide: { flex: 1, minWidth: 0 },
