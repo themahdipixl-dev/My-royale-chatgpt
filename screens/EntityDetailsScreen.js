@@ -360,35 +360,13 @@ function InfoRow({ index = 0, icon, label, value, theme, onPress }) {
   );
 }
 
-function resolveCurrentDeckImage(card, index, deck) {
+function resolveCurrentDeckImage(card) {
   const urls = card?.iconUrls || {};
-  const normal = urls.medium;
-  const hero = urls.heroMedium;
-  const evolution = urls.evolutionMedium;
+  const level = Number(card?.evolutionLevel);
 
-  // Slot 1: Evolution only. Never use the Hero asset here.
-  if (index === 0) {
-    return evolution || normal;
-  }
-
-  // Slot 2: Hero only. Never use the Evolution asset here.
-  if (index === 1) {
-    return hero || normal;
-  }
-
-  // Slot 3 depends on whether Slot 2 is a Hero.
-  if (index === 2) {
-    const secondCardIsHero = Boolean(deck?.[1]?.iconUrls?.heroMedium);
-
-    if (secondCardIsHero) {
-      return evolution || normal;
-    }
-
-    return hero || evolution || normal;
-  }
-
-  // Slots 4-8: always use the normal card asset.
-  return normal;
+  if (level === 1) return urls.evolutionMedium || urls.medium;
+  if (level === 2) return urls.heroMedium || urls.medium;
+  return urls.medium;
 }
 
 
@@ -461,9 +439,16 @@ function getDeckAverages(deck) {
 
 
 function getCardIdentity(card) {
-  if (card?.id !== undefined && card?.id !== null) return `id:${card.id}`;
-  if (card?.name) return `name:${String(card.name).toLowerCase()}`;
-  return null;
+  const base = card?.id !== undefined && card?.id !== null
+    ? `id:${card.id}`
+    : card?.name
+      ? `name:${String(card.name).toLowerCase()}`
+      : null;
+  if (!base) return null;
+
+  const evolutionLevel = Number(card?.evolutionLevel);
+  const mode = evolutionLevel === 1 ? 'evolution' : evolutionLevel === 2 ? 'hero' : 'normal';
+  return `${base}:mode:${mode}`;
 }
 
 function getCurrentDeckBattleStats(battlelog, currentDeck, playerTag) {
