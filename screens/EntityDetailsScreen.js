@@ -1036,18 +1036,41 @@ function formatBattleMode(battle) {
   return formatGameDisplayName(raw, 'Battle');
 }
 
+function getBattlePlayedAt(battle) {
+  const raw = firstValue(
+    battle?.utcTime,
+    battle?.battleTime,
+    battle?.createdDate,
+    battle?.date,
+  );
+  if (raw === undefined || raw === null || raw === '') return null;
+
+  if (typeof raw === 'number' || /^\d+$/.test(String(raw))) {
+    const numeric = Number(raw);
+    if (!Number.isFinite(numeric)) return null;
+    return new Date(numeric < 1e12 ? numeric * 1000 : numeric);
+  }
+
+  const normalized = String(raw).trim().replace(
+    /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/,
+    '$1-$2-$3T$4:$5:$6Z',
+  );
+  const date = new Date(normalized);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 function formatBattleAge(value) {
-  if (!value) return '—';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return formatDate(value);
+  const date = value instanceof Date ? value : null;
+  if (!date) return '—';
+
   const diff = Math.max(0, Date.now() - date.getTime());
   const minutes = Math.floor(diff / 60000);
   if (minutes < 1) return 'Just now';
   if (minutes < 60) return `${minutes}m ago`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ${minutes % 60}m ago`;
+  if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ${hours % 24}h ago`;
+  if (days < 7) return `${days}d ago`;
   return date.toLocaleDateString();
 }
 
@@ -1184,7 +1207,7 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
   const draw = teamCrowns === opponentCrowns;
   const mode = formatBattleMode(battle);
   const modeImage = getBattleModeImage(battle);
-  const date = firstValue(battle?.battleTime, battle?.createdDate, battle?.date, battle?.utcTime);
+  const playedAt = getBattlePlayedAt(battle);
   const leftPlayer = team[0] || {};
   const rightPlayer = opponent[0] || {};
   const leftChange = getBattleTrophyChange(leftPlayer);
@@ -1193,7 +1216,7 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
   const rightTrophies = getBattleTrophies(rightPlayer);
   const hasTrophyInfo = leftTrophies !== null || rightTrophies !== null || leftChange !== null || rightChange !== null;
   const resultText = String(teamCrowns) + " : " + String(opponentCrowns);
-  const battleKey = String(date || "battle") + "-" + String(index);
+  const battleKey = String(playedAt?.getTime() || "battle") + "-" + String(index);
 
   const leftAccent = teamCrowns > opponentCrowns ? "#35D07F" : teamCrowns < opponentCrowns ? "#FF5C67" : theme.colors.primary;
   const rightAccent = opponentCrowns > teamCrowns ? "#35D07F" : opponentCrowns < teamCrowns ? "#FF5C67" : theme.colors.primary;
@@ -1258,11 +1281,7 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
 
       {!expanded ? (
         <View style={styles.battleCollapsedMeta}>
-          <Text style={[styles.battleCollapsedTime, { color: theme.colors.onSurfaceVariant }]}>{formatBattleAge(date)}</Text>
-          <View style={[styles.battleCollapsedResult, { backgroundColor: draw ? theme.colors.surfaceContainer : won ? "#35D07F" : "#FF5C67" }]}>
-            <Text style={styles.battleCollapsedResultText}>{resultText}</Text>
-          </View>
-          <Text style={[styles.battleCollapsedMode, { color: theme.colors.onSurfaceVariant }]}>{mode}</Text>
+          <Text style={[styles.battleCollapsedTime, { color: theme.colors.onSurfaceVariant }]}>{formatBattleAge(playedAt)}</Text>
         </View>
       ) : (
         <>
@@ -1289,8 +1308,7 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
             />
           </View>
           <View style={styles.battleFooter}>
-            <Text style={[styles.battleDate, { color: theme.colors.onSurfaceVariant }]}>{formatBattleAge(date)}</Text>
-            <Text style={[styles.battleTypeHint, { color: theme.colors.onSurfaceVariant }]}>{mode}</Text>
+            <Text style={[styles.battleDate, { color: theme.colors.onSurfaceVariant }]}>{formatBattleAge(playedAt)}</Text>
           </View>
         </>
       )}
@@ -2823,14 +2841,14 @@ const styles = StyleSheet.create({
   battleRankedLabel: { fontSize: 9.5, fontWeight: "800", textAlign: "center" },
   battleScore: { marginTop: 2, fontSize: 14, fontWeight: "900" },
   battleTrophyCluster: { flexDirection: "row", alignItems: "center", gap: 4 },
-  battleTrophyClusterRight: { justifyContent: "flex-end" },
+  battleTrophyClusterRight: { flexDirection: "row-reverse", justifyContent: "flex-start" },
   battleTrophyValue: { minHeight: 25, borderRadius: 9, borderWidth: 1, paddingHorizontal: 6, flexDirection: "row", alignItems: "center" },
   battleTrophyIcon: { width: 14, height: 14, marginRight: 3 },
   battleTrophyText: { fontSize: 10, fontWeight: "900" },
   battleTrophyChange: { minHeight: 25, minWidth: 34, borderRadius: 8, borderWidth: 1.2, paddingHorizontal: 5, alignItems: "center", justifyContent: "center" },
   battleTrophyChangeText: { fontSize: 10, fontWeight: "900" },
-  battleCollapsedMeta: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 5, paddingHorizontal: 2 },
-  battleCollapsedTime: { width: 56, fontSize: 8.5, fontWeight: "700" },
+  battleCollapsedMeta: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", marginTop: 5, paddingHorizontal: 2 },
+  battleCollapsedTime: { fontSize: 9.5, fontWeight: "700" },
   battleCollapsedResult: { minWidth: 46, minHeight: 25, borderRadius: 9, alignItems: "center", justifyContent: "center", paddingHorizontal: 8 },
   battleCollapsedResultText: { fontSize: 11.5, fontWeight: "900", color: "#101112" },
   battleCollapsedMode: { width: 56, fontSize: 8.5, fontWeight: "700", textAlign: "right" },
@@ -2839,7 +2857,7 @@ const styles = StyleSheet.create({
   battleSideMirrored: { alignItems: "flex-end" },
   battleCardsGrid: { width: "100%", flexDirection: "row", flexWrap: "wrap", gap: 4, justifyContent: "flex-start" },
   battleDeckTools: { width: 132, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 3, marginTop: 7 },
-  battleDeckToolsMirrored: { alignSelf: "flex-end", justifyContent: "flex-end" },
+  battleDeckToolsMirrored: { alignSelf: "flex-end", flexDirection: "row-reverse", justifyContent: "flex-start" },
   battleTowerTool: { width: 30, height: 37, alignItems: "center", justifyContent: "center" },
   battleToolButton: { width: 30, height: 30, borderRadius: 9, alignItems: "center", justifyContent: "center" },
   battleElixirPill: { width: 40, height: 30, borderRadius: 9, paddingHorizontal: 5, alignItems: "center", justifyContent: "center", flexDirection: "row", backgroundColor: "#6C4BD6" },
@@ -2849,7 +2867,7 @@ const styles = StyleSheet.create({
   battleExpandedDivider: { width: 38, alignItems: "center", justifyContent: "center", paddingTop: 38 },
   battleResultBadge: { minWidth: 38, minHeight: 30, borderRadius: 10, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 },
   battleResultBadgeText: { fontSize: 12, fontWeight: "900", color: "#101112" },
-  battleFooter: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 9, paddingHorizontal: 2 },
+  battleFooter: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", marginTop: 9, paddingHorizontal: 2 },
   battleDate: { fontSize: 9.5, fontWeight: "700" },
   battleTypeHint: { fontSize: 9.5, fontWeight: "600" },
   battleChevronButton: { width: 34, height: 25, alignSelf: "center", alignItems: "center", justifyContent: "center", marginTop: 2 },
