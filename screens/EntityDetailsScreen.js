@@ -1281,14 +1281,8 @@ function BattleRow({ battle, theme, index, expanded, onToggle, onCopyDeck, onSav
       {!expanded ? (
         <>
           <View style={styles.battleCollapsedMeta}>
-            <View style={[
-              styles.battleCollapsedResult,
-              { backgroundColor: draw ? theme.colors.surfaceContainer : won ? "#35D07F" : "#FF5C67" },
-            ]}>
-              <Text style={[
-                styles.battleCollapsedResultText,
-                { color: draw ? theme.colors.onSurface : "#101112" },
-              ]}>{resultText}</Text>
+            <View style={[styles.battleResultBadge, { backgroundColor: draw ? theme.colors.surfaceContainer : won ? "#35D07F" : "#FF5C67" }]}>
+              <Text style={styles.battleResultBadgeText}>{resultText}</Text>
             </View>
           </View>
           <View style={styles.battleCollapsedTimeRow}>
