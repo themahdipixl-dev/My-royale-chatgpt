@@ -52,8 +52,23 @@ export async function fetchPlayer(tag) {
 }
 
 export async function fetchPlayerBattlelog(tag) {
-  const data = await getJson(`/api/player/${encodeTag(tag)}/battlelog`);
-  return Array.isArray(data) ? data : getItems(data);
+  let lastError = null;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const data = await getJson(`/api/player/${encodeTag(tag)}/battlelog`);
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data?.battlelog)) return data.battlelog;
+      if (Array.isArray(data?.battles)) return data.battles;
+      if (Array.isArray(data?.items)) return data.items;
+      return getItems(data);
+    } catch (error) {
+      lastError = error;
+      if (attempt < 3) {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      }
+    }
+  }
+  throw lastError || new Error('Could not load battle log.');
 }
 
 const MERGE_TACTICS_LEADERBOARD_ID = 743200;
