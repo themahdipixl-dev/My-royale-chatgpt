@@ -2996,7 +2996,6 @@ const styles = StyleSheet.create({
   achievementStars: { marginLeft: 8, flexDirection: 'row', alignItems: 'center', minWidth: 30, justifyContent: 'flex-end' },
   achievementStarsText: { marginLeft: 2, fontSize: 11, fontWeight: '800' },
   battleLogRevealWrap: { width: "100%" },
-  battleLogCollapsedWrap: { height: 158, overflow: "hidden" },
   battleLogCollapseFade: { position: "absolute", left: 0, right: 0, top: 112, height: 46, overflow: "hidden" },
   battleLogFadeGradient: { flex: 1, width: "100%" },
   battleLogExpandButton: { alignSelf: "center", width: 34, height: 30, marginTop: 8, alignItems: "center", justifyContent: "center" },
