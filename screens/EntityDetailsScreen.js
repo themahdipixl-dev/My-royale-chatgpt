@@ -1403,6 +1403,8 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const [achievementsExpanded, setAchievementsExpanded] = useState(false);
   const achievementsExpandProgress = useRef(new Animated.Value(0)).current;
   const achievementContentY = useRef(0);
+  const [battleLogExpanded, setBattleLogExpanded] = useState(false);
+  const battleLogExpandProgress = useRef(new Animated.Value(0)).current;
   const filterStrokeProgress = useRef({
     evolutions: new Animated.Value(0),
     heroes: new Animated.Value(0),
@@ -1822,6 +1824,17 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const achievementExpandedHeight = achievements.length > 0
     ? achievements.length * achievementRowHeight + Math.max(0, achievements.length - 1) * achievementRowGap
     : 0;
+
+  const toggleBattleLogExpanded = useCallback(() => {
+    const nextExpanded = !battleLogExpanded;
+    setBattleLogExpanded(nextExpanded);
+    Animated.spring(battleLogExpandProgress, {
+      toValue: nextExpanded ? 1 : 0,
+      friction: 8,
+      tension: 65,
+      useNativeDriver: false,
+    }).start();
+  }, [battleLogExpanded, battleLogExpandProgress]);
 
   const toggleAchievementsExpanded = useCallback(() => {
     const nextExpanded = !achievementsExpanded;
@@ -2585,23 +2598,81 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
               ) : battlelog.length === 0 ? (
                 <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No battle log available.</Text>
               ) : (
-                battlelog.map((battle, index) => {
-                  const battleKey = `${battle?.battleTime || battle?.createdDate || battle?.date || 'battle'}-${index}`;
-                  return (
-                    <BattleRow
-                      key={battleKey}
-                      battle={battle}
-                      theme={theme}
-                      index={index}
-                      expanded={Boolean(expandedBattles[battleKey])}
-                      onToggle={() => toggleBattleExpanded(battleKey)}
-                      onCopyDeck={openBattleDeckCopy}
-                      onSaveDeck={toggleSavedBattleDeck}
-                      savedLeft={Boolean(savedBattleDecks[`${battleKey}-left`])}
-                      savedRight={Boolean(savedBattleDecks[`${battleKey}-right`])}
-                    />
-                  );
-                })
+                <>
+                  <Animated.View
+                    style={[
+                      styles.battleLogRevealWrap,
+                      {
+                        maxHeight: battleLogExpandProgress.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [158, Math.max(158, battlelog.length * 120 + Math.max(0, battlelog.length - 1) * 8 + 30)],
+                        }),
+                      },
+                    ]}
+                  >
+                    {battlelog.map((battle, index) => {
+                      const battleKey = `${battle?.battleTime || battle?.createdDate || battle?.date || 'battle'}-${index}`;
+                      return (
+                        <BattleRow
+                          key={battleKey}
+                          battle={battle}
+                          theme={theme}
+                          index={index}
+                          expanded={Boolean(expandedBattles[battleKey])}
+                          onToggle={() => toggleBattleExpanded(battleKey)}
+                          onCopyDeck={openBattleDeckCopy}
+                          onSaveDeck={toggleSavedBattleDeck}
+                          savedLeft={Boolean(savedBattleDecks[`${battleKey}-left`])}
+                          savedRight={Boolean(savedBattleDecks[`${battleKey}-right`])}
+                        />
+                      );
+                    })}
+                    {!battleLogExpanded && battlelog.length > 1 ? (
+                      <View pointerEvents="none" style={styles.battleLogCollapseFade}>
+                        <LinearGradient
+                          colors={[
+                            'transparent',
+                            'rgba(0,0,0,0.025)',
+                            'rgba(0,0,0,0.10)',
+                            theme.colors.surfaceContainer,
+                          ]}
+                          locations={[0, 0.38, 0.68, 1]}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 0, y: 1 }}
+                          dither
+                          style={styles.battleLogFadeGradient}
+                        />
+                      </View>
+                    ) : null}
+                  </Animated.View>
+                  {battlelog.length > 1 ? (
+                    <Pressable
+                      onPress={toggleBattleLogExpanded}
+                      accessibilityLabel={battleLogExpanded ? 'Collapse battle log' : 'Expand battle log'}
+                      style={({ pressed }) => [
+                        styles.battleLogExpandButton,
+                        { opacity: pressed ? 0.55 : 1 },
+                      ]}
+                    >
+                      <Animated.View
+                        style={{
+                          transform: [{
+                            rotate: battleLogExpandProgress.interpolate({
+                              inputRange: [0, 1],
+                              outputRange: ['0deg', '180deg'],
+                            }),
+                          }],
+                        }}
+                      >
+                        <MaterialCommunityIcons
+                          name="chevron-down"
+                          size={24}
+                          color={theme.colors.onSurfaceVariant}
+                        />
+                      </Animated.View>
+                    </Pressable>
+                  ) : null}
+                </>
               )}
             </Surface></AnimatedSection>
 
@@ -2849,6 +2920,10 @@ const styles = StyleSheet.create({
   achievementInfo: { marginTop: 3, fontSize: 9.5 },
   achievementStars: { marginLeft: 8, flexDirection: 'row', alignItems: 'center', minWidth: 30, justifyContent: 'flex-end' },
   achievementStarsText: { marginLeft: 2, fontSize: 11, fontWeight: '800' },
+  battleLogRevealWrap: { width: "100%", overflow: "hidden" },
+  battleLogCollapseFade: { position: "absolute", left: 0, right: 0, top: 112, height: 46, overflow: "hidden" },
+  battleLogFadeGradient: { flex: 1, width: "100%" },
+  battleLogExpandButton: { alignSelf: "center", width: 34, height: 30, marginTop: 8, alignItems: "center", justifyContent: "center" },
   battleLoading: { paddingVertical: 20, alignItems: 'center' },
   battleRowGradient: { width: "100%", borderRadius: 18, padding: 1.2, marginBottom: 8 },
   battleRowInner: { minHeight: 112, borderRadius: 17, paddingHorizontal: 10, paddingTop: 10, paddingBottom: 4, overflow: "hidden" },
