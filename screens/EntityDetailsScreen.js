@@ -981,7 +981,7 @@ function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, compact
         { backgroundColor: theme.colors.surfaceContainerHighest },
         popupVisible && styles.badgeItemActive,
       ]}>
-        <BadgeVisual item={badge} theme={theme} size={compact ? 76 : 96} />
+        <BadgeVisual item={badge} theme={theme} size={compact ? 88 : 96} />
 
         {popupMounted ? (
           <Animated.View
@@ -2869,11 +2869,11 @@ const styles = StyleSheet.create({
   heroTagPressable: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', gap: 5, marginTop: 3, paddingVertical: 1 },
   heroTag: { fontSize: 13, fontWeight: '800' },
   heroSub: { marginTop: 5, fontSize: 11.5 },
-  heroStats: { flexDirection: 'row', alignItems: 'center', marginTop: 15, gap: 1 },
-  heroBadgeSlot: { width: 82, height: 88, zIndex: 20, marginRight: -3 },
-  heroBadgePressable: { width: 82, height: 88, alignItems: 'center', justifyContent: 'center' },
-  heroBadgeVisual: { width: 82, height: 88, alignItems: 'center', justifyContent: 'center', overflow: 'visible' },
-  heroBadgeInfoPopup: { position: 'absolute', top: 54, left: -36, width: 130, minHeight: 76, borderRadius: 14, borderWidth: 1, paddingHorizontal: 9, paddingVertical: 8, alignItems: 'center', justifyContent: 'center', elevation: 8, zIndex: 50 },
+  heroStats: { flexDirection: 'row', alignItems: 'center', marginTop: 15, gap: -6 },
+  heroBadgeSlot: { width: 92, height: 92, zIndex: 20, marginRight: -7 },
+  heroBadgePressable: { width: 92, height: 92, alignItems: 'center', justifyContent: 'center', margin: 0, padding: 0 },
+  heroBadgeVisual: { width: 92, height: 92, alignItems: 'center', justifyContent: 'center', overflow: 'visible', margin: 0, padding: 0 },
+  heroBadgeInfoPopup: { position: 'absolute', top: 72, left: -36, width: 130, minHeight: 76, borderRadius: 14, borderWidth: 1, paddingHorizontal: 9, paddingVertical: 8, alignItems: 'center', justifyContent: 'center', elevation: 8, zIndex: 50 },
   heroTrophyBox: { width: 86, height: 62, borderRadius: 17, borderWidth: 1, overflow: 'hidden', justifyContent: 'center' },
   heroTrophyHalf: { flex: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 7 },
   heroTrophyDivider: { height: 1, width: '100%' },
