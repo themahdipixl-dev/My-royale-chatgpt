@@ -1424,7 +1424,6 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const achievementsExpandProgress = useRef(new Animated.Value(0)).current;
   const achievementContentY = useRef(0);
   const [battleLogExpanded, setBattleLogExpanded] = useState(false);
-  const battleLogExpandProgress = useRef(new Animated.Value(0)).current;
   const filterStrokeProgress = useRef({
     evolutions: new Animated.Value(0),
     heroes: new Animated.Value(0),
@@ -2636,21 +2635,10 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                 <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>No battle log available.</Text>
               ) : (
                 <>
-                  <Animated.View
+                  <View
                     style={[
                       styles.battleLogRevealWrap,
-                      {
-                        maxHeight: battleLogExpandProgress.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [158, 12000],
-                          extrapolate: 'clamp',
-                        }),
-                        opacity: battleLogExpandProgress.interpolate({
-                          inputRange: [0, 0.16, 1],
-                          outputRange: [0.98, 1, 1],
-                          extrapolate: 'clamp',
-                        }),
-                      },
+                      { maxHeight: battleLogExpanded ? 12000 : 158 },
                     ]}
                   >
                     {battlelog.map((battle, index) => {
@@ -2675,11 +2663,11 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                         <LinearGradient
                           colors={[
                             'transparent',
-                            'rgba(0,0,0,0.04)',
-                            'rgba(0,0,0,0.24)',
-                            'rgba(0,0,0,0.62)',
+                            'rgba(0,0,0,0.025)',
+                            'rgba(0,0,0,0.10)',
+                            theme.colors.surfaceContainer,
                           ]}
-                          locations={[0, 0.30, 0.68, 1]}
+                          locations={[0, 0.38, 0.68, 1]}
                           start={{ x: 0, y: 0 }}
                           end={{ x: 0, y: 1 }}
                           dither
@@ -2687,7 +2675,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                         />
                       </View>
                     ) : null}
-                  </Animated.View>
+                  </View>
                   {battlelog.length > 1 ? (
                     <Pressable
                       onPress={toggleBattleLogExpanded}
@@ -2697,22 +2685,9 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                         { opacity: pressed ? 0.55 : 1 },
                       ]}
                     >
-                      <Animated.View
+                      <View
                         style={{
-                          transform: [
-                            {
-                              rotate: battleLogExpandProgress.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: ['0deg', '180deg'],
-                              }),
-                            },
-                            {
-                              scale: battleLogExpandProgress.interpolate({
-                                inputRange: [0, 0.5, 1],
-                                outputRange: [0.88, 1.04, 1],
-                              }),
-                            },
-                          ],
+                          transform: [{ rotate: battleLogExpanded ? '180deg' : '0deg' }],
                         }}
                       >
                         <MaterialCommunityIcons
@@ -2720,7 +2695,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
                           size={24}
                           color={theme.colors.onSurfaceVariant}
                         />
-                      </Animated.View>
+                      </View>
                     </Pressable>
                   ) : null}
                 </>
@@ -2972,9 +2947,9 @@ const styles = StyleSheet.create({
   achievementStars: { marginLeft: 8, flexDirection: 'row', alignItems: 'center', minWidth: 30, justifyContent: 'flex-end' },
   achievementStarsText: { marginLeft: 2, fontSize: 11, fontWeight: '800' },
   battleLogRevealWrap: { width: "100%" },
-  battleLogCollapseFade: { position: "absolute", left: 0, right: 0, top: 108, height: 50, overflow: "hidden", zIndex: 20, elevation: 20 },
+  battleLogCollapseFade: { position: "absolute", left: 0, right: 0, top: 123, height: 36, overflow: "hidden" },
   battleLogFadeGradient: { flex: 1, width: "100%" },
-  battleLogExpandButton: { alignSelf: "center", width: 34, height: 30, marginTop: 8, alignItems: "center", justifyContent: "center" },
+  battleLogExpandButton: { alignSelf: "center", width: 34, height: 30, marginTop: 14, alignItems: "center", justifyContent: "center" },
   battleLoading: { paddingVertical: 20, alignItems: 'center' },
   battleRowGradient: { width: "100%", borderRadius: 18, padding: 1.2, marginBottom: 8 },
   battleRowInner: { minHeight: 0, borderRadius: 17, paddingHorizontal: 10, paddingTop: 7, paddingBottom: 2, overflow: "hidden" },
