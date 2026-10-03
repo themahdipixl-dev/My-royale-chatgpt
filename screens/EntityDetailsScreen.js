@@ -1062,8 +1062,8 @@ function getBattlePlayedAt(battle) {
   }
 
   const normalized = String(raw).trim().replace(
-    /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/,
-    '$1-$2-$3T$4:$5:$6Z',
+    /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(?:\.(\d+))?Z?$/,
+    '$1-$2-$3T$4:$5:$6.7Z',
   );
   const date = new Date(normalized);
   return Number.isNaN(date.getTime()) ? null : date;
@@ -3010,7 +3010,7 @@ const styles = StyleSheet.create({
   battleFooter: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", marginTop: 9, paddingHorizontal: 2 },
   battleDate: { fontSize: 9.5, fontWeight: "700" },
   battleChevronButton: { width: 34, height: 25, alignSelf: "center", alignItems: "center", justifyContent: "center", marginTop: 2 },
-  battleChevronButtonCollapsed: { position: "absolute", left: 0, right: 0, bottom: 1, marginTop: 0, alignSelf: "center" },
+  battleChevronButtonCollapsed: { position: "absolute", left: "50%", width: 34, marginLeft: -17, bottom: 1, marginTop: 0, alignSelf: "auto" },
 
 
   emptyText: { fontSize: 12, lineHeight: 18 },
