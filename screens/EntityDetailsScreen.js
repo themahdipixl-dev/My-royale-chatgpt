@@ -1022,7 +1022,7 @@ function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, compact
     <AnimatedDetailItem
       index={index}
       layoutStyle={[
-        compact ? [styles.heroBadgeSlot, { left: index * 66 }] : (playerDetailsGrid ? styles.badgeItemPlayerDetails : styles.badgeItem),
+        compact ? [styles.heroBadgeSlot, { left: index * 82 }] : (playerDetailsGrid ? styles.badgeItemPlayerDetails : styles.badgeItem),
         popupVisible && styles.badgeItemPopupActive,
       ]}
     >
@@ -2872,7 +2872,7 @@ const styles = StyleSheet.create({
   heroTag: { fontSize: 13, fontWeight: '800' },
   heroSub: { marginTop: 5, fontSize: 11.5 },
   heroStats: { flexDirection: 'row', alignItems: 'center', marginTop: 15, gap: 0 },
-  heroBadgeCluster: { width: 195, height: 104, position: 'relative', marginLeft: -18, marginRight: 0 },
+  heroBadgeCluster: { width: 240, height: 104, position: 'relative', marginLeft: -18, marginRight: 0 },
   heroBadgeSlot: { position: 'absolute', top: 0, width: 104, height: 104, zIndex: 20 },
   heroBadgePressable: { width: 104, height: 104, alignItems: 'center', justifyContent: 'center', margin: 0, padding: 0 },
   heroBadgeVisual: { width: 104, height: 104, alignItems: 'center', justifyContent: 'center', overflow: 'visible', margin: 0, padding: 0 },
