@@ -1,9 +1,10 @@
 // Clan Details screen — shared Material You structure with Player Details.
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Animated, LayoutAnimation, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { IconButton, Text, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { fetchClan, fetchClanMembers } from '../api/client';
 import { getClanBadgeImage } from '../utils/clanBadges';
 import RetryImage from '../components/RetryImage';
@@ -61,6 +62,7 @@ export default function ClanDetailsScreen({ entity, onBack }) {
   const [loading, setLoading] = useState(Boolean(tag));
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
+  const [membersExpanded, setMembersExpanded] = useState(false);
   const entrance = useRef(new Animated.Value(0)).current;
 
   const load = useCallback(async (isRefresh = false) => {
@@ -148,7 +150,35 @@ export default function ClanDetailsScreen({ entity, onBack }) {
 
         <View style={[styles.sectionCard, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}>
           <SectionTitle icon="account-group" title="Members" right={memberCount !== null ? String(memberCount) : undefined} theme={theme} />
-          {members.length ? members.map((member,index) => <MemberRow key={member?.tag || member?.name || index} member={member} index={index} theme={theme} />) : <View style={styles.empty}><MaterialCommunityIcons name="account-group-outline" size={28} color={theme.colors.onSurfaceVariant} /><Text style={[styles.emptyText,{color:theme.colors.onSurfaceVariant}]}>Member list unavailable</Text></View>}
+          {members.length ? (
+            <>
+              <View style={[styles.membersRevealWrap, { maxHeight: membersExpanded ? 10000 : 250 }]}>
+                {members.map((member,index) => <MemberRow key={member?.tag || member?.name || index} member={member} index={index} theme={theme} />)}
+                {!membersExpanded ? (
+                  <LinearGradient
+                    pointerEvents="none"
+                    colors={['transparent', theme.colors.surfaceContainer]}
+                    locations={[0, 1]}
+                    style={styles.membersCollapseFade}
+                  />
+                ) : null}
+              </View>
+              <Pressable
+                onPress={() => {
+                  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                  setMembersExpanded(value => !value);
+                }}
+                style={styles.membersExpandButton}
+                accessibilityLabel={membersExpanded ? 'Collapse members' : 'Expand members'}
+              >
+                <MaterialCommunityIcons
+                  name={membersExpanded ? 'chevron-up' : 'chevron-down'}
+                  size={24}
+                  color={theme.colors.onSurfaceVariant}
+                />
+              </Pressable>
+            </>
+          ) : <View style={styles.empty}><MaterialCommunityIcons name="account-group-outline" size={28} color={theme.colors.onSurfaceVariant} /><Text style={[styles.emptyText,{color:theme.colors.onSurfaceVariant}]}>Member list unavailable</Text></View>}
         </View>
         <View style={styles.bottomSpace} />
       </Animated.ScrollView>}
@@ -157,5 +187,5 @@ export default function ClanDetailsScreen({ entity, onBack }) {
 }
 
 const styles=StyleSheet.create({
- flex:{flex:1}, header:{height:58,flexDirection:'row',alignItems:'center',paddingHorizontal:6},back:{margin:0},headerTitle:{fontSize:18,fontWeight:'800',marginLeft:4},content:{padding:14,paddingBottom:38,gap:10},heroCard:{borderRadius:24,borderWidth:1,padding:14},heroTop:{flexDirection:'row',alignItems:'center'},heroBadgeWrap:{width:70,height:70,borderRadius:22,alignItems:'center',justifyContent:'center'},heroBadge:{width:58,height:58},heroIdentity:{flex:1,minWidth:0,marginLeft:13},heroName:{fontSize:23,fontWeight:'900',letterSpacing:-.3},tagPressable:{flexDirection:'row',alignItems:'center',gap:5,marginTop:3,alignSelf:'flex-start'},heroTag:{fontSize:12.5,fontWeight:'800'},heroSub:{marginTop:5,fontSize:10.5,fontWeight:'600'},heroStats:{flexDirection:'row',gap:8,marginTop:12},statGrid:{flexDirection:'row',flexWrap:'wrap',gap:8},statCard:{flex:1,minWidth:'47%',minHeight:78,borderRadius:18,borderWidth:1,padding:9},statIcon:{width:30,height:30,borderRadius:10,alignItems:'center',justifyContent:'center'},statLabel:{fontSize:8.5,fontWeight:'700',marginTop:5},statValue:{fontSize:16,fontWeight:'900',marginTop:1},sectionCard:{borderRadius:20,borderWidth:1,padding:12},sectionTitleRow:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:10},sectionTitleLeft:{flexDirection:'row',alignItems:'center',minWidth:0},sectionIcon:{width:31,height:31,borderRadius:10,alignItems:'center',justifyContent:'center',marginRight:8},sectionTitle:{fontSize:14,fontWeight:'900'},sectionRight:{fontSize:10,fontWeight:'800'},description:{fontSize:11,lineHeight:17,fontWeight:'600',marginBottom:9},infoRows:{gap:7},infoRow:{minHeight:34,flexDirection:'row',alignItems:'center'},infoLabel:{fontSize:10,fontWeight:'700',marginLeft:8},infoValue:{fontSize:10.5,fontWeight:'800',marginLeft:'auto',maxWidth:'52%'},memberRow:{minHeight:58,borderRadius:16,borderWidth:1,marginBottom:7,paddingHorizontal:8,flexDirection:'row',alignItems:'center'},memberRank:{width:28,height:28,borderRadius:10,alignItems:'center',justifyContent:'center'},memberRankText:{fontSize:10,fontWeight:'900'},memberBadge:{width:36,height:36,borderRadius:12,alignItems:'center',justifyContent:'center',marginLeft:7},memberBadgeImage:{width:30,height:30},memberMain:{flex:1,minWidth:0,marginLeft:8},memberName:{fontSize:12.5,fontWeight:'800'},memberRole:{fontSize:9,marginTop:2,fontWeight:'600'},memberScore:{flexDirection:'row',alignItems:'center',marginLeft:7,gap:3},memberScoreText:{fontSize:10,fontWeight:'800'},center:{flex:1,alignItems:'center',justifyContent:'center',padding:28},loadingText:{marginTop:8,fontSize:11},errorIcon:{width:52,height:52,borderRadius:17,alignItems:'center',justifyContent:'center'},errorTitle:{fontSize:17,fontWeight:'900',marginTop:10},errorText:{fontSize:11,textAlign:'center',marginTop:5},retryButton:{marginTop:12,paddingHorizontal:18,paddingVertical:9,borderRadius:18},retryText:{fontSize:11,fontWeight:'800'},empty:{alignItems:'center',paddingVertical:18},emptyText:{fontSize:10,marginTop:6},bottomSpace:{height:45}
+ flex:{flex:1}, header:{height:58,flexDirection:'row',alignItems:'center',paddingHorizontal:6},back:{margin:0},headerTitle:{fontSize:18,fontWeight:'800',marginLeft:4},content:{padding:14,paddingBottom:38,gap:10},heroCard:{borderRadius:24,borderWidth:1,padding:14},heroTop:{flexDirection:'row',alignItems:'center'},heroBadgeWrap:{width:70,height:70,borderRadius:22,alignItems:'center',justifyContent:'center'},heroBadge:{width:58,height:58},heroIdentity:{flex:1,minWidth:0,marginLeft:13},heroName:{fontSize:23,fontWeight:'900',letterSpacing:-.3},tagPressable:{flexDirection:'row',alignItems:'center',gap:5,marginTop:3,alignSelf:'flex-start'},heroTag:{fontSize:12.5,fontWeight:'800'},heroSub:{marginTop:5,fontSize:10.5,fontWeight:'600'},heroStats:{flexDirection:'row',gap:8,marginTop:12},statGrid:{flexDirection:'row',gap:7},statCard:{flex:1,minWidth:0,minHeight:82,borderRadius:18,borderWidth:1,padding:9},statIcon:{width:30,height:30,borderRadius:10,alignItems:'center',justifyContent:'center'},statLabel:{fontSize:8.5,fontWeight:'700',marginTop:5},statValue:{fontSize:16,fontWeight:'900',marginTop:1},sectionCard:{borderRadius:20,borderWidth:1,padding:12},sectionTitleRow:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:10},sectionTitleLeft:{flexDirection:'row',alignItems:'center',minWidth:0},sectionIcon:{width:31,height:31,borderRadius:10,alignItems:'center',justifyContent:'center',marginRight:8},sectionTitle:{fontSize:14,fontWeight:'900'},sectionRight:{fontSize:10,fontWeight:'800'},description:{fontSize:11,lineHeight:17,fontWeight:'600',marginBottom:9},infoRows:{gap:7},infoRow:{minHeight:34,flexDirection:'row',alignItems:'center'},infoLabel:{fontSize:10,fontWeight:'700',marginLeft:8},infoValue:{fontSize:10.5,fontWeight:'800',marginLeft:'auto',maxWidth:'52%'},memberRow:{minHeight:58,borderRadius:16,borderWidth:1,marginBottom:7,paddingHorizontal:8,flexDirection:'row',alignItems:'center'},memberRank:{width:28,height:28,borderRadius:10,alignItems:'center',justifyContent:'center'},memberRankText:{fontSize:10,fontWeight:'900'},memberBadge:{width:36,height:36,borderRadius:12,alignItems:'center',justifyContent:'center',marginLeft:7},memberBadgeImage:{width:30,height:30},memberMain:{flex:1,minWidth:0,marginLeft:8},memberName:{fontSize:12.5,fontWeight:'800'},memberRole:{fontSize:9,marginTop:2,fontWeight:'600'},memberScore:{flexDirection:'row',alignItems:'center',marginLeft:7,gap:3},memberScoreText:{fontSize:10,fontWeight:'800'},center:{flex:1,alignItems:'center',justifyContent:'center',padding:28},loadingText:{marginTop:8,fontSize:11},errorIcon:{width:52,height:52,borderRadius:17,alignItems:'center',justifyContent:'center'},errorTitle:{fontSize:17,fontWeight:'900',marginTop:10},errorText:{fontSize:11,textAlign:'center',marginTop:5},retryButton:{marginTop:12,paddingHorizontal:18,paddingVertical:9,borderRadius:18},retryText:{fontSize:11,fontWeight:'800'},empty:{alignItems:'center',paddingVertical:18},emptyText:{fontSize:10,marginTop:6},membersRevealWrap:{position:'relative',overflow:'hidden'},membersCollapseFade:{position:'absolute',left:0,right:0,bottom:0,height:48},membersExpandButton:{alignSelf:'center',width:38,height:30,marginTop:2,alignItems:'center',justifyContent:'center'},bottomSpace:{height:45}
 });
