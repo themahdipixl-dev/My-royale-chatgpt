@@ -1022,7 +1022,7 @@ function BadgeItem({ index = 0, badge, theme, playerDetailsGrid = false, compact
     <AnimatedDetailItem
       index={index}
       layoutStyle={[
-        compact ? [styles.heroBadgeSlot, { left: index * 45 }] : (playerDetailsGrid ? styles.badgeItemPlayerDetails : styles.badgeItem),
+        compact ? [styles.heroBadgeSlot, { left: index * 58 }] : (playerDetailsGrid ? styles.badgeItemPlayerDetails : styles.badgeItem),
         popupVisible && styles.badgeItemPopupActive,
       ]}
     >
