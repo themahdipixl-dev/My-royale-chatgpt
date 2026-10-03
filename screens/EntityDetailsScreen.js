@@ -1395,6 +1395,7 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   const [refreshing, setRefreshing] = useState(false);
   const [battleLoading, setBattleLoading] = useState(false);
   const [battleError, setBattleError] = useState(null);
+  const battlelogLoadingRef = useRef(false);
   const [error, setError] = useState(null);
   const [showAllBadges, setShowAllBadges] = useState(false);
   const [activeBadgeKey, setActiveBadgeKey] = useState(null);
@@ -1543,7 +1544,11 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
 
     fetchPlayer(tag)
       .then((data) => {
-        if (!cancelled) setPlayer(data);
+        if (cancelled) return;
+        setPlayer(data);
+        // Start Battle Log only after the player request has completed.
+        // This avoids firing both Worker requests simultaneously on first entry.
+        loadBattlelog();
       })
       .catch((err) => {
         if (!cancelled) setError(err?.message || 'Could not load player details.');
@@ -1555,12 +1560,15 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
     return () => {
       cancelled = true;
     };
-  }, [isClan, tag]);
+  }, [isClan, tag, loadBattlelog]);
 
   const loadBattlelog = useCallback(() => {
-    if (isClan || !tag) return;
+    if (isClan || !tag || battlelogLoadingRef.current) return;
+
+    battlelogLoadingRef.current = true;
     setBattleLoading(true);
     setBattleError(null);
+
     fetchPlayerBattlelog(tag)
       .then((items) => {
         setBattlelog(Array.isArray(items) ? items : []);
@@ -1568,7 +1576,10 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
       .catch((err) => {
         setBattleError(err?.message || 'Could not load battle log.');
       })
-      .finally(() => setBattleLoading(false));
+      .finally(() => {
+        battlelogLoadingRef.current = false;
+        setBattleLoading(false);
+      });
   }, [isClan, tag]);
 
   const refreshProgress = useRef(new Animated.Value(0)).current;
@@ -1631,10 +1642,6 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   }, [isClan, tag, refreshing, refreshProgress, refreshRotate, loadBattlelog, playEntranceAnimation]);
 
 
-
-  useEffect(() => {
-    loadBattlelog();
-  }, [loadBattlelog]);
 
   const data = player || entity || {};
   const currentDeck = useMemo(() => (Array.isArray(data.currentDeck) ? data.currentDeck : []), [data.currentDeck]);
