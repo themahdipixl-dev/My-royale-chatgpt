@@ -1147,7 +1147,7 @@ function resolveBattleCardImage(card, index, deck) {
 function BattleCardImage({ card, theme, size = 42, index = 0, deck = [] }) {
   const image = resolveBattleCardImage(card, index, deck);
   return (
-    <View style={[styles.battleCard, { width: size, height: Math.round(size * 1.22), marginRight: -1.5 }]}>
+    <View style={[styles.battleCard, { width: size, height: Math.round(size * 1.22), marginRight: -3.5 }]}>
       {image ? (
         <RetryImage uri={image} style={styles.battleCardImage} resizeMode="contain" />
       ) : (
@@ -3011,7 +3011,7 @@ const styles = StyleSheet.create({
   battleElixirPill: { width: 32, height: 25, borderRadius: 8, paddingHorizontal: 3, alignItems: "center", justifyContent: "center", flexDirection: "row", backgroundColor: "#6C4BD6" },
   battleElixirText: { marginLeft: 1, fontSize: 9.5, fontWeight: "900" },
   battleCard: { overflow: "hidden", alignItems: "center", justifyContent: "center" },
-  battleCardImage: { width: "100%", height: "100%" },
+  battleCardImage: { width: "100%", height: "100%", transform: [{ scale: 1.16 }] },
   battleExpandedDivider: { width: 24, alignItems: "center", justifyContent: "center", paddingTop: 38 },
   battleResultBadge: { minWidth: 38, minHeight: 30, borderRadius: 10, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 },
   battleResultBadgeText: { fontSize: 12, fontWeight: "900", color: "#101112" },
