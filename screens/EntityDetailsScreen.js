@@ -4,7 +4,10 @@ import {
   ActivityIndicator,
   Modal,
   Animated,
+  LayoutAnimation,
   BackHandler,
+  Platform,
+  UIManager,
   FlatList,
   Image,
   Linking,
@@ -25,6 +28,13 @@ import { getPlayerLeagueImage } from '../utils/playerLeagueassets';
 import RetryImage from '../components/RetryImage';
 const pointIcon = require('../assets/Point-icon.png');
 const loadedBadgeImageUris = new Set();
+
+if (
+  Platform.OS === 'android' &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 function firstValue(...values) {
   return values.find((value) => value !== undefined && value !== null && value !== '') ?? null;
@@ -1674,6 +1684,21 @@ function EntityDetailsScreen({ entity, type = 'player', onBack }) {
   }, [closeCopyDeckModal, copyDeckTarget, currentDeck]);
 
   const toggleBattleExpanded = useCallback((key) => {
+    LayoutAnimation.configureNext({
+      duration: 360,
+      create: {
+        type: LayoutAnimation.Types.easeOut,
+        property: LayoutAnimation.Properties.opacity,
+      },
+      update: {
+        type: LayoutAnimation.Types.spring,
+        springDamping: 0.82,
+      },
+      delete: {
+        type: LayoutAnimation.Types.easeIn,
+        property: LayoutAnimation.Properties.opacity,
+      },
+    });
     setExpandedBattles((current) => ({ ...current, [key]: !current[key] }));
   }, []);
 
