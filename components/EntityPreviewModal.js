@@ -197,7 +197,7 @@ function AnimatedIcon({ children, delay = 0, style }) {
   );
 }
 
-function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant = 'default', delay = 0, style }) {
+function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant = 'default', delay = 0, style, contentStyle, textStyle }) {
   const isFeatured = variant === 'featured';
   const isCompact = variant === 'compact';
 
@@ -213,7 +213,7 @@ function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant
         { backgroundColor: theme.colors.surfaceContainerHighest, borderColor: theme.colors.outlineVariant },
       ]}
     >
-      <View style={[styles.tileContent, isFeatured && styles.featuredContent, isCompact && styles.compactContent]}>
+      <View style={[styles.tileContent, isFeatured && styles.featuredContent, isCompact && styles.compactContent, contentStyle]}>
         <View style={[styles.tileIconWrap, isFeatured && styles.featuredIconWrap]}>
           <AnimatedIcon delay={delay}>
             {imageUri ? (
@@ -230,7 +230,7 @@ function InfoTile({ icon, image, label, value, theme, imageUri, onPress, variant
           </AnimatedIcon>
         </View>
 
-        <View style={[styles.tileTextBlock, isFeatured && styles.featuredTextBlock, isCompact && styles.compactTextBlock]}>
+        <View style={[styles.tileTextBlock, isFeatured && styles.featuredTextBlock, isCompact && styles.compactTextBlock, textStyle]}>
           <AnimatedTypingText
             style={[styles.tileLabel, isFeatured && styles.featuredLabel, isCompact && styles.compactLabel, { color: theme.colors.onSurfaceVariant }]}
             numberOfLines={isFeatured ? 2 : 1}
@@ -539,10 +539,10 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
                 </View>
 
                 <View style={styles.clanMetricGrid}>
-                  <InfoTile icon="sword-cross" label="War trophies" value={clanWarTrophies !== null ? formatNumber(clanWarTrophies) : '—'} theme={theme} variant="compact" delay={180} style={styles.clanMetricTile} />
-                  <InfoTile icon="trophy-outline" label="Required trophies" value={requiredTrophies !== null ? formatNumber(requiredTrophies) : '—'} theme={theme} variant="compact" delay={230} style={styles.clanMetricTile} />
-                  <InfoTile icon="shield-star-outline" label="War league" value={league || '—'} theme={theme} variant="compact" delay={280} style={styles.clanMetricTile} />
-                  <InfoTile icon="earth" label="Country" value={country || '—'} theme={theme} variant="compact" delay={330} />
+                  <InfoTile icon="sword-cross" label="War trophies" value={clanWarTrophies !== null ? formatNumber(clanWarTrophies) : '—'} theme={theme} variant="compact" delay={180} style={styles.clanMetricTile} contentStyle={styles.clanMetricContent} textStyle={styles.clanMetricText} />
+                  <InfoTile icon="trophy-outline" label="Required trophies" value={requiredTrophies !== null ? formatNumber(requiredTrophies) : '—'} theme={theme} variant="compact" delay={230} style={styles.clanMetricTile} contentStyle={styles.clanMetricContent} textStyle={styles.clanMetricText} />
+                  <InfoTile icon="shield-star-outline" label="War league" value={league || '—'} theme={theme} variant="compact" delay={280} style={styles.clanMetricTile} contentStyle={styles.clanMetricContent} textStyle={styles.clanMetricText} />
+                  <InfoTile icon="earth" label="Country" value={country || '—'} theme={theme} variant="compact" delay={330} style={styles.clanMetricTile} contentStyle={styles.clanMetricContent} textStyle={styles.clanMetricText} />
                 </View>
 
                 {clanDescription ? (
@@ -754,7 +754,7 @@ export default function EntityPreviewModal({ visible, entity, type = 'player', c
   );
 }
 
-const popupHeight = 390;
+const popupHeight = 410;
 
 const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -818,20 +818,22 @@ const styles = StyleSheet.create({
   playerErrorContainer: { position: 'absolute', left: 18, right: 18, bottom: 8, alignItems: 'center' },
   playerErrorText: { textAlign: 'center', fontSize: 12 },
   retryButton: { marginTop: 8, borderRadius: 18, minHeight: 36 },
-  clanBody: { flex: 1, justifyContent: 'flex-start', gap: 8 },
-  primaryStats: { flexDirection: 'row', gap: 7, marginTop: 1 },
-  primaryStat: { flex: 1, minHeight: 66, borderRadius: 15, paddingHorizontal: 9, backgroundColor: 'rgba(127,127,127,0.10)', flexDirection: 'row', alignItems: 'center', borderWidth: 1 },
+  clanBody: { flex: 1, justifyContent: 'flex-start', gap: 10, paddingTop: 2 },
+  primaryStats: { flexDirection: 'row', gap: 8, marginTop: 0 },
+  primaryStat: { flex: 1, minHeight: 72, borderRadius: 15, paddingHorizontal: 9, backgroundColor: 'rgba(127,127,127,0.10)', flexDirection: 'row', alignItems: 'center', borderWidth: 1 },
   primaryStatIcon: { width: 22, height: 22 },
   statText: { flex: 1, marginLeft: 7, minWidth: 0 },
   statLabel: { fontSize: 9, fontWeight: '600' },
   statValue: { fontSize: 16, fontWeight: '800', marginTop: 1 },
-  clanMetricGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 6, rowGap: 8, marginTop: 0 },
-  clanMetricTile: { minHeight: 44 },
-  clanDescriptionCard: { minHeight: 54, maxHeight: 72, borderRadius: 15, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 7, flexDirection: 'row', alignItems: 'flex-start' },
+  clanMetricGrid: { flexDirection: 'row', gap: 7, marginTop: 0 },
+  clanMetricTile: { flex: 1, minWidth: 0, minHeight: 62, borderRadius: 16, paddingHorizontal: 3, paddingVertical: 6 },
+  clanMetricContent: { flexDirection: 'column', alignItems: 'center', justifyContent: 'center' },
+  clanMetricText: { marginLeft: 0, alignItems: 'center', justifyContent: 'center', width: '100%' },
+  clanDescriptionCard: { minHeight: 58, maxHeight: 72, borderRadius: 15, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 7, flexDirection: 'row', alignItems: 'flex-start' },
   clanDescriptionIcon: { width: 28, height: 28, borderRadius: 9, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   clanDescriptionText: { flex: 1, minWidth: 0, marginLeft: 7, fontSize: 9.5, lineHeight: 14, fontWeight: '600' },
   clanFooterRow: { flexDirection: 'row', gap: 6 },
-  clanFooterItem: { flex: 1, minWidth: 0, minHeight: 43, borderRadius: 14, borderWidth: 1, paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center' },
+  clanFooterItem: { flex: 1, minWidth: 0, minHeight: 48, borderRadius: 14, borderWidth: 1, paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center' },
   clanFooterLabel: { flex: 1, minWidth: 0, marginLeft: 6, fontSize: 7.5, fontWeight: '600' },
   clanFooterValue: { marginLeft: 5, fontSize: 9.5, fontWeight: '900' },
 });
