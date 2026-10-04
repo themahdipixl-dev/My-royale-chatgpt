@@ -93,6 +93,10 @@ export default function App() {
         return order[Math.min(order.length - 1, index + 1)];
       })} />;
     }
+    if (activeTab === 'rewards') {
+      const RewardsScreen = require('./screens/RewardsScreen').default;
+      return <RewardsScreen />;
+    }
     if (activeTab === 'cards') {
       const DeckAnalysisScreen = require('./screens/DeckAnalysisScreen').default;
       return <DeckAnalysisScreen />;
