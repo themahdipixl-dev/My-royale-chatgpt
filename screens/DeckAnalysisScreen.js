@@ -147,7 +147,7 @@ function buildCardStats(decks) {
   const values = Array.from(stats.values()).map((card) => ({
     ...card,
     usageRate: decks.reduce((sum, deck) => sum + (Number(deck?.games || 0)), 0)
-      ? (card.games / (decks.reduce((sum, deck) => sum + Number(deck?.games || 0), 0) / 8)) * 100
+      ? (card.games / decks.reduce((sum, deck) => sum + Number(deck?.games || 0), 0)) * 100
       : 0,
     deckWinRate: card.games ? (card.wins / card.games) * 100 : 0,
   }));
