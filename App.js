@@ -73,7 +73,7 @@ export default function App() {
   const bottomTabSwipeResponder = useRef(PanResponder.create({
     onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 4 && Math.abs(g.dx) > Math.abs(g.dy) * 1.2,
     onPanResponderRelease: (_, g) => {
-      const order = ['rankings', 'clans', 'home', 'cards', 'profile'];
+      const order = ['rankings', 'rewards', 'home', 'cards', 'profile'];
       const index = order.indexOf(activeTabRef.current);
       if (index < 0) return;
       const shouldChange = Math.abs(g.dx) >= windowWidth * 0.22 || Math.abs(g.vx) >= 0.45;
@@ -88,7 +88,7 @@ export default function App() {
     if (activeTab === 'rankings') {
       const RankingsScreen = require('./screens/RankingsScreen').default;
       return <RankingsScreen onRequestHome={() => setActiveTab('home')} onRequestBottomNext={() => setActiveTab((current) => {
-        const order = ['rankings', 'clans', 'home', 'cards', 'profile'];
+        const order = ['rankings', 'rewards', 'home', 'cards', 'profile'];
         const index = order.indexOf(current);
         return order[Math.min(order.length - 1, index + 1)];
       })} />;
