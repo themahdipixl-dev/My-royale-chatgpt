@@ -84,7 +84,7 @@ export default function App() {
   })).current;
 
   const renderScreen = () => {
-    if (activeTab === 'home') return <HomeScreen />;
+    if (activeTab === 'home') return <HomeScreen onNavigate={setActiveTab} />;
     if (activeTab === 'rankings') {
       const RankingsScreen = require('./screens/RankingsScreen').default;
       return <RankingsScreen onRequestHome={() => setActiveTab('home')} onRequestBottomNext={() => setActiveTab((current) => {
