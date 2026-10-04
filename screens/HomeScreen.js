@@ -1,6 +1,6 @@
 // * screens/HomeScreen.js — Home search with results, history, and tag lookup (v54)
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, BackHandler, Keyboard, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Animated, BackHandler, Keyboard, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Surface, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -8,7 +8,7 @@ import { fetchSearch } from '../api/client';
 import EntityDetailsScreen from './EntityDetailsScreen';
 import TournamentDetailsScreen from './TournamentDetailsScreen';
 
-export default function HomeScreen() {
+export default function HomeScreen({ onNavigate }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const entrance = useRef(new Animated.Value(0)).current;
@@ -305,22 +305,150 @@ export default function HomeScreen() {
           {
             opacity: entrance,
             transform: [
-              { translateY: entrance.interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) },
-              { scale: entrance.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) },
+              { translateY: entrance.interpolate({ inputRange: [0, 1], outputRange: [22, 0] }) },
+              { scale: entrance.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1] }) },
             ],
           },
         ]}
       >
-        <Surface
-          elevation={0}
-          style={[styles.card, { backgroundColor: theme.colors.surfaceContainer, borderColor: theme.colors.outlineVariant }]}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
         >
-          <View style={[styles.icon, { backgroundColor: theme.colors.primaryContainer }]}>
-            <MaterialCommunityIcons name="home-variant" size={32} color={theme.colors.onPrimaryContainer} />
+          <View style={styles.heroHeader}>
+            <View style={styles.heroTitleRow}>
+              <View>
+                <Text style={[styles.eyebrow, { color: theme.colors.primary }]}>WELCOME TO</Text>
+                <Text style={[styles.heroTitle, { color: theme.colors.onSurface }]}>My Royale</Text>
+              </View>
+              <Pressable
+                onPress={() => onNavigate?.('profile')}
+                hitSlop={8}
+                style={({ pressed }) => [
+                  styles.profileButton,
+                  {
+                    backgroundColor: theme.colors.surfaceContainerHighest,
+                    borderColor: theme.colors.outlineVariant,
+                    opacity: pressed ? 0.72 : 1,
+                  },
+                ]}
+              >
+                <MaterialCommunityIcons name="account-cog-outline" size={22} color={theme.colors.onSurface} />
+              </Pressable>
+            </View>
+            <Text style={[styles.heroSubtitle, { color: theme.colors.onSurfaceVariant }]}>
+              Everything Clash Royale, in one place.
+            </Text>
           </View>
-          <Text style={[styles.title, { color: theme.colors.onSurface }]}>My Royale</Text>
-          <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>Your Clash Royale hub</Text>
-        </Surface>
+
+          <Pressable
+            onPress={() => setSearchOpen(true)}
+            style={({ pressed }) => [
+              styles.heroCard,
+              {
+                backgroundColor: theme.colors.primaryContainer,
+                borderColor: theme.colors.outlineVariant,
+                transform: [{ scale: pressed ? 0.985 : 1 }],
+              },
+            ]}
+          >
+            <View style={styles.heroGlow} />
+            <View style={styles.heroIcon}>
+              <MaterialCommunityIcons name="crown-outline" size={34} color={theme.colors.onPrimaryContainer} />
+            </View>
+            <View style={styles.heroText}>
+              <Text style={[styles.heroCardTitle, { color: theme.colors.onPrimaryContainer }]}>
+                Find your Royale
+              </Text>
+              <Text style={[styles.heroCardSub, { color: theme.colors.onPrimaryContainer }]}>
+                Search a player, clan or tournament
+              </Text>
+            </View>
+            <View style={[styles.heroArrow, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+              <MaterialCommunityIcons name="arrow-up-right" size={19} color={theme.colors.onSurface} />
+            </View>
+          </Pressable>
+
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>QUICK ACCESS</Text>
+          </View>
+
+          <View style={styles.quickGrid}>
+            {[
+              { key: 'rankings', title: 'Rankings', icon: 'trophy-outline' },
+              { key: 'cards', title: 'Decks', icon: 'cards-outline' },
+              { key: 'rewards', title: 'Rewards', icon: 'gift-outline' },
+              { key: 'search', title: 'Search', icon: 'magnify' },
+            ].map((item) => (
+              <Pressable
+                key={item.key}
+                onPress={() => item.key === 'search' ? setSearchOpen(true) : onNavigate?.(item.key)}
+                style={({ pressed }) => [
+                  styles.quickItem,
+                  {
+                    backgroundColor: theme.colors.surfaceContainer,
+                    borderColor: theme.colors.outlineVariant,
+                    opacity: pressed ? 0.72 : 1,
+                    transform: [{ scale: pressed ? 0.975 : 1 }],
+                  },
+                ]}
+              >
+                <View style={[styles.quickIcon, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+                  <MaterialCommunityIcons name={item.icon} size={23} color={theme.colors.primary} />
+                </View>
+                <Text style={[styles.quickTitle, { color: theme.colors.onSurface }]}>{item.title}</Text>
+                <MaterialCommunityIcons name="chevron-right" size={18} color={theme.colors.onSurfaceVariant} />
+              </Pressable>
+            ))}
+          </View>
+
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>MY ROYALE</Text>
+          </View>
+
+          <View
+            style={[
+              styles.latestCard,
+              {
+                backgroundColor: theme.colors.surfaceContainer,
+                borderColor: theme.colors.outlineVariant,
+              },
+            ]}
+          >
+            <Pressable
+              onPress={() => onNavigate?.('rewards')}
+              style={styles.latestRow}
+            >
+              <View style={[styles.latestIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+                <MaterialCommunityIcons name="gift-outline" size={20} color={theme.colors.onPrimaryContainer} />
+              </View>
+              <View style={styles.latestText}>
+                <Text style={[styles.latestTitle, { color: theme.colors.onSurface }]}>Rewards</Text>
+                <Text style={[styles.latestMeta, { color: theme.colors.onSurfaceVariant }]}>Check official rewards</Text>
+              </View>
+              <MaterialCommunityIcons name="chevron-right" size={20} color={theme.colors.onSurfaceVariant} />
+            </Pressable>
+
+            <View style={[styles.divider, { backgroundColor: theme.colors.outlineVariant }]} />
+
+            <Pressable
+              onPress={() => onNavigate?.('cards')}
+              style={styles.latestRow}
+            >
+              <View style={[styles.latestIcon, { backgroundColor: theme.colors.surfaceContainerHighest }]}>
+                <MaterialCommunityIcons name="chart-box-outline" size={20} color={theme.colors.primary} />
+              </View>
+              <View style={styles.latestText}>
+                <Text style={[styles.latestTitle, { color: theme.colors.onSurface }]}>Deck Analysis</Text>
+                <Text style={[styles.latestMeta, { color: theme.colors.onSurfaceVariant }]}>Explore the current meta</Text>
+              </View>
+              <MaterialCommunityIcons name="chevron-right" size={20} color={theme.colors.onSurfaceVariant} />
+            </Pressable>
+          </View>
+
+          <View style={styles.bottomSpace} />
+        </ScrollView>
       </Animated.View>
     </View>
   );
@@ -345,9 +473,33 @@ const styles = StyleSheet.create({
   resultName: { fontSize: 13.5, fontWeight: '800' },
   resultMeta: { marginTop: 3, fontSize: 10.5 },
   noResults: { padding: 16, textAlign: 'center', fontSize: 12 },
-  content: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
-  card: { width: '100%', maxWidth: 360, minHeight: 210, borderRadius: 28, borderWidth: StyleSheet.hairlineWidth, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  icon: { width: 68, height: 68, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginBottom: 18 },
-  title: { fontSize: 23, fontWeight: '700' },
-  subtitle: { marginTop: 6, fontSize: 13 },
+  content: { flex: 1 },
+  scrollContent: { paddingHorizontal: 16, paddingTop: 76, paddingBottom: 104 },
+  heroHeader: { marginBottom: 18 },
+  heroTitleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  eyebrow: { fontSize: 10, fontWeight: '800', letterSpacing: 1.5, marginBottom: 2 },
+  heroTitle: { fontSize: 31, fontWeight: '800', letterSpacing: -0.7 },
+  heroSubtitle: { fontSize: 13, marginTop: 5 },
+  profileButton: { width: 44, height: 44, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, alignItems: 'center', justifyContent: 'center' },
+  heroCard: { minHeight: 142, borderRadius: 28, borderWidth: StyleSheet.hairlineWidth, padding: 18, flexDirection: 'row', alignItems: 'center', overflow: 'hidden' },
+  heroGlow: { position: 'absolute', width: 180, height: 180, borderRadius: 90, right: -55, top: -70, backgroundColor: 'rgba(255,255,255,0.08)' },
+  heroIcon: { width: 64, height: 64, borderRadius: 23, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.13)' },
+  heroText: { flex: 1, marginLeft: 14, marginRight: 8 },
+  heroCardTitle: { fontSize: 18, fontWeight: '800' },
+  heroCardSub: { fontSize: 11.5, marginTop: 5, opacity: 0.82 },
+  heroArrow: { width: 38, height: 38, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  sectionHeader: { marginTop: 25, marginBottom: 10, paddingHorizontal: 3 },
+  sectionTitle: { fontSize: 10.5, fontWeight: '800', letterSpacing: 1.3 },
+  quickGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  quickItem: { width: '48.5%', minHeight: 78, borderRadius: 20, borderWidth: StyleSheet.hairlineWidth, padding: 11, marginBottom: 9, flexDirection: 'row', alignItems: 'center' },
+  quickIcon: { width: 39, height: 39, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginRight: 9 },
+  quickTitle: { flex: 1, fontSize: 13, fontWeight: '700' },
+  latestCard: { borderRadius: 22, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 8 },
+  latestRow: { minHeight: 67, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 7 },
+  latestIcon: { width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  latestText: { flex: 1, marginLeft: 11 },
+  latestTitle: { fontSize: 13, fontWeight: '750' },
+  latestMeta: { fontSize: 10.5, marginTop: 3 },
+  divider: { height: StyleSheet.hairlineWidth, marginHorizontal: 7 },
+  bottomSpace: { height: 20 },
 });
