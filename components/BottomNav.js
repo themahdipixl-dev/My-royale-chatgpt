@@ -7,7 +7,7 @@ import AnimatedPressable from './AnimatedPressable';
 
 const ITEMS = [
   { key: 'rankings', label: 'Rankings', icon: 'trophy-outline' },
-  { key: 'clans', label: 'Clans', icon: 'account-group-outline' },
+  { key: 'rewards', label: 'Rewards', icon: 'gift-outline' },
   { key: 'home', label: 'Home', icon: 'home-variant' },
   { key: 'cards', label: 'Cards', icon: 'cards-outline' },
   { key: 'profile', label: 'Profile', icon: 'account-circle-outline' },
