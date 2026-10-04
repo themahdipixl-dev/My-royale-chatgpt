@@ -42,7 +42,9 @@ const REWARD_SOURCES = [
 async function openSource(url) {
   try {
     await Linking.openURL(url);
-  } catch {\n    // Ignore unsupported external-link errors.\n  }
+  } catch {
+    // Ignore unsupported external-link errors.
+  }
 }
 
 export default function RewardsScreen() {
